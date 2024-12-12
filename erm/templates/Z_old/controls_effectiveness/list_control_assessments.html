@@ -1,0 +1,267 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Control Assessments{% endblock page_title %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-4">
+    <a href="{% url 'list_controls' %}" class="btn btn-info">Controls</a>
+    <a href="{% url 'list_control_logs' %}" class="btn btn-info">Controls Logs</a>
+
+    <!-- Action Menu -->
+    <div class="mb-3 text-center">
+        <select id="action-menu" class="form-control w-25 d-inline-block">
+            <option value="">Select Action</option>
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+            Add New
+        </button>
+    </div>
+
+    <!-- Table -->
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Related Control</th>
+                        <th>Effectiveness Rating</th>
+                        <th>Assessed By</th>
+                        <th>Assessment Date</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in control_assessments %}
+                    <tr class="{% if assessment.assessment_id == 0 %}hidden-row{% endif %}">
+                        <td>
+                            {% if assessment.assessment_id != 0 %}
+                            <input type="radio" name="selected_assessment" value="{{ assessment.assessment_id }}">
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ forloop.counter0|add:paginated_assessments.start_index|add:-1 }}</td>
+                        <td>{{ assessment.name|default:" " }}</td>
+                        <td>{% if assessment.related_control %}{{ assessment.related_control.name }}{% else %}[None]{% endif %}</td>
+                        <td>{{ assessment.effectiveness_rating|default:" " }}</td>
+                        <td>{{ assessment.assessed_by|default:" " }}</td>
+                        <td>{% if assessment.assessment_date %}{{ assessment.assessment_date|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{{ assessment.comments|default:" " }}</td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal-{{ assessment.assessment_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ assessment.assessment_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ assessment.assessment_id }}">Edit Control Assessment</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_control_assessment' assessment.assessment_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ assessment.assessment_id }}" data-toggle="tab" href="#general-{{ assessment.assessment_id }}" role="tab">General</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="details-tab-{{ assessment.assessment_id }}" data-toggle="tab" href="#details-{{ assessment.assessment_id }}" role="tab">Details</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <div class="tab-pane fade show active" id="general-{{ assessment.assessment_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="name-{{ assessment.assessment_id }}">Name</label>
+                                                    <input type="text" name="name" id="name-{{ assessment.assessment_id }}" class="form-control" value="{{ assessment.name }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="related_control-{{ assessment.assessment_id }}">Related Control</label>
+                                                    <select name="related_control" id="related_control-{{ assessment.assessment_id }}" class="form-control">
+                                                        {% for control in controls %}
+                                                        <option value="{{ control.control_id }}" {% if assessment.related_control == control %}selected{% endif %}>{{ control.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="details-{{ assessment.assessment_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="effectiveness_rating-{{ assessment.assessment_id }}">Effectiveness Rating</label>
+                                                    <select name="effectiveness_rating" id="effectiveness_rating-{{ assessment.assessment_id }}" class="form-control">
+                                                        {% for value, label in effectiveness_rating_choices %}
+                                                        <option value="{{ value }}" {% if assessment.effectiveness_rating == value %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="assessed_by-{{ assessment.assessment_id }}">Assessed By</label>
+                                                    <select name="assessed_by" id="id_assessed_by_{{ assessment.assessment_id }}" class="form-control">
+                                                        {% for assessed_by in assessed_bys %}
+                                                        <option value="{{ assessed_by.id }}" {% if assessment.assessed_by.id and assessment.assessed_by.id == assessed_by.id %}selected{% endif %}>
+                                                            {{ assessed_by }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="assessment_date-{{ assessment.assessment_id }}">Assessment Date</label>
+                                                    <input type="date" name="assessment_date" id="assessment_date-{{ assessment.assessment_id }}" class="form-control" value="{{ assessment.assessment_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="comments-{{ assessment.assessment_id }}">Comments</label>
+                                                    <textarea name="comments" id="comments-{{ assessment.assessment_id }}" class="form-control">{{ assessment.comments }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <hr>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <form method="get" class="form-inline">
+            <label for="rows-per-page" class="mr-2">Show:</label>
+            <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+            </select>
+        </form>
+        <div>
+            Showing {{ paginated_assessments.start_index }} - {{ paginated_assessments.end_index }} of {{ paginated_assessments.paginator.count }} assessments
+        </div>
+        <nav>
+            <ul class="pagination">
+                {% if paginated_assessments.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_assessments.previous_page_number }}&rows_per_page={{ rows_per_page }}">«</a></li>
+                {% endif %}
+                {% for num in paginated_assessments.paginator.page_range %}
+                <li class="page-item {% if num == paginated_assessments.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if paginated_assessments.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_assessments.next_page_number }}&rows_per_page={{ rows_per_page }}">»</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Control Assessment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_control_assessment' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="add-general-tab" data-toggle="tab" href="#add-general" role="tab">General</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="add-details-tab" data-toggle="tab" href="#add-details" role="tab">Details</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="add-general" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_name">Name</label>
+                                {{ form.name|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_related_control">Related Control</label>
+                                {{ form.related_control|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="add-details" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_effectiveness_rating">Effectiveness Rating</label>
+                                {{ form.effectiveness_rating|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_assessed_by">Assessed By</label>
+                                {{ form.assessed_by|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_assessment_date">Assessment Date</label>
+                                {{ form.assessment_date|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_comments">Comments</label>
+                                {{ form.comments|add_class:"form-control" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Assessment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_assessment"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select a control assessment.');
+                return;
+            }
+
+            const selectedId = selectedRadio.value;
+
+            if (selectedAction === 'edit') {
+                // Open Edit Modal
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                // Construct the Delete URL dynamically
+                const deleteUrl = `/erm/control_assessments/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this control assessment?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select a valid action.');
+            }
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,167 @@
+/* General Container Styles */
+
+
+
+
+.container {
+    max-width: 1200px;
+    min-height: 500px;
+    background-color: #ffffff !important;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 25px solid gray;
+    margin: 0 auto; 
+    margin-top: 20px; 
+    margin-bottom: 20px;
+    
+}
+.chart_box {
+    max-width: 1000px;
+    background-color: #ffffff !important;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin: 0 auto; 
+    margin-top: 20px; 
+    margin-bottom: 20px;
+    
+}
+body {
+    background-color: #F4F6F9 !important;
+}
+/* Headings */
+h2 {
+    font-size: 24px;
+    color: #333;
+}
+
+/* Table Styles */
+.action_menu {
+    text-align: center;
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 20px;
+    font-size: 16x;
+    min-height: 100px;
+    
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    border: none;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+a {
+    color: inherit; /* Inherit the color from the parent */
+    text-decoration: none; /* Remove the underline if it's a link */
+}
+
+/* Table Cell Styling */
+.table tbody td {
+    text-align: center;
+    vertical-align: middle;
+    max-width: 400px; /* Set a maximum width */
+    overflow: hidden; /* Hide the text that overflows */
+    text-overflow: ellipsis; /* Display ellipsis (...) for overflowed text */
+    white-space: nowrap; /* Prevent text from wrapping into multiple lines */
+}
+
+/* Table Cell Styling with Dynamic Line Breaking */
+.table tbody td.multi-line {
+    max-width: 300px; /* Set max width for the cell */
+    height: auto; /* Allow the height to grow based on content */
+    overflow: hidden; /* Hide overflowed content */
+    word-wrap: break-word; /* Ensure that long words break into the next line */
+    word-break: break-word; /* Break long words that don't fit in the cell */
+    white-space: normal; /* Allow the text to wrap within the cell */
+    padding: 8px; /* Optional: Add some padding inside the cells */
+}
+
+
+/* Optional: Textarea inside table cells for large text input */
+.table td textarea {
+    width: 100%;
+    min-height: 50px;
+    max-width: 300px; /* Limit width of textarea */
+    resize: none; /* Disable resizing */
+    overflow: hidden; /* Prevent textarea content from overflowing */
+    padding: 8px;
+}
+
+/* Buttons */
+.btn {
+    width: auto;
+    text-align: center;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+}
+
+/* Pagination Styles */
+.pagination_wrap {
+    margin-top: 20px;
+    margin-right: 20px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: right;
+}
+
+.pagination .page-item .page-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* Hidden Row for Placeholder */
+.hidden-row {
+    display: none;
+}
+
+/* Responsive Table */
+.table-responsive {
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* Modal Tabs */
+.nav-tabs .nav-link {
+    font-size: 20px;
+    color: #95ce55;
+    
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #95ce55;
+    color: white;
+}
+
+.tab-content .form-group label {
+    font-weight: bold;
+}
+
+.tab-content .form-group input,
+.tab-content .form-group textarea,
+.tab-content .form-group select {
+    font-size: 16px;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Add spacing between elements */
+}
+

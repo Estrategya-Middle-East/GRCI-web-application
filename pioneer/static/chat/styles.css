@@ -1,0 +1,30 @@
+/* Chat box styling */
+#chat-box {
+    height: 400px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* User message */
+.user-message {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+    color: #0c5460;
+}
+
+/* Assistant message */
+.assistant-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+    color: #721c24;
+}

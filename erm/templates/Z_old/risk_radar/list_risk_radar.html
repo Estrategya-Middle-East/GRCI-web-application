@@ -1,0 +1,282 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Risk Radar{% endblock page_title %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-4">
+    <!-- Action Menu -->
+    <div class="mb-3 text-center">
+        <select id="action-menu" class="form-control w-25 d-inline-block">
+            <option value="">Select Action</option>
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+            Add New
+        </button>
+    </div>
+
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>#</th>
+                        <th>Related Risk</th>
+                        <th>Related Action</th>
+                        <th>Description</th>
+                        <th>Owner</th>
+                        <th>Last Updated</th>
+                        <th>Zone</th>
+                        <th>Color</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for radar in risk_radars %}
+                    <tr class="{% if radar.radar_id == 0 %}hidden-row{% endif %}">
+                        <td>
+                            {% if radar.radar_id != 0 %}
+                            <input type="radio" name="selected_radar" value="{{ radar.radar_id }}">
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ forloop.counter0 }}</td>
+                        <td>{% if radar.related_risk %}{{ radar.related_risk.name }}{% else %}[None]{% endif %}</td>
+                        <td>{% if radar.related_action %}{{ radar.related_action.action_description }}{% else %}[None]{% endif %}</td>
+                        <td>{{ radar.description|default:"[Placeholder]" }}</td>
+                        <td>{{ radar.owner|default:"[Placeholder]" }}</td>
+                        <td>{% if radar.last_updated %}{{ radar.last_updated|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{% if radar.zone %}{{ radar.zone }}{% else %}[None]{% endif %}</td>
+                        <td>{% if radar.color %}{{ radar.color }}{% else %}[None]{% endif %}</td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal-{{ radar.radar_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ radar.radar_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ radar.radar_id }}">Edit Risk Radar</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_risk_radar' radar.radar_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="edit-general-tab-{{ radar.radar_id }}" data-toggle="tab" href="#edit-general-{{ radar.radar_id }}" role="tab">General</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="edit-details-tab-{{ radar.radar_id }}" data-toggle="tab" href="#edit-details-{{ radar.radar_id }}" role="tab">Details</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="edit-general-{{ radar.radar_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="related_risk-{{ radar.radar_id }}">Related Risk:</label>
+                                                    <select name="related_risk" id="related_risk-{{ radar.radar_id }}" class="form-control">
+                                                        {% for risk in inherent_risks %}
+                                                        <option value="{{ risk.risk_id }}" {% if radar.related_risk.id == risk.id %}selected{% endif %}>{{ risk.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="related_action-{{ radar.radar_id }}">Related Action:</label>
+                                                    <select name="related_action" id="related_action-{{ radar.radar_id }}" class="form-control">
+                                                        {% for action in remediation_actions %}
+                                                        <option value="{{ action.action_id }}" {% if radar.related_action.id == action.id %}selected{% endif %}>{{ action.action_description }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="description-{{ radar.radar_id }}">Description:</label>
+                                                    <textarea name="description" id="description-{{ radar.radar_id }}" class="form-control">{{ radar.description }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="owner-{{ radar.radar_id }}">Owner:</label>
+                                                    <select name="owner" id="id_owner_{{ radar.radar_id }}" class="form-control">
+                                                        {% for owner in owners %}
+                                                        <option value="{{ owner.id }}" {% if radar.owner.id == owner.id %}selected{% endif %}>
+                                                            {{ owner }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Details Tab -->
+                                            <div class="tab-pane fade" id="edit-details-{{ radar.radar_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="last_updated-{{ radar.radar_id }}">Last Updated:</label>
+                                                    <input type="date" name="last_updated" id="last_updated-{{ radar.radar_id }}" class="form-control" value="{{ radar.last_updated|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="zone-{{ radar.radar_id }}">Zone:</label>
+                                                    <select name="zone" id="zone-{{ radar.radar_id }}" class="form-control">
+                                                        {% for value, label in zone_choices %}
+                                                        <option value="{{ value }}" {% if radar.zone == value %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="color-{{ radar.radar_id }}">Color:</label>
+                                                    <select name="color" id="color-{{ radar.radar_id }}" class="form-control">
+                                                        {% for value, label in color_choices %}
+                                                        <option value="{{ value }}" {% if radar.color == value %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <hr>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <form method="get" class="form-inline">
+            <label for="rows-per-page" class="mr-2">Show:</label>
+            <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+            </select>
+        </form>
+        <div>
+            Showing {{ paginated_radars.start_index }} - {{ paginated_radars.end_index }} of {{ paginated_radars.paginator.count }} entries
+        </div>
+        <nav>
+            <ul class="pagination">
+                {% if paginated_radars.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_radars.previous_page_number }}&rows_per_page={{ rows_per_page }}">«</a></li>
+                {% endif %}
+                {% for num in paginated_radars.paginator.page_range %}
+                <li class="page-item {% if num == paginated_radars.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if paginated_radarss.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_radars.next_page_number }}&rows_per_page={{ rows_per_page }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Risk Radar Entry</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_risk_radar' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="add-general-tab" data-toggle="tab" href="#add-general" role="tab">General</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="add-details-tab" data-toggle="tab" href="#add-details" role="tab">Details</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="add-general" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_related_risk">Related Risk:</label>
+                                {{ form.related_risk|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_related_action">Related Action:</label>
+                                {{ form.related_action|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_description">Description:</label>
+                                {{ form.description|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <!-- Details Tab -->
+                        <div class="tab-pane fade" id="add-details" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_owner">Owner:</label>
+                                {{ form.owner|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_last_updated">Last Updated:</label>
+                                {{ form.last_updated|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_zone">Zone:</label>
+                                {{ form.zone|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_color">Color:</label>
+                                {{ form.color|add_class:"form-control" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>               
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_radar"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select a risk radar entry.');
+                return;
+            }
+
+            const selectedId = selectedRadio.value;
+
+            if (selectedAction === 'edit') {
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                const deleteUrl = `/erm/risk_radar/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this risk radar entry?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select an action.');
+            }
+        });
+    });
+</script>
+{% endblock content %}

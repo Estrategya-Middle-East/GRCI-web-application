@@ -1,0 +1,172 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Combined Tables{% endblock page_title %}
+{% block content %}
+<div class="container mt-4">
+    <!-- Table Selector -->
+    <div class="mb-3 text-center">
+        <select id="table-selector" class="form-control w-50 d-inline-block">
+            <option value="objectives-table">Objectives</option>
+            <option value="strategies-table">Objective Strategies</option>
+            <option value="progress-table">Objective Progress</option>
+        </select>
+    </div>
+
+    <!-- Include Tables -->
+    <div id="objectives-table" class="table-section">
+        {% include "partials/objectives_table.html" %}
+    </div>
+    <div id="strategies-table" class="table-section d-none">
+        {% include "partials/strategies_table.html" %}
+    </div>
+    <div id="progress-table" class="table-section d-none">
+        {% include "partials/progress_table.html" %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tableSelector = document.getElementById('table-selector');
+        const sections = document.querySelectorAll('.table-section');
+
+        tableSelector.addEventListener('change', function () {
+            const selectedTable = this.value;
+            sections.forEach(section => {
+                if (section.id === selectedTable) {
+                    section.classList.remove('d-none');
+                } else {
+                    section.classList.add('d-none');
+                }
+            });
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+    // Objectives Action
+    document.getElementById('objectives-perform-action').addEventListener('click', function () {
+        const selectedRadio = document.querySelector('input[name="selected_objective"]:checked');
+        if (!selectedRadio) {
+            alert('Please select an objective.');
+            return;
+        }
+        const selectedAction = document.getElementById('objectives-action-menu').value;
+        const selectedId = selectedRadio.value;
+
+        if (selectedAction === 'edit') {
+            alert(`Edit Objective ID: ${selectedId}`);
+            // Show edit modal logic here
+        } else if (selectedAction === 'delete') {
+            alert(`Delete Objective ID: ${selectedId}`);
+            // Delete logic here
+        } else {
+            alert('Please select an action.');
+        }
+    });
+
+    // Strategies Action
+    document.getElementById('strategies-perform-action').addEventListener('click', function () {
+        const selectedRadio = document.querySelector('input[name="selected_strategy"]:checked');
+        if (!selectedRadio) {
+            alert('Please select a strategy.');
+            return;
+        }
+        const selectedAction = document.getElementById('strategies-action-menu').value;
+        const selectedId = selectedRadio.value;
+
+        if (selectedAction === 'edit') {
+            alert(`Edit Strategy ID: ${selectedId}`);
+            // Show edit modal logic here
+        } else if (selectedAction === 'delete') {
+            alert(`Delete Strategy ID: ${selectedId}`);
+            // Delete logic here
+        } else {
+            alert('Please select an action.');
+        }
+    });
+
+    // Progress Action
+    document.getElementById('progress-perform-action').addEventListener('click', function () {
+        const selectedRadio = document.querySelector('input[name="selected_progress"]:checked');
+        if (!selectedRadio) {
+            alert('Please select a progress entry.');
+            return;
+        }
+        const selectedAction = document.getElementById('progress-action-menu').value;
+        const selectedId = selectedRadio.value;
+
+        if (selectedAction === 'edit') {
+            alert(`Edit Progress ID: ${selectedId}`);
+            // Show edit modal logic here
+        } else if (selectedAction === 'delete') {
+            alert(`Delete Progress ID: ${selectedId}`);
+            // Delete logic here
+        } else {
+            alert('Please select an action.');
+        }
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+    // Objectives Action
+    document.getElementById('objectives-perform-action').addEventListener('click', function () {
+        const selectedRadio = document.querySelector('input[name="selected_objective"]:checked');
+        if (!selectedRadio) {
+            alert('Please select an objective.');
+            return;
+        }
+
+        const selectedAction = document.getElementById('objectives-action-menu').value;
+        const selectedId = selectedRadio.value;
+
+        if (selectedAction === 'edit') {
+            // Open the edit modal for the selected objective
+            const editModal = document.getElementById(`editObjectiveModal-${selectedId}`);
+            if (editModal) {
+                $(editModal).modal('show'); // Show the modal using Bootstrap
+            } else {
+                alert('Edit modal not found for the selected objective.');
+            }
+        } else if (selectedAction === 'delete') {
+            // Perform delete action
+            const deleteUrl = `/erm/objectives/delete/${selectedId}/`; // Your delete URL
+            if (confirm('Are you sure you want to delete this objective?')) {
+                window.location.href = deleteUrl;
+            }
+        } else {
+            alert('Please select a valid action.');
+        }
+    });
+});
+document.addEventListener('DOMContentLoaded', function () {
+    // Objectives Action
+    document.getElementById('objectives-perform-action').addEventListener('click', function () {
+        const selectedRadio = document.querySelector('input[name="selected_objective"]:checked');
+        if (!selectedRadio) {
+            alert('Please select an objective.');
+            return;
+        }
+
+        const selectedAction = document.getElementById('objectives-action-menu').value;
+        const selectedId = selectedRadio.value;
+
+        if (selectedAction === 'edit') {
+            // Open the edit modal for the selected objective
+            const editModal = document.getElementById(`editObjectiveModal-${selectedId}`);
+            if (editModal) {
+                $(editModal).modal('show'); // Show the modal using Bootstrap
+            } else {
+                alert('Edit modal not found for the selected objective.');
+            }
+        } else if (selectedAction === 'delete') {
+            // Perform delete action
+            const deleteUrl = `/erm/objectives/delete/${selectedId}/`; // Your delete URL
+            if (confirm('Are you sure you want to delete this objective?')) {
+                window.location.href = deleteUrl;
+            }
+        } else {
+            alert('Please select a valid action.');
+        }
+    });
+});
+
+</script>
+{% endblock content %}

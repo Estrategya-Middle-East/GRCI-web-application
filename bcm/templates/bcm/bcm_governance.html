@@ -1,0 +1,447 @@
+{% extends "bcm/bcm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}BCM Governance{% endblock page_title %}
+
+{% block content %}
+<style>
+    .container-fluid{
+        min-height: 500px;
+        background-color: #ffffff !important;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-bottom: 25px solid gray;
+        margin: 0 auto; 
+        margin-top: 20px; 
+        margin-bottom: 20px;
+        
+    }
+</style>
+
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container-fluid mt-4">
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        {% comment %} <div class="mb-3 action_menu">
+            <select id="action-menu" class="form-control w-25 d-inline-block">
+                <option value="">Select Action</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
+        </div> {% endcomment %}
+        <div class="row">
+            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_sort == 'bcm_policy_title' %}
+                        SORT BY BCM Policy Title
+                        {% elif current_sort == 'approver_id' %}
+                        SORT BY Approver
+                        {% elif current_sort == 'governance_id' %}
+                        SORT BY ID
+                        {% endif %}
+                    <span>
+                </div>
+            </div>
+        
+            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_order == 'asc' %}
+                        ORDER IS ASC
+                        {% else %}
+                        ORDER IS DES
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="col-12" style="margin-left: 10px">
+                <!-- Search Form -->
+                <form method="get" class="form-inline mb-4">
+                    <div class="row">
+                        
+                        <div class="col-0 ">
+                            <label for="search">Filter:</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                            value="{{ search_query }}" placeholder="Type to filter..." />
+                        </div>
+                        
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                        </div>
+                    </div>  
+                </form>
+            </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>
+                            <a href="?sort_by=governance_id&order={% if current_sort == 'governance_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                #
+                                {% if current_sort == 'governance_id' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=bcm_policy_title&order={% if current_sort == 'bcm_policy_title' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                BCM Policy Title
+                                {% if current_sort == 'bcm_policy_title' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=approver_id&order={% if current_sort == 'approver_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Approver
+                                {% if current_sort == 'approver_id' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>Roles and Responsibilities</th>
+                        <th>Approval Status</th>
+                        <th>Approval Date</th>
+                        <th>Review Frequency</th>
+                        <th>Governance Owner</th>
+                        <th>Review Date</th>
+                        <th>Comments</th>
+                        
+                        {% comment %} <th>Actions</th> {% endcomment %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for bcm_governance in paginated_bcm_governances %}
+                    <tr>
+                        <td><input type="radio" name="selected" value="{{ bcm_governance.governance_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_bcm_governances.start_index|add:-1 }}</td>
+                        <td>{{ bcm_governance.bcm_policy_title }}</td>
+                        <td>{{ bcm_governance.approver_id }}</td>
+                        <td>{{ bcm_governance.roles_and_responsibilities }}</td>
+                        <td>{{ bcm_governance.approval_status }}</td>
+                        <td>{{ bcm_governance.approval_date }}</td>
+                        <td>{{ bcm_governance.review_frequency }}</td>
+                        <td>{{ bcm_governance.governance_owner }}</td>
+                        <td>{{ bcm_governance.review_date }}</td>
+                        <td>{{ bcm_governance.comments }}</td>
+                        {% comment %} <td>
+                            <!-- View Workflow Icon -->
+                            <a href="{% url 'workflow_view' bcm_governance.governance_id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td> {% endcomment %}
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    {% if bcm_governance.governance_id %}
+                    <div class="modal fade" id="editModal-{{ bcm_governance.governance_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ bcm_governance.governance_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ bcm_governance.governance_id }}">Edit</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_bcm_governance' bcm_governance.governance_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ bcm_governance.governance_id }}" data-toggle="tab" href="#general-{{ bcm_governance.governance_id }}" role="tab">General</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ bcm_governance.governance_id }}" role="tabpanel">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="bcm_policy_title-{{ bcm_governance.governance_id }}">BCM Policy Title</label>
+                                                        <input type="text" name="bcm_policy_title" id="bcm_policy_title-{{ bcm_governance.governance_id }}" class="form-control" value="{{ bcm_governance.bcm_policy_title }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="approver_id-{{ bcm_governance.governance_id }}">Approver</label>
+                                                        <select name="approver_id" id="approver_id-{{ bcm_governance.governance_id }}" class="form-control">
+                                                            {% for value in approver_id_choices %}
+                                                                <option value="{{ value.id }}" {% if bcm_governance.approver_id.id == value.id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="roles_and_responsibilities-{{ bcm_governance.governance_id }}">Roles and Responsibilities</label>
+                                                        <textarea name="roles_and_responsibilities" id="roles_and_responsibilities-{{ bcm_governance.governance_id }}" class="form-control">{{ bcm_governance.roles_and_responsibilities }}</textarea>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="approval_status-{{ bcm_governance.governance_id }}">Approval Status</label>
+                                                        <select name="approval_status" id="approval_status-{{ bcm_governance.governance_id }}" class="form-control">
+                                                            {% for value, label in approval_status_choices %}
+                                                                <option value="{{ value }}" {% if bcm_governance.approval_status == value %}selected{% endif %}>
+                                                                    {{ label }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="approval_date-{{ bcm_governance.governance_id }}">Approval Date</label>
+                                                        <input type="date" name="approval_date" id="approval_date-{{ bcm_governance.governance_id }}" class="form-control" value="{{ bcm_governance.approval_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="review_frequency-{{ bcm_governance.governance_id }}">Review Frequency</label>
+                                                        <select name="review_frequency" id="review_frequency-{{ bcm_governance.governance_id }}" class="form-control">
+                                                            {% for value, label in review_frequency_choices %}
+                                                                <option value="{{ value }}" {% if bcm_governance.review_frequency == value %}selected{% endif %}>
+                                                                    {{ label }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="governance_owner-{{ bcm_governance.governance_id }}">Governance Owner</label>
+                                                        <select name="governance_owner" id="governance_owner-{{ bcm_governance.governance_id }}" class="form-control">
+                                                            {% for value in governance_owner_choices %}
+                                                                <option value="{{ value.id }}" {% if bcm_governance.governance_owner.id == value.id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="review_date-{{ bcm_governance.governance_id }}">Review Date</label>
+                                                        <input type="date" name="review_date" id="review_date-{{ bcm_governance.governance_id }}" class="form-control" value="{{ bcm_governance.review_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                   
+                                                </div>
+                                                <div class="row mt-3">
+                                                    {% comment %}  <div class="col">
+                                                        <label for="supporting_documents-{{ bcm_governance.governance_id }}">Supporting Documents</label>
+                                                        <input type="file" name="supporting_documents" id="supporting_documents-{{ bcm_governance.governance_id }}" class="form-control">
+                                                    </div> {% endcomment %}
+                                                    <div class="col">
+                                                        <label for="comments-{{ bcm_governance.governance_id }}">Comments</label>
+                                                        <textarea name="comments" id="comments-{{ bcm_governance.governance_id }}" class="form-control">{{ bcm_governance.comments }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <!-- Pagination -->
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+            <form method="get" class="form-inline">
+                <label for="rows-per-page" class="mr-2">Show:</label>
+                <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                    <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if rows_per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+                {% for key, value in request.GET.items %}
+                    {% if key != 'rows_per_page' and key != 'page' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+
+            <div>
+                Showing {{ paginated_bcm_governances.start_index }} - {{ paginated_bcm_governances.end_index }} of {{ paginated_bcm_governances.paginator.count }} Governance
+            </div>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if paginated_bcm_governances.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_bcm_governances.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">{{ paginated_bcm_governances.number }}</span>
+                    </li>
+                    
+                    {% if paginated_bcm_governances.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_bcm_governances.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </form>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_bcm_governance' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
+                        </li>
+                        
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="bcm_policy_title">BCM Policy Title</label>
+                                    {{ form.bcm_policy_title|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="approver_id">Approver</label>
+                                    {{ form.approver_id|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="roles_and_responsibilities">Roles and Responsibilities</label>
+                                    {{ form.roles_and_responsibilities|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="approval_status">Approval Status</label>
+                                    {{ form.approval_status|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="approval_date">Approval Date</label>
+                                    {{ form.approval_date|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="review_frequency">Review Frequency</label>
+                                    {{ form.review_frequency|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="governance_owner">Governance Owner</label>
+                                    {{ form.governance_owner|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="review_date">Review Date</label>
+                                    {{ form.review_date|add_class:"form-control" }}
+                                </div>
+                                
+                            </div>
+                            <div class="row mt-3">
+                                {% comment %} <div class="col">
+                                    <label for="supporting_documents">Supporting Documents</label>
+                                    {{ form.supporting_documents|add_class:"form-control" }}
+                                </div> {% endcomment %}
+                                <div class="col">
+                                    <label for="comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionLinks = document.querySelectorAll('.trig'); // Action items in the dropdown
+    
+        // Listen for a click on the action links
+        actionLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default behavior
+                const selectedRadio = document.querySelector('input[name="selected"]:checked');
+    
+                // Check if a Governance is selected
+                if (!selectedRadio) {
+                    alert('Please select a Governance.');
+                    return;
+                }
+    
+                const selectedId = selectedRadio.value; // Get the selected Governance ID
+                const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
+    
+                if (selectedAction === 'delete') {
+                    const deleteUrl = `/bcm/bcm_governances/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Governance?')) {
+                        // Redirect to the delete URL
+                        window.location.href = deleteUrl;
+                    }
+                } else if (selectedAction === 'edit') {
+                    const editModal = new bootstrap.Modal(document.getElementById(`editModal-${selectedId}`));
+                    editModal.show();
+                }
+            });
+        });
+    });
+    
+
+</script>
+
+
+{% endblock content %}

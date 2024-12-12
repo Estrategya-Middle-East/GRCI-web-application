@@ -1,0 +1,447 @@
+{% extends "gm/gm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Governance Structure{% endblock page_title %}
+
+{% block content %}
+<style>
+    .container-fluid{
+        min-height: 500px;
+        background-color: #ffffff !important;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-bottom: 25px solid gray;
+        margin: 0 auto; 
+        margin-top: 20px; 
+        margin-bottom: 20px;
+        
+    }
+</style>
+
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container-fluid mt-4">
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        {% comment %} <div class="mb-3 action_menu">
+            <select id="action-menu" class="form-control w-25 d-inline-block">
+                <option value="">Select Action</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
+        </div> {% endcomment %}
+        <div class="row">
+            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_sort == 'charter_name' %}
+                        SORT BY Charter Name
+                        {% elif current_sort == 'approver_id' %}
+                        SORT BY Approver
+                        {% elif current_sort == 'structure_id' %}
+                        SORT BY ID
+                        {% endif %}
+                    <span>
+                </div>
+            </div>
+        
+            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_order == 'asc' %}
+                        ORDER IS ASC
+                        {% else %}
+                        ORDER IS DES
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="col-12" style="margin-left: 10px">
+                <!-- Search Form -->
+                <form method="get" class="form-inline mb-4">
+                    <div class="row">
+                        
+                        <div class="col-0 ">
+                            <label for="search">Filter:</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                            value="{{ search_query }}" placeholder="Type to filter..." />
+                        </div>
+                        
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                        </div>
+                    </div>  
+                </form>
+            </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>
+                            <a href="?sort_by=structure_id&order={% if current_sort == 'structure_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                #
+                                {% if current_sort == 'structure_id' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=charter_name&order={% if current_sort == 'charter_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Charter Name
+                                {% if current_sort == 'charter_name' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=approver_id&order={% if current_sort == 'approver_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Approver
+                                {% if current_sort == 'approver_id' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>Roles and Responsibilities</th>
+                        <th>Approval Status</th>
+                        <th>Approval Date</th>
+                        <th>Review Frequency</th>
+                        <th>Stewardship Owner</th>
+                        <th>Review Date</th>
+                        <th>Comments</th>
+                        
+                        {% comment %} <th>Actions</th> {% endcomment %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for governance_structure in paginated_governance_structures %}
+                    <tr >
+                        <td><input type="radio" name="selected" value="{{ governance_structure.structure_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_governance_structures.start_index|add:-1 }}</td>
+                        <td>{{ governance_structure.charter_name }}</td>
+                        <td>{{ governance_structure.approver_id }}</td>
+                        <td>{{ governance_structure.roles_and_responsibilities }}</td>
+                        <td>{{ governance_structure.approval_status }}</td>
+                        <td>{{ governance_structure.approval_date }}</td>
+                        <td>{{ governance_structure.review_frequency }}</td>
+                        <td>{{ governance_structure.stewardship_owner }}</td>
+                        <td>{{ governance_structure.review_date }}</td>
+                        <td>{{ governance_structure.comments }}</td>
+                        {% comment %} <td>
+                            <!-- View Workflow Icon -->
+                            <a href="{% url 'workflow_view' governance_structure.structure_id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td> {% endcomment %}
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    {% if governance_structure.structure_id %}
+                    <div class="modal fade" id="editModal-{{ governance_structure.structure_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ governance_structure.structure_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ governance_structure.structure_id }}">Edit</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_governance_structure' governance_structure.structure_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ governance_structure.structure_id }}" data-toggle="tab" href="#general-{{ governance_structure.structure_id }}" role="tab">General</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ governance_structure.structure_id }}" role="tabpanel">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="charter_name-{{ governance_structure.structure_id }}">Charter Name</label>
+                                                        <input type="text" name="charter_name" id="charter_name-{{ governance_structure.structure_id }}" class="form-control" value="{{ governance_structure.charter_name }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="approver_id-{{ governance_structure.structure_id }}">Approver</label>
+                                                        <select name="approver_id" id="approver_id-{{ governance_structure.structure_id }}" class="form-control">
+                                                            {% for value in approver_id_choices %}
+                                                                <option value="{{ value.id }}" {% if governance_structure.approver_id.id == value.id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="roles_and_responsibilities-{{ governance_structure.structure_id }}">Roles and Responsibilities</label>
+                                                        <textarea name="roles_and_responsibilities" id="roles_and_responsibilities-{{ governance_structure.structure_id }}" class="form-control">{{ governance_structure.roles_and_responsibilities }}</textarea>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="approval_status-{{ governance_structure.structure_id }}">Approval Status</label>
+                                                        <select name="approval_status" id="approval_status-{{ governance_structure.structure_id }}" class="form-control">
+                                                            {% for value, label in approval_status_choices %}
+                                                                <option value="{{ value }}" {% if governance_structure.approval_status == value %}selected{% endif %}>
+                                                                    {{ label }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="approval_date-{{ governance_structure.structure_id }}">Approval Date</label>
+                                                        <input type="date" name="approval_date" id="approval_date-{{ governance_structure.structure_id }}" class="form-control" value="{{ governance_structure.approval_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="review_frequency-{{ governance_structure.structure_id }}">Review Frequency</label>
+                                                        <select name="review_frequency" id="review_frequency-{{ governance_structure.structure_id }}" class="form-control">
+                                                            {% for value, label in review_frequency_choices %}
+                                                                <option value="{{ value }}" {% if governance_structure.review_frequency == value %}selected{% endif %}>
+                                                                    {{ label }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="stewardship_owner-{{ governance_structure.structure_id }}">Stewardship Owner</label>
+                                                        <select name="stewardship_owner" id="stewardship_owner-{{ governance_structure.structure_id }}" class="form-control">
+                                                            {% for value in stewardship_owner_choices %}
+                                                                <option value="{{ value.id }}" {% if governance_structure.stewardship_owner.id == value.id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="review_date-{{ governance_structure.structure_id }}">Review Date</label>
+                                                        <input type="date" name="review_date" id="review_date-{{ governance_structure.structure_id }}" class="form-control" value="{{ governance_structure.review_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                    {% comment %} <div class="col">
+                                                        <label for="supporting_documents-{{ governance_structure.structure_id }}">Supporting Documents</label>
+                                                        <input type="text" name="supporting_documents" id="supporting_documents-{{ governance_structure.structure_id }}" class="form-control" value="{{ governance_structure.supporting_documents }}">
+                                                    </div> {% endcomment %}
+                                                </div>
+                                                <div class="row mt-3">
+                                                    
+                                                    <div class="col">
+                                                        <label for="comments-{{ governance_structure.structure_id }}">Comments</label>
+                                                        <textarea name="comments" id="comments-{{ governance_structure.structure_id }}" class="form-control">{{ governance_structure.comments }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <!-- Pagination -->
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+            <form method="get" class="form-inline">
+                <label for="rows-per-page" class="mr-2">Show:</label>
+                <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                    <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if rows_per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+                {% for key, value in request.GET.items %}
+                    {% if key != 'rows_per_page' and key != 'page' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+
+            <div>
+                Showing {{ paginated_governance_structures.start_index }} - {{ paginated_governance_structures.end_index }} of {{ paginated_governance_structures.paginator.count }} Structure
+            </div>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if paginated_governance_structures.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_governance_structures.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">{{ paginated_governance_structures.number }}</span>
+                    </li>
+                    
+                    {% if paginated_governance_structures.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_governance_structures.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </form>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_governance_structure' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
+                        </li>
+                        
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="charter_name">Charter Name</label>
+                                    {{ form.charter_name|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="approver_id">Approver</label>
+                                    {{ form.approver_id|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="roles_and_responsibilities">Roles and Responsibilities</label>
+                                    {{ form.roles_and_responsibilities|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="approval_status">Approval Status</label>
+                                    {{ form.approval_status|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="approval_date">Approval Date</label>
+                                    {{ form.approval_date|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="review_frequency">Review Frequency</label>
+                                    {{ form.review_frequency|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="stewardship_owner">Stewardship Owner</label>
+                                    {{ form.stewardship_owner|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="review_date">Review Date</label>
+                                    {{ form.review_date|add_class:"form-control" }}
+                                </div>
+                                {% comment %} <div class="col">
+                                    <label for="supporting_documents">Supporting Documents</label>
+                                    {{ form.supporting_documents|add_class:"form-control" }}
+                                </div> {% endcomment %}
+                            </div>
+                            <div class="row mt-3">
+                                
+                                <div class="col">
+                                    <label for="comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionLinks = document.querySelectorAll('.trig'); // Action items in the dropdown
+    
+        // Listen for a click on the action links
+        actionLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default behavior
+                const selectedRadio = document.querySelector('input[name="selected"]:checked');
+    
+                // Check if a Structure is selected
+                if (!selectedRadio) {
+                    alert('Please select a Structure.');
+                    return;
+                }
+    
+                const selectedId = selectedRadio.value; // Get the selected Structure ID
+                const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
+    
+                if (selectedAction === 'delete') {
+                    const deleteUrl = `/gm/governance_structures/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Structure?')) {
+                        // Redirect to the delete URL
+                        window.location.href = deleteUrl;
+                    }
+                } else if (selectedAction === 'edit') {
+                    const editModal = new bootstrap.Modal(document.getElementById(`editModal-${selectedId}`));
+                    editModal.show();
+                }
+            });
+        });
+    });
+    
+
+</script>
+
+
+{% endblock content %}

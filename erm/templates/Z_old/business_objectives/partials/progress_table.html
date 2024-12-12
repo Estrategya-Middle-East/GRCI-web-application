@@ -1,0 +1,37 @@
+<form method="POST" id="progress-action-form">
+    {% csrf_token %}
+    <div class="mb-3 text-center">
+        <select id="progress-action-menu" class="form-control w-25 d-inline-block">
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="progress-perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addProgressModal">
+            Add New Progress
+        </button>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>#</th>
+                <th>Objective</th>
+                <th>Progress (%)</th>
+                <th>Last Updated</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in progress_entries %}
+            <tr>
+                <td><input type="radio" name="selected_progress" value="{{ entry.id }}"></td>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ entry.objective.name }}</td>
+                <td>{{ entry.progress_percentage }}</td>
+                <td>{{ entry.last_updated|date:"M d, Y H:i" }}</td>
+                <td>{{ entry.comments }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>

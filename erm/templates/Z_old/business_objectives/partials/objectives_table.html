@@ -1,0 +1,43 @@
+<form method="POST" id="objectives-action-form">
+    {% csrf_token %}
+    <div class="mb-3 text-center">
+        <select id="objectives-action-menu" class="form-control w-25 d-inline-block">
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="objectives-perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addObjectiveModal">
+            Add New Objective
+        </button>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>#</th>
+                <th>Objective Name</th>
+                <th>Owner</th>
+                <th>Department</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for objective in objectives %}
+            <tr>
+                <td><input type="radio" name="selected_objective" value="{{ objective.id }}"></td>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ objective.name }}</td>
+                <td>{{ objective.owner }}</td>
+                <td>{{ objective.department }}</td>
+                <td>{{ objective.start_date|date:"M d, Y" }}</td>
+                <td>{{ objective.end_date|date:"M d, Y" }}</td>
+                <td>{{ objective.status }}</td>
+                <td>{{ objective.priority_level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>

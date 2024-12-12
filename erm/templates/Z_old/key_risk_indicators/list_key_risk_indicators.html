@@ -1,0 +1,344 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Key Risk Indicators{% endblock page_title %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+
+<div class="container mt-4">
+    <a href="{% url 'list_key_metrics' %}" class="btn btn-info">Key Metrics</a>
+
+    <!-- Action Menu -->
+    <div class="mb-3 text-center">
+        <select id="action-menu" class="form-control w-25 d-inline-block">
+            <option value="">Select Action</option>
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+            Add New
+        </button>
+    </div>
+
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Related Risk</th>
+                    <th>Current Value</th>
+                    <th>Threshold Lower</th>
+                    <th>Threshold Upper</th>
+                    <th>Measurement Frequency</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Data Source</th>
+                    <th>Description</th>
+                    <th>Alert Triggers</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kri in paginated_kris %}
+                <tr class="{% if kri.kri_id == 1 %}hidden-row{% endif %}">
+                    <td>
+                        {% if kri.kri_id != 0 %}
+                        <input type="radio" name="selected_kri" value="{{ kri.kri_id }}">
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td>{{ forloop.counter|add:paginated_kris.start_index|add:-1 }}</td>
+                    <td>{{ kri.name|default:"[Blank Row]" }}</td>
+                    <td>{% if kri.related_risk %}{{ kri.related_risk.name }}{% else %}[None]{% endif %}</td>
+                    <td>{{ kri.current_value|default:"0" }}</td>
+                    <td>{{ kri.threshold_lower|default:"0" }}</td>
+                    <td>{{ kri.threshold_upper|default:"0" }}</td>
+                    <td>{{ kri.measurement_frequency|default:" " }}</td>
+                    <td>{{ kri.status|default:" " }}</td>
+                    <td>{{ kri.owner|default:" " }}</td>
+                    <td>{{ kri.data_source|default:" " }}</td>
+                    <td>{{ kri.description|default:" " }}</td>
+                    <td>{{ kri.alert_triggers|default:" " }}</td>
+                </tr>
+            
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editModal-{{ kri.kri_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ kri.kri_id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel-{{ kri.kri_id }}">Edit Key Risk Indicator</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="POST" action="{% url 'edit_key_risk_indicator' kri.kri_id %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <!-- Tabs -->
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="edit-general-tab-{{ kri.kri_id }}" data-toggle="tab" href="#edit-general-{{ kri.kri_id }}" role="tab">General</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="edit-details-tab-{{ kri.kri_id }}" data-toggle="tab" href="#edit-details-{{ kri.kri_id }}" role="tab">Details</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content mt-3">
+                                        <!-- General Tab -->
+                                        <div class="tab-pane fade show active" id="edit-general-{{ kri.kri_id }}" role="tabpanel">
+                                            <div class="form-group">
+                                                <label for="name-{{ kri.kri_id }}">Name</label>
+                                                <input type="text" name="name" id="name-{{ kri.kri_id }}" class="form-control" value="{{ kri.name }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="description-{{ kri.kri_id }}">Description</label>
+                                                <textarea name="description" id="description-{{ kri.kri_id }}" class="form-control">{{ kri.description }}</textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="owner-{{ kri.kri_id }}">Owner</label>
+                                                <select name="owner" id="id_owner_{{ kri.kri_id }}" class="form-control">
+                                                    {% for owner in owners %}
+                                                    <option value="{{ owner.id }}" {% if kri.owner.id == owner.id %}selected{% endif %}>
+                                                        {{ owner }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="related_risk-{{ kri.kri_id }}">Related Risk</label>
+                                                <select name="related_risk" id="related_risk-{{ kri.kri_id }}" class="form-control">
+                                                    {% for risk in inherent_risks %}
+                                                    <option value="{{ risk.risk_id }}" {% if kri.related_risk and kri.related_risk.risk_id == risk.risk_id %}selected{% endif %}>
+                                                        {{ risk.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <!-- Details Tab -->
+                                        <div class="tab-pane fade" id="edit-details-{{ kri.kri_id }}" role="tabpanel">
+                                            <div class="form-group">
+                                                <label for="current_value-{{ kri.kri_id }}">Current Value</label>
+                                                <input type="number" step="0.01" name="current_value" id="current_value-{{ kri.kri_id }}" class="form-control" value="{{ kri.current_value }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="threshold_lower-{{ kri.kri_id }}">Threshold Lower</label>
+                                                <input type="number" step="0.01" name="threshold_lower" id="threshold_lower-{{ kri.kri_id }}" class="form-control" value="{{ kri.threshold_lower }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="threshold_upper-{{ kri.kri_id }}">Threshold Upper</label>
+                                                <input type="number" step="0.01" name="threshold_upper" id="threshold_upper-{{ kri.kri_id }}" class="form-control" value="{{ kri.threshold_upper }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="status-{{ kri.kri_id }}">Status</label>
+                                                <select name="status" id="status-{{ kri.kri_id }}" class="form-control">
+                                                    {% for value, label in status_choices %}
+                                                    <option value="{{ value }}" {% if kri.status == value %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="measurement_frequency-{{ kri.kri_id }}">Measurement Frequency</label>
+                                                <select name="measurement_frequency" id="measurement_frequency-{{ kri.kri_id }}" class="form-control">
+                                                    {% for value, label in measurement_frequency_choices %}
+                                                    <option value="{{ value }}" {% if kri.measurement_frequency == value %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="data_source-{{ kri.kri_id }}">Data Source</label>
+                                                <input type="text" name="data_source" id="data_source-{{ kri.kri_id }}" class="form-control" value="{{ kri.data_source }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="alert_triggers-{{ kri.kri_id }}">Alert Triggers</label>
+                                                <select name="alert_triggers" id="alert_triggers-{{ kri.kri_id }}" class="form-control">
+                                                    {% for value, label in alert_triggers_choices %}
+                                                    <option value="{{ value }}" {% if kri.alert_triggers == value %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>            
+        </table>
+    </div>
+    <hr>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <form method="get" class="form-inline">
+            <label for="rows-per-page" class="mr-2">Show:</label>
+            <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                <option value="5" {% if rows_per_page|add:0 == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if rows_per_page|add:0 == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if rows_per_page|add:0 == 25 %}selected{% endif %}>25</option>
+                <option value="50" {% if rows_per_page|add:0 == 50 %}selected{% endif %}>50</option>
+            </select>
+        </form>
+        <div>
+            Showing {{ paginated_kris.start_index }} - {{ paginated_kris.end_index }} of {{ paginated_kris.paginator.count }} indicators
+        </div>
+        <div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if paginated_kris.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginated_kris.previous_page_number }}&rows_per_page={{ rows_per_page }}" aria-label="Previous">&laquo;</a>
+                    </li>
+                    {% endif %}
+                    {% for num in paginated_kris.paginator.page_range %}
+                    <li class="page-item {% if num == paginated_kris.number %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if paginated_kris.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginated_kris.next_page_number }}&rows_per_page={{ rows_per_page }}" aria-label="Next">&raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Key Risk Indicator</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_key_risk_indicator' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="add-general-tab" data-toggle="tab" href="#add-general" role="tab">General</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="add-details-tab" data-toggle="tab" href="#add-details" role="tab">Details</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="add-general" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_name">Name</label>
+                                {{ form.name|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_description">Description</label>
+                                {{ form.description|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_owner">Owner</label>
+                                {{ form.owner|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_related_risk">Related Risk</label>
+                                {{ form.related_risk|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <!-- Details Tab -->
+                        <div class="tab-pane fade" id="add-details" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_current_value">Current Value</label>
+                                {{ form.current_value|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_threshold_lower">Threshold Lower</label>
+                                {{ form.threshold_lower|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_threshold_upper">Threshold Upper</label>
+                                {{ form.threshold_upper|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_status">Status</label>
+                                {{ form.status|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_measurement_frequency">Measurement Frequency</label>
+                                {{ form.measurement_frequency|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_data_source">Data Source</label>
+                                {{ form.data_source|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_alert_triggers">Alert Triggers</label>
+                                {{ form.alert_triggers|add_class:"form-control" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Key Risk Indicator</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_kri"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select a key risk indicator.');
+                return;
+            }
+
+            const selectedId = selectedRadio.value;
+
+            if (selectedAction === 'edit') {
+                // Open Edit Modal
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                // Construct the Delete URL dynamically
+                const deleteUrl = `/erm/key_risk_indicators/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this key risk indicator?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select an action.');
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

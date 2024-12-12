@@ -1,0 +1,62 @@
+/* chat.css */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+}
+
+h1 {
+    color: black;
+}
+
+#chat-history {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+}
+
+.user {
+    color: blue;
+    margin: 5px 0;
+}
+
+.assistant {
+    color: green;
+    margin: 5px 0;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    background-color: blue;
+    color: white;
+}
+
+button[type="submit"]:hover {
+    background-color: darkblue;
+}
+
+button[type="reset"] {
+    background-color: red;
+    color: white;
+}
+
+button[type="reset"]:hover {
+    background-color: darkred;
+}
