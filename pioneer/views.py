@@ -1,4 +1,7 @@
 import requests
+import re
+from django.views.decorators.csrf import csrf_exempt
+import json
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
@@ -36,15 +39,15 @@ def dashboard(request):
     return render(request, 'chat/dashboard.html', context)
 
 
-def generate_response(prompt, conversation_history):
+def generate_response(prompt):
     try:
         # Format the conversation history
-        history = "\n".join(
-            [f"{msg['role'].capitalize()}: {msg['content']}" for msg in conversation_history]
-        )
+        #history = "\n".join(
+        #    [f"{msg['role'].capitalize()}: {msg['content']}" for msg in conversation_history]
+        #)
         
         # Add the user's new input
-        full_prompt = f"{history}\nUser: {prompt}\nAssistant:"
+        full_prompt = prompt
         
         # Make the API request to the model
         response = requests.post(
@@ -68,6 +71,14 @@ def generate_response(prompt, conversation_history):
     except requests.RequestException as e:
         return f"Error: {e}"
 
+def format_response(response):
+    """
+    Converts **bold** text markers to <strong> for HTML rendering.
+    """
+    # Replace **text** with <strong>text</strong>
+    formatted_response = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', response)
+    return formatted_response
+
 
 def chat_view(request):
     if request.method == "POST":
@@ -84,7 +95,7 @@ def chat_view(request):
             )
 
             # Generate the assistant's response
-            response = generate_response(prompt, conversation_history)
+            response = generate_response(prompt)
             if response:
                 ChatMessage.objects.create(role="assistant", content=response)
             else:
@@ -128,7 +139,7 @@ def ajax_chat(request):
 
             # Generate AI response
             try:
-                response = generate_response(prompt, list(conversation_history))
+                response = generate_response(prompt)
 
                 # Save assistant response
                 assistant_message = ChatMessage(role="assistant", content=response)
@@ -146,7 +157,7 @@ def ajax_chat(request):
 def sheet(request):
 
     # Define the path to the Excel file
-    excel_file = r'C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\hwb_2015.xlsx'
+    excel_file = r'C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\hwb_2015.xlsx'
 
     # Read each sheet and store it in the dictionary
 
@@ -185,21 +196,22 @@ class PredictiveRiskAnalysisView(View):
             name3= None
             chart4 = None
             name3= None
+            response = None
             
 
             # Handle based on the selection
             if main_category == 'sales_ledger' and subcategory == 'duplicate_invoices':
-               chart, chart2, chart3, name, name2, name3 = self.generate_duplicate_invoices_graph()
+               chart, chart2, chart3, name, name2, name3, response = self.generate_duplicate_invoices_graph()
             elif main_category == 'sales_ledger' and subcategory == 'negative_amount':
-                chart, chart2, name, name2 = self.generate_net_amount_graphs()
+                chart, chart2, name, name2, response = self.generate_net_amount_graphs()
             elif main_category == 'sales_ledger' and subcategory == 'invalid_invoices':
-                chart, name = self.generate_invalid_invoices_garphs()
+                chart, name, response = self.generate_invalid_invoices_garphs()
             elif main_category == 'sales_ledger' and subcategory == 'mismatched_subtotals':
-                chart, name = self.generate_mismatched_subtotals_garphs()
+                chart, name, response = self.generate_mismatched_subtotals_garphs()
             elif main_category == 'sales_ledger' and subcategory == 'high_cash_transactions':
-                chart, name = self.generate_high_cash_transactions_garphs()
+                chart, name, response = self.generate_high_cash_transactions_garphs()
             elif main_category == 'sales_ledger' and subcategory == 'unusual_prices':
-                chart, name = self.generate_unusual_prices_garphs()
+                chart, name, response = self.generate_unusual_prices_garphs()
 
             # Pass the graphs to the template
             return render(request, 'predictive_risk_analysis/predictive_risk_analysis.html', {
@@ -211,6 +223,7 @@ class PredictiveRiskAnalysisView(View):
                 'name': name,
                 'name2': name2,
                 'name3': name3,
+                'response': response,
                 'main_category_choices': RiskAnalysisForm.OPTIONS,
                 'sales_ledger_choices': RiskAnalysisForm.suboptions_sales_ledger,
             })
@@ -222,7 +235,7 @@ class PredictiveRiskAnalysisView(View):
                 'sales_ledger_choices': RiskAnalysisForm.suboptions_sales_ledger,})
 
     def generate_duplicate_invoices_graph(self):
-        pickle_path = r"C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\sales_data.pkl"
+        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         # Load the pickle file
         sales_data = pd.read_pickle(pickle_path)
 
@@ -325,12 +338,22 @@ class PredictiveRiskAnalysisView(View):
         chart2 = plot.plot(fig_pie, output_type="div")
         name2="Distribution of Duplicate vs Unique Invoices"
         
-        return chart, chart2, chart3, name, name2, name3
+        # Prepare text for LLM prompt
+        if not duplicate_invoice_summary.empty:
+            duplicate_invoice_text = duplicate_invoice_summary.sort_values(by='count', ascending=False).to_string(index=False)
+            llm_prompt = f"The following duplicate invoices were found in the dataset:\n{duplicate_invoice_text}\n\nAs a business/data analyst, please analyze the implications of these duplicate invoices on the business operations. Consider potential causes of these duplicates (e.g., system errors, data entry mistakes, etc.), and suggest practical solutions for preventing them. Additionally, discuss the potential impact on financial reporting, customer trust, and operational efficiency."
+        else:
+            llm_prompt = "No duplicate invoices were found in the dataset. As a business/data analyst, please analyze the implications of having only unique invoices. Consider the positive effects on data integrity, operational efficiency, and the accuracy of financial reporting. Also, discuss how maintaining unique invoices contributes to trust and transparency with customers and stakeholders."
+        
+        response = generate_response(llm_prompt)
+        response = format_response(response)
+        
+        return chart, chart2, chart3, name, name2, name3, response
     
     def generate_net_amount_graphs(self):
         # Load the pickle file
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\sales_data.pkl"
+        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -406,11 +429,29 @@ class PredictiveRiskAnalysisView(View):
         chart2 = mpld3.fig_to_html(fig)
         name2= "Top 50 Invoice Pairs with Equal -ve and +ve Subtotal Values"
         
-        return chart, chart2, name, name2
+        if len(top_50_pairs) > 0:
+            llm_prompt = (
+                f"The dataset contains {len(negative_invoice_counts)} invoices with negative amounts, "
+                f"and {len(top_50_pairs)} top matching invoice pairs where positive subtotals "
+                f"equal the absolute value of negative subtotals. "
+                "Analyze the potential reasons for these patterns and recommend measures to prevent negative entries where applicable."
+            )
+        else:
+            llm_prompt = (
+                "The dataset contains no matching invoice pairs with equal negative and positive subtotal values. "
+                "This suggests a clean dataset in terms of balancing positive and negative subtotals. "
+                "Confirm if further checks are needed or recommend additional areas of analysis."
+            )
+        
+        response = generate_response(llm_prompt)
+        response = format_response(response)
+        
+        
+        return chart, chart2, name, name2, response
 
     def generate_invalid_invoices_garphs(self):
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\sales_data.pkl"
+        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -433,11 +474,11 @@ class PredictiveRiskAnalysisView(View):
         #print(invalid_dates[['invoice', 'inv_date']].head())
 
         # Save invalid dates to a CSV for further review (optional)
-        invalid_dates.to_csv("invalid_invoice_dates.csv", index=False)
+        #invalid_dates.to_csv("invalid_invoice_dates.csv", index=False)
 
         # Visualize invalid dates
-        
-
+        num_invalid_invoices = len(invalid_dates)
+    
         # Aggregate invalid invoices by date
         invalid_date_counts = invalid_dates['inv_date'].value_counts().reset_index()
         invalid_date_counts.columns = ['inv_date', 'count']
@@ -460,12 +501,30 @@ class PredictiveRiskAnalysisView(View):
         #fig_invalid_dates.show()
         chart = plot.plot(fig_invalid_dates, output_type="div")
         name="Invalid Invoice Dates Over Time"
-
-        return chart,name #, chart2
+        
+        if num_invalid_invoices > 0:
+            llm_prompt = (
+                f"There are {num_invalid_invoices} invoices with invalid dates in the dataset. "
+                f"The valid date range is from {valid_start_date.strftime('%Y-%m-%d')} to {valid_end_date.strftime('%Y-%m-%d')}. "
+                "These invalid dates might indicate potential issues with data entry or system errors. "
+                "Please provide insights and suggest measures to mitigate such risks in the future."
+            )
+        
+            
+        else:
+            llm_prompt = (
+                f"All invoice dates in the dataset fall within the valid range from {valid_start_date.strftime('%Y-%m-%d')} "
+                f"to {valid_end_date.strftime('%Y-%m-%d')}. No issues were found with invoice dates. "
+                "Confirm whether any additional checks are required or suggest improvements."
+            )
+        response = generate_response(llm_prompt)
+        response = format_response(response)
+        
+        return chart,name, response #, chart2
        
     def generate_mismatched_subtotals_garphs(self):
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\sales_data.pkl"
+        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -497,7 +556,7 @@ class PredictiveRiskAnalysisView(View):
         #print(discrepancy_summary.head())
 
         # Save mismatched rows to a CSV for review
-        mismatched_subtotals.to_csv("mismatched_subtotals.csv", index=False)
+        #mismatched_subtotals.to_csv("mismatched_subtotals.csv", index=False)
 
         # Visualize the mismatched subtotals
         fig = plt.figure(figsize=(5, 4))
@@ -511,11 +570,27 @@ class PredictiveRiskAnalysisView(View):
         chart = mpld3.fig_to_html(fig)
         name= "Distribution of Subtotal Discrepancies"
         
-        return chart,name #, chart2
+        if num_mismatches > 0:
+            llm_prompt = (
+                f"There are {num_mismatches} items with mismatched subtotals in the dataset. "
+                f"These discrepancies are calculated based on a tolerance of {tolerance}. "
+                "The mismatches might indicate potential data entry errors or inconsistencies in pricing or quantities. "
+                "Please provide insights on the possible reasons for these discrepancies and suggest measures to prevent such issues in the future."
+            )
+        else:
+            llm_prompt = (
+                f"All subtotals in the dataset match the expected calculations within a tolerance of {tolerance}. "
+                "No issues were detected. Confirm whether any additional checks are required or provide recommendations for further analysis."
+            )
+        
+        response = generate_response(llm_prompt)
+        response = format_response(response)
+        
+        return chart,name, response #, chart2
     
     def generate_high_cash_transactions_garphs(self):
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\sales_data.pkl"
+        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -535,11 +610,32 @@ class PredictiveRiskAnalysisView(View):
         #print(f"Top 50 high cash transactions: {len(high_cash_transactions_sorted)}")
 
         # Optionally save to a CSV for further review
-        high_cash_transactions_sorted.to_csv("top_50_high_cash_transactions.csv", index=False)
+        #high_cash_transactions_sorted.to_csv("top_50_high_cash_transactions.csv", index=False)
 
         # Display the first few rows of the high cash transactions
         #print(high_cash_transactions_sorted.head())
+        
+        
+        # Prepare a summary of the high-cash transactions for the LLM
+        transaction_summary = high_cash_transactions_sorted[['invoice', 'branch_name', 'net_amount']]
+        # Convert the summary to a string for the LLM prompt
+        summary_str = transaction_summary.to_string(index=False)
 
+        # Generate an LLM prompt
+        llm_prompt = f"""
+        The following is a summary of the top 50 high-cash transactions at various branches:
+
+        {summary_str}
+
+        From a business perspective, please analyze the potential risks associated with these high-cash transactions. 
+        Consider possible factors like operational inefficiencies, risks of fraud, and the impact on financial controls. 
+        Additionally, provide strategic recommendations to address these risks, such as strengthening internal controls, 
+        enhancing transaction monitoring, or implementing better compliance measures.
+        """
+        #conversation_history = 1
+        response = generate_response(llm_prompt)
+        response = format_response(response)
+        
         # Plotting the top 50 high-cash transactions (e.g., net amount by invoice)
         fig = plt.figure(figsize=(5, 4))
 
@@ -565,11 +661,11 @@ class PredictiveRiskAnalysisView(View):
         chart = mpld3.fig_to_html(fig)
         name = 'Top 50 High Cash Transactions'
         
-        return chart, name #, chart2
+        return chart, name, response #, chart2
     
     def generate_unusual_prices_garphs(self):
         # Load the sales data
-        pickle_path = r"C:\Users\Mostafa\IAM-App\internal_audit_management\uploads\sales_data.pkl"
+        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency (adjust the column names as needed)
@@ -630,5 +726,29 @@ class PredictiveRiskAnalysisView(View):
         
         chart = mpld3.fig_to_html(fig)
         name='Distribution of Item Prices with Unusual Prices Highlighted by Anomaly Detection (Using AI)'
-        return chart,name #, chart2
+        
+        # Prepare the LLM prompt
+        if len(top_100_unusual) > 0:
+            # Create a high-level abstract prompt for the LLM
+            llm_prompt = (
+                "Unusual pricing patterns have been detected in the sales data. "
+                "Please analyze the potential business implications of these anomalies. "
+                "Consider the broader impact on business operations, financial forecasting, "
+                "customer trust, and internal processes. Discuss possible systemic causes of these anomalies "
+                "and recommend strategic actions to address any risks associated with pricing irregularities, "
+                "including their impact on organizational reputation and long-term performance."
+            )
+        else:
+            # If no unusual prices were found
+            llm_prompt = (
+                "The sales data shows consistent pricing without any noticeable anomalies. "
+                "Please analyze the positive implications of having a dataset with stable and reliable pricing. "
+                "Discuss how this consistency can support business operations, improve financial accuracy, "
+                "and enhance trust with customers and stakeholders. Consider the long-term benefits of maintaining "
+                "a stable pricing model and its effect on overall operational efficiency and business growth."
+            )
+        response = generate_response(llm_prompt)
+        response = format_response(response)
+        
+        return chart,name, response #, chart2
         
