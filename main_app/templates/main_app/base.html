@@ -109,9 +109,9 @@
                     <a class="nav-link" data-widget="pullmenu" href="#" id="toggle-sidebar"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            <div class="navbar-brand">
+            {% comment %} <div class="navbar-brand">
                 <h1 class="m-0 text-dark">{% block page_title %}{% endblock page_title %}</h1>
-            </div>
+            </div> {% endcomment %}
             
             <!-- Right navbar links (User section) -->
             <div class="user-panel d-flex align-items-center ml-auto">
@@ -160,22 +160,14 @@
                                         <span class="visually-hidden"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        {% url 'erm_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'erm_dashboard' %}">ERM</a></li>
-                                        {% url 'iam_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'iam_dashboard' %}">IAM</a></li>
-                                        {% url 'bcm_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'bcm_dashboard' %}">BCM</a></li>
-                                        {% url 'gm_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'gm_dashboard' %}">GM</a></li>
-                                        {% url 'ism_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'ism_dashboard' %}">ISM</a></li>
-                                        {% url 'cm_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'cm_dashboard' %}">CM</a></li>
-                                        {% url 'bpm_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'bpm_dashboard' %}">BPM</a></li>
-                                        {% url 'chat_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'chat_dashboard' %}">PioNeer</a></li>
+                                        <!-- Dynamic Dropdown Items -->
+                                        {% for module in visible_modules %}
+                                        <li>
+                                            <a class="dropdown-item {% if module.url == request.path %} active {% endif %}" href="{{ module.url }}">
+                                                {{ module.name }}
+                                            </a>
+                                        </li>
+                                        {% endfor %}
                                     </ul>
                                 </li>
                         

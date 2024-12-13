@@ -130,14 +130,14 @@
                                         <span class="visually-hidden"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{% url 'erm_dashboard' %}">ERM</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'iam_dashboard' %}">IAM</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'bcm_dashboard' %}">BCM</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'gm_dashboard' %}">GM</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'ism_dashboard' %}">ISM</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'cm_dashboard' %}">CM</a></li>
-                                        <li><a class="dropdown-item active" href="{% url 'bpm_dashboard' %}">BPM</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'chat_dashboard' %}">PioNeer</a></li>
+                                        <!-- Dynamic Dropdown Items -->
+                                        {% for module in visible_modules %}
+                                        <li>
+                                            <a class="dropdown-item {% if module.id == 7 %} active {% endif %}" href="{{ module.url }}">
+                                                {{ module.name }}
+                                            </a>
+                                        </li>
+                                        {% endfor %}
                                     </ul>
                                 </li>
                         

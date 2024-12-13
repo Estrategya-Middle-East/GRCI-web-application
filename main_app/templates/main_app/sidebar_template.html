@@ -34,16 +34,17 @@
                         </p>
                     </a>
                 </li>
+                {% comment %} 
                 <li class="nav-item has-treeview">
                     {% url 'erm_dashboard' as erm_dashboard %}
                     <a href="{% url 'erm_dashboard' %}" class="nav-link {% if erm_dashboard == request.path %} active {% endif %}">
                         <i class="nav-icon fas fa-shield-alt"></i>
                         <p>
                             Risk Management
-                            {% comment %} <i class="fas fa-angle-left right submenu-toggle"></i> {% endcomment %}
+                             <i class="fas fa-angle-left right submenu-toggle"></i> 
                         </p>
                     </a>
-                    {% comment %} <ul class="nav nav-treeview">
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'list_objectives' as list_objectives %}
                             <a href="{{list_objectives}}" class="nav-link {% if list_objectives == request.path %} active {% endif %}">
@@ -100,64 +101,17 @@
                                 <p>Risk Radar & Reporting</p>
                             </a>
                         </li>
-                    </ul> {% endcomment %}
-                </li>
-                
+                    </ul> 
+                </li>{% endcomment %}
+                <!-- Dynamic Module Links -->
+                {% for module in visible_modules %}
                 <li class="nav-item">
-                    {% url 'iam_dashboard' as iam_dashboard %}
-                    <a href="{% url 'iam_dashboard' %}" class="nav-link {% if iam_dashboard == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-search-dollar"></i>
-                        <p>Internal Audit</p>
+                    <a href="{{ module.url }}" class="nav-link {% if module.url == request.path %} active {% endif %}">
+                        <i class="{{ module.icon }} nav-icon"></i>
+                        <p>{{ module.name }}</p>
                     </a>
                 </li>
-                
-                <li class="nav-item">
-                    {% url 'bcm_dashboard' as bcm_dashboard %}
-                    <a href="{% url 'bcm_dashboard' %}" class="nav-link {% if bcm_dashboard == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-business-time"></i>
-                        <p>Business Continuity</p>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    {% url 'gm_dashboard' as gm_dashboard %}
-                    <a href="{% url 'gm_dashboard' %}" class="nav-link {% if gm_dashboard == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-gavel"></i>
-                        <p>Governance Management</p>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    {% url 'ism_dashboard' as ism_dashboard %}
-                    <a href="{% url 'ism_dashboard' %}" class="nav-link {% if ism_dashboard == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-lock"></i>
-                        <p>InfoSec Management</p>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    {% url 'cm_dashboard' as cm_dashboard %}
-                    <a href="{% url 'cm_dashboard' %}" class="nav-link {% if cm_dashboard == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-check-circle"></i>
-                        <p>Compliance Management</p>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    {% url 'bpm_dashboard' as bpm_dashboard %}
-                    <a href="{% url 'bpm_dashboard' %}" class="nav-link {% if bpm_dashboard == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-cogs"></i>
-                        <p>Business Process</p>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    {% url 'chat' as chat %}
-                    <a href="{{chat}}" class="nav-link {% if chat == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-brain"></i>
-                        <p>AI Engine (PioNeer+)</p>
-                    </a>
-                </li>
+                {% endfor %}
                 
                                 
                 <li class="nav-item has-treeview">
@@ -169,7 +123,13 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                
+                        <!-- Apps Link -->
+                        <li class="nav-item">
+                            <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
+                                <i class="nav-icon fas fa-store"></i>
+                                <p>Apps</p>
+                            </a>
+                        </li>
                         <!-- Departments -->
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
@@ -253,7 +213,29 @@
                                 </li>
                             </ul>
                         </li> {% endcomment %}
-                
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-bookmark"></i>
+                                <p>
+                                    Profile
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    {% url 'admin_view_profile' as admin_view_profile %}
+                                    <a href="{{admin_view_profile}}"
+                                        class="nav-link {% if admin_view_profile == request.path %} active {% endif %}">
+                                        <i class="nav-icon fas fa-address-card"></i>
+                                        <p>
+                                            Update Profile
+        
+                                        </p>
+                                    </a>
+                                </li>
+                                
+                            </ul>
+                        </li>
                         <!-- Notifications -->
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
@@ -294,28 +276,7 @@
                 
                     </ul>
                 </li>
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-bookmark"></i>
-                        <p>
-                            Profile
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            {% url 'admin_view_profile' as admin_view_profile %}
-                            <a href="{{admin_view_profile}}"
-                                class="nav-link {% if admin_view_profile == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-address-card"></i>
-                                <p>
-                                    Update Profile
-
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                
                 
 
                 {% elif request.user.user_type == '2' %}
@@ -362,13 +323,14 @@
                                     </p>
                                 </a>
                             </li> {% endcomment %}
+                            {% comment %}
                             <li class="nav-item has-treeview">
                                 {% url 'erm_dashboard' as erm_dashboard %}
                                 <a href="{% url 'erm_dashboard' %}" class="nav-link {% if erm_dashboard == request.path %} active {% endif %}">
                                     <i class="nav-icon fas fa-shield-alt"></i>
                                     <p>
                                         Risk Management
-                                        {% comment %} <i class="fas fa-angle-left right submenu-toggle"></i> {% endcomment %}
+                                         <i class="fas fa-angle-left right submenu-toggle"></i> 
                                     </p>
                                 </a>
                                 {% comment %} <ul class="nav nav-treeview">
@@ -428,7 +390,7 @@
                                             <p>Risk Radar & Reporting</p>
                                         </a>
                                     </li>
-                                </ul> {% endcomment %}
+                                </ul> 
                             </li>
                             
                             <li class="nav-item">
@@ -485,7 +447,16 @@
                                     <i class="nav-icon fas fa-brain"></i>
                                     <p>AI Engine (PioNeer+)</p>
                                 </a>
+                            </li>{% endcomment %}
+                            <!-- Dynamic Module Links -->
+                            {% for module in visible_modules %}
+                            <li class="nav-item">
+                                <a href="{{ module.url }}" class="nav-link {% if module.url == request.path %} active {% endif %}">
+                                    <i class="{{ module.icon }} nav-icon"></i>
+                                    <p>{{ module.name }}</p>
+                                </a>
                             </li>
+                            {% endfor %}
                             
                                             
                             <li class="nav-item has-treeview">

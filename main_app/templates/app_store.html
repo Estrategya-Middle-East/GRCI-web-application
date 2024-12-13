@@ -1,0 +1,94 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{ page_title }}{% endblock page_title %}
+{% block content %}
+{% for group in grouped_modules %}
+<div class="row">
+    {% for module in group %}
+    <div class="col-lg-4 col-12">
+        <div class="small-box">
+            <div class="inner text-left">
+                <h3>{{ module.name }}</h3>
+                <p style="padding-top: 10px">{{ module.description }}</p>
+            </div>
+            <div class="icon text-left">
+                <i class="{{ module.icon }}" style="color: #95ce55; font-size: 50px;"></i>
+            </div>
+            
+            <!-- Button to toggle visibility or open modal -->
+            <button class="small-box-footer" style="border: 0px; border-radius: 5px; padding: 5px; "
+                    {% if not module.visible %}data-bs-toggle="modal" data-bs-target="#subscriptionModal{{ module.id }}"{% else %}
+                    onclick="toggleVisibility({{ module.id }})"{% endif %}>
+                {% if module.visible %}
+                    <i class="fas fa-toggle-on" style="color: green;"></i>
+                {% else %}
+                    <i class="fas fa-toggle-off"></i>
+                {% endif %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for entering subscription code -->
+    {% if not module.visible %}
+    <div class="modal fade" id="subscriptionModal{{ module.id }}" tabindex="-1" aria-labelledby="modalLabel{{ module.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel{{ module.id }}">Activate {{ module.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="subscriptionForm{{ module.id }}">
+                        <div class="mb-3">
+                            <label for="subscriptionCode{{ module.id }}" class="form-label">Enter Subscription Code</label>
+                            <input type="text" class="form-control" id="subscriptionCode{{ module.id }}" name="subscription_code" required>
+                        </div>
+                        <input type="hidden" name="module_id" value="{{ module.id }}">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitSubscription({{ module.id }})">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endfor %}
+
+<script>
+    function toggleVisibility(moduleId) {
+        fetch(`/toggle_visibility/${moduleId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+        }).then(response => location.reload());
+    }
+
+    function submitSubscription(moduleId) {
+        const form = document.getElementById(`subscriptionForm${moduleId}`);
+        const formData = new FormData(form);
+
+        fetch(`/submit_subscription/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Subscription activated successfully!");
+                location.reload();
+            } else {
+                alert("Invalid subscription code. Please try again.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+</script>
+{% endblock content %}

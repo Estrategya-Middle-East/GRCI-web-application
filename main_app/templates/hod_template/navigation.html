@@ -1,145 +1,32 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
-{% block page_title %}{{ page_title }}{% endblock page_title %}
+
 {% block content %}
 <section class="content">
-    <div>
+    {% comment %} <div>
         <h1 class="small-box" style="padding-left: 10px; font-size: 50px; background-color: #85b548; color: white"><b>Choose Your Solution</b></h1>
-    </div>
+    </div> {% endcomment %}
     <div class="container-fluid">
+        {% for group in grouped_modules %}
         <div class="row">
-            <!-- Enterprise Risk Management -->
+            {% for module in group %}
             <div class="col-lg-4 col-12">
                 <div class="small-box">
                     <div class="inner text-left">
-                        <h3>ERM</h3>
-                        <p style="padding-top: 10px">Enterprise Risk Management</p>
+                        <h3>{{ module.name }}</h3>
+                        <p style="padding-top: 10px">{{ module.description }}</p>
                     </div>
                     <div class="icon text-left">
-                        <i class="nav-icon fas fa-shield-alt" style="color: #95ce55; font-size: 50px;"></i>
+                        <i class="{{ module.icon }}" style="color: #95ce55; font-size: 50px;"></i>
                     </div>
-                    <a href="{% url 'erm_dashboard' %}" class="small-box-footer bg-gray">
-                        Access and Manage Enterprise Risks Now <i class="fas fa-arrow-circle-right"></i>
+                    <a href="{{ module.url }}" class="small-box-footer bg-gray">
+                        {{ module.action_text }} <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
             </div>
-
-            <!-- Internal Audit Management -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>IAM</h3>
-                        <p style="padding-top: 10px">Internal Audit Management</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-search-dollar" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'iam_dashboard' %}" class="small-box-footer bg-gray">
-                        Initiate and Oversee Your Audits Today <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Business Continuity Management -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>BCM</h3>
-                        <p style="padding-top: 10px">Business Continuity Management</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-business-time" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'bcm_dashboard' %}" class="small-box-footer bg-gray">
-                        Plan and Safeguard Business Continuity Measures <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-
-        <div class="row">
-            <!-- Governance Management -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>GM</h3>
-                        <p style="padding-top: 10px">Governance Management</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-gavel" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'gm_dashboard' %}" class="small-box-footer bg-gray">
-                        Strengthen and Implement Governance Best Practices <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- InfoSec Management -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>ISM</h3>
-                        <p style="padding-top: 10px">InfoSec Management</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-lock" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'ism_dashboard' %}" class="small-box-footer bg-gray">
-                        Secure and Enhance Information Security Controls <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Compliance Management -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>CM</h3>
-                        <p style="padding-top: 10px">Compliance Management</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-check-circle" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'cm_dashboard' %}" class="small-box-footer bg-gray">
-                        Verify and Maintain Compliance Standards Easily <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Business Process Management -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>BPM</h3>
-                        <p style="padding-top: 10px">Business Process Management</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-cogs" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'bpm_dashboard' %}" class="small-box-footer bg-gray">
-                        Streamline and Improve Business Processes <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- AI Engine (PioNeer+) -->
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>PioNeer+</h3>
-                        <p style="padding-top: 10px">AI Engine (PioNeer+)</p>
-                    </div>
-                    <div class="icon text-left">
-                        <i class="nav-icon fas fa-brain" style="color: #95ce55; font-size: 50px;"></i>
-                    </div>
-                    <a href="{% url 'chat_dashboard' %}" class="small-box-footer bg-gray">
-                        Leverage Advanced AI for Smarter Solutions <i class="fas fa-arrow-circle-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock content %}

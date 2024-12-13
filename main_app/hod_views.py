@@ -58,40 +58,137 @@ def admin_home(request):
     }
     return render(request, 'hod_template/home_content.html', context)
 
+# Define modules and their default visibility
+MODULES = [
+    {
+        "id": 1,
+        "name": "ERM",
+        "description": "Enterprise Risk Management",
+        "icon": "nav-icon fas fa-shield-alt",
+        "url": "/erm/",
+        "action_text": "Access and Manage Enterprise Risks Now",
+        "code": "SUBSCRIBE2024",
+        "visible": True,
+    },
+    {
+        "id": 2,
+        "name": "IAM",
+        "description": "Internal Audit Management",
+        "icon": "nav-icon fas fa-search-dollar",
+        "url": "/iam/",
+        "action_text": "Initiate and Oversee Your Audits Today",
+        "code": "SUBSCRIBE2024",
+        "visible": False,
+    },
+    {
+        "id": 3,
+        "name": "BCM",
+        "description": "Business Continuity Management",
+        "icon": "nav-icon fas fa-business-time",
+        "url": "/bcm/",
+        "action_text": "Plan and Safeguard Business Continuity Measures",
+        "code": "SUBSCRIBE2024",
+        "visible": False,
+    },
+    {
+        "id": 4,
+        "name": "GM",
+        "description": "Governance Management",
+        "icon": "nav-icon fas fa-gavel",
+        "url": "/gm/",
+        "action_text": "Strengthen and Implement Governance Best Practices",
+        "code": "SUBSCRIBE2024",
+        "visible": False,
+    },
+    {
+        "id": 5,
+        "name": "ISM",
+        "description": "InfoSec Management",
+        "icon": "nav-icon fas fa-lock",
+        "url": "/ism/",
+        "action_text": "Secure and Enhance Information Security Controls",
+        "code": "SUBSCRIBE2024",
+        "visible": False,
+    },
+    {
+        "id": 6,
+        "name": "CM",
+        "description": "Compliance Management",
+        "icon": "nav-icon fas fa-check-circle",
+        "url": "/cm/",
+        "action_text": "Verify and Maintain Compliance Standards Easily",
+        "code": "SUBSCRIBE2024",
+        "visible": False,
+    },
+    {
+        "id": 7,
+        "name": "BPM",
+        "description": "Business Process Management",
+        "icon": "nav-icon fas fa-cogs",
+        "url": "/bpm/",
+        "action_text": "Streamline and Improve Business Processes",
+        "code": "SUBSCRIBE2025",
+        "visible": False,
+    },
+    {
+        "id": 8,
+        "name": "PioNeer+",
+        "description": "AI Engine (PioNeer+)",
+        "icon": "nav-icon fas fa-brain",
+        "url": "/pioneer/",
+        "action_text": "Leverage Advanced AI for Smarter Solutions",
+        "code": "SUBSCRIBE2024",
+        "visible": True,
+    },
+]
+
+def submit_subscription(request):
+    if request.method == "POST":
+        module_id = int(request.POST.get("module_id"))
+        subscription_code = request.POST.get("subscription_code")
+
+        # Find the module by ID
+        module = next((m for m in MODULES if m["id"] == module_id), None)
+
+        if module:
+            valid_code = module["code"]  # Get the valid code from the module
+            if subscription_code == valid_code:
+                module["visible"] = True  # Update visibility
+                return JsonResponse({"success": True})
+
+        return JsonResponse({"success": False, "error": "Invalid subscription code."})
+
+    return JsonResponse({"success": False, "error": "Invalid request method."})
+
 def admin_nav(request):
-    total_staff = Staff.objects.all().count()
-    total_users = User.objects.all().count()
-    total_department = Department.objects.all().count()
-
-    # Total Surveys and users in Each Department
-    department_all = Department.objects.all()
-    department_name_list = []
-    user_count_list_in_department = []
-
-    for department in department_all:
-        users = User.objects.filter(department_id=department.id).count()
-        department_name_list.append(department.name)
-        user_count_list_in_department.append(users)
-
-    # For Users
-
-    user_name_list=[]
-
-    users = User.objects.all()
-    for user in users:
-        user_name_list.append(user.admin.first_name)
-
+    # Filter visible modules
+    visible_modules = [module for module in MODULES if module["visible"]]
     context = {
-        'page_title': "Modules",
-        'total_users': total_users,
-        'total_staff': total_staff,
-        'total_department': total_department,
-        "user_name_list": user_name_list,
-        "user_count_list_in_department": user_count_list_in_department,
-        "department_name_list": department_name_list,
-
+        'page_title': "Navigation",
+        'grouped_modules': [visible_modules[i:i + 3] for i in range(0, len(visible_modules), 3)],
+        'visible_modules': visible_modules,  # Pass visible modules for the sidebar
     }
     return render(request, 'hod_template/navigation.html', context)
+
+def app_store(request):
+    context = {
+        'page_title': "Apps",
+        'grouped_modules': [MODULES[i:i + 3] for i in range(0, len(MODULES), 3)],
+        'visible_modules': [module for module in MODULES if module["visible"]],
+    }
+    return render(request, 'app_store.html', context)
+
+@csrf_exempt
+def toggle_visibility(request, module_id):
+    if request.method == "POST":
+        # Find and toggle the visibility of the module
+        for module in MODULES:
+            if module["id"] == module_id:
+                module["visible"] = not module["visible"]
+                break
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False}, status=400)
+
 
 def add_staff(request):
     form = StaffForm(request.POST or None, request.FILES or None)
