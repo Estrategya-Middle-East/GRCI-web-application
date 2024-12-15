@@ -468,7 +468,13 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                            
+                                    <!-- Apps Link -->
+                                    <li class="nav-item">
+                                        <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
+                                            <i class="nav-icon fas fa-store"></i>
+                                            <p>Apps</p>
+                                        </a>
+                                    </li>
                                     <!-- Departments -->
                                     <li class="nav-item has-treeview">
                                         <a href="#" class="nav-link">
