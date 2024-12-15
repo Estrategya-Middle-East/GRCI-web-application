@@ -127,7 +127,7 @@ MODULES = [
         "icon": "nav-icon fas fa-cogs",
         "url": "/bpm/",
         "action_text": "Streamline and Improve Business Processes",
-        "code": "SUBSCRIBE2025",
+        "code": "SUBSCRIBE2024",
         "visible": False,
     },
     {

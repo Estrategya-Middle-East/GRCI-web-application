@@ -237,16 +237,19 @@ class PredictiveRiskAnalysisView(View):
     def generate_duplicate_invoices_graph(self):
         pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
         # Load the pickle file
-        sales_data = pd.read_pickle(pickle_path)
+        try:
+            sales_data = pd.read_pickle(pickle_path)
+        except Exception as e:
+            raise ValueError(f"Error loading data from {pickle_path}: {str(e)}")
 
-        # Confirm it loaded correctly
-        #print(sales_data.head())
         # Rename columns for easier access
         sales_data.columns = [
-        "branch", "branch_name", "account", "invoice", "i", "item_number", 
-        "item_name", "qty_shipped", "item_price", "subtotal", "net_amount", 
-        "inv_date", "reference", "cash_invoice"
+            "branch", "branch_name", "account", "invoice", "i", "item_number", 
+            "item_name", "qty_shipped", "item_price", "subtotal", "net_amount", 
+            "inv_date", "reference", "cash_invoice"
         ]
+        
+        
 
         
 

@@ -14,6 +14,9 @@ from django.http import HttpResponse,JsonResponse
 from django.apps import apps
 from datetime import datetime
 from django.views.generic import TemplateView
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
 
 # ERM Dashboard View
 def dashboard(request):
@@ -136,6 +139,84 @@ def export_all_to_excel(request):
  """
  
 
+
+from django.http import HttpResponse
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.utils import get_column_letter
+
+def export_risks_to_excel(request):  # Accept 'request' as the first parameter
+    # Create a new workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Risks"
+
+    # Define headers for the Excel file
+    headers = [
+        "Risk Name", "Description", "Workflow Status", "Define Approval Status",
+        "Assessment Approval Status", "Prioritization Approval Status", "Response Approval Status",
+        "Department", "Section", "Objective", "Identified By", "Identification Date",
+        "Category", "Subcategory", "Source", "Likelihood", "Impact", "Risk Score", "Approval Status"
+    ]
+
+    # Apply header styles
+    header_font = Font(bold=True, color="FFFFFF", size=10)
+    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    title_font = Font(size=12, bold=True, color="000000")
+    cell_font = Font(size=9)
+    border_style = Border(left=Side(style='thin'),
+                          right=Side(style='thin'),
+                          top=Side(style='thin'),
+                          bottom=Side(style='thin'))
+
+    for col_num, header in enumerate(headers, start=1):
+        cell = ws.cell(row=1, column=col_num, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Query data from Risk and RiskDefine models
+    risks = Risk.objects.all()
+    row = 2
+
+    for risk in risks:
+        define_step = getattr(risk, 'define_step', None)
+        
+        ws.cell(row=row, column=1, value=risk.name)
+        ws.cell(row=row, column=2, value=risk.description)
+        ws.cell(row=row, column=3, value=risk.workflow_status)
+        ws.cell(row=row, column=4, value=risk.define_approval_status)
+        ws.cell(row=row, column=5, value=risk.assessment_approval_status)
+        ws.cell(row=row, column=6, value=risk.prioritization_approval_status)
+        ws.cell(row=row, column=7, value=risk.response_approval_status)
+
+        if define_step:
+            ws.cell(row=row, column=8, value=define_step.department)
+            ws.cell(row=row, column=9, value=define_step.section)
+            ws.cell(row=row, column=10, value=define_step.objective)
+            ws.cell(row=row, column=11, value=define_step.identified_by)
+            ws.cell(row=row, column=12, value=define_step.identification_date.strftime('%Y-%m-%d'))
+            ws.cell(row=row, column=13, value=define_step.category)
+            ws.cell(row=row, column=14, value=define_step.subcategory)
+            ws.cell(row=row, column=15, value=define_step.source)
+            ws.cell(row=row, column=16, value=define_step.likelihood)
+            ws.cell(row=row, column=17, value=define_step.impact)
+            ws.cell(row=row, column=18, value=define_step.risk_score)
+            ws.cell(row=row, column=19, value=define_step.approval_status)
+        row += 1
+
+    # Adjust column widths
+    for col_num in range(1, len(headers) + 1):
+        column_width = max(
+            len(str(ws.cell(row=row, column=col_num).value or "")) for row in range(1, ws.max_row + 1)
+        )
+        ws.column_dimensions[get_column_letter(col_num)].width = column_width + 2
+
+    # Save the workbook to an HTTP response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="risks.xlsx"'
+    wb.save(response)
+    return response
 
 class RiskWorkflowView(TemplateView):
     template_name = 'erm/workflow.html'
