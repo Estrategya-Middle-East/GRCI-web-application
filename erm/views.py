@@ -138,13 +138,9 @@ def export_all_to_excel(request):
         return response
  """
  
-
-
-from django.http import HttpResponse
-import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill
-from openpyxl.utils import get_column_letter
-
+ 
+ 
+ 
 def export_risks_to_excel(request):  # Accept 'request' as the first parameter
     # Create a new workbook
     wb = openpyxl.Workbook()

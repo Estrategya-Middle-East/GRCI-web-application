@@ -32,13 +32,22 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Application definition
 
-INSTALLED_APPS = [
+MASTER_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'widget_tweaks',
+    'django_filters',
+]
+
+MY_APPS = [
     # apps
     'main_app.apps.MainAppConfig',
     'erm.apps.ErmConfig',
@@ -49,10 +58,10 @@ INSTALLED_APPS = [
     'cm.apps.CmConfig',
     'bpm.apps.BpmConfig',
     'pioneer.apps.PioneerConfig',
-    'rest_framework',
-    'widget_tweaks',
-    'django_filters',
+
 ]
+
+INSTALLED_APPS = MASTER_APPS + THIRD_PARTY_APPS + MY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
