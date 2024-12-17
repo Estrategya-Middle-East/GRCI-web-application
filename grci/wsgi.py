@@ -1,5 +1,5 @@
 """
-WSGI config for internal_audit_management project.
+WSGI config for grci project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'internal_audit_management.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grci.settings')
 
 application = get_wsgi_application()

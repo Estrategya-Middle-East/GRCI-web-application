@@ -7,7 +7,7 @@ from collections import namedtuple
 from .forms import *
 from .models import *
 from .filters import RiskFilter
-from django.db.models import F,Q
+from django.db.models import Count,F,Q
 from main_app.models import *
 import pandas as pd
 from django.http import HttpResponse,JsonResponse
@@ -140,79 +140,93 @@ def export_all_to_excel(request):
  
  
  
- 
-def export_risks_to_excel(request):  # Accept 'request' as the first parameter
+def export_risks_to_excel(request):
     # Create a new workbook
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Risks"
 
-    # Define headers for the Excel file
+    # Define headers
     headers = [
-        "Risk Name", "Description", "Workflow Status", "Define Approval Status",
-        "Assessment Approval Status", "Prioritization Approval Status", "Response Approval Status",
+        "Risk Name", "Description", "Workflow Status",
         "Department", "Section", "Objective", "Identified By", "Identification Date",
         "Category", "Subcategory", "Source", "Likelihood", "Impact", "Risk Score", "Approval Status"
     ]
 
-    # Apply header styles
-    header_font = Font(bold=True, color="FFFFFF", size=10)
+    # Styles
+    header_font = Font(bold=True, color="FFFFFF", size=11)
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    title_font = Font(size=12, bold=True, color="000000")
-    cell_font = Font(size=9)
-    border_style = Border(left=Side(style='thin'),
-                          right=Side(style='thin'),
-                          top=Side(style='thin'),
-                          bottom=Side(style='thin'))
+    border_style = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+    alignment_center = Alignment(horizontal="center", vertical="center")
+    alt_row_fill = PatternFill(start_color="F9F9F9", end_color="F9F9F9", fill_type="solid")
 
+    # Apply header styles
     for col_num, header in enumerate(headers, start=1):
         cell = ws.cell(row=1, column=col_num, value=header)
         cell.fill = header_fill
         cell.font = header_font
-        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.alignment = alignment_center
+        cell.border = border_style
 
     # Query data from Risk and RiskDefine models
     risks = Risk.objects.all()
     row = 2
+    total_risk_score = 0  # Initialize total risk score
 
-    for risk in risks:
+    for index, risk in enumerate(risks):
         define_step = getattr(risk, 'define_step', None)
         
-        ws.cell(row=row, column=1, value=risk.name)
-        ws.cell(row=row, column=2, value=risk.description)
-        ws.cell(row=row, column=3, value=risk.workflow_status)
-        ws.cell(row=row, column=4, value=risk.define_approval_status)
-        ws.cell(row=row, column=5, value=risk.assessment_approval_status)
-        ws.cell(row=row, column=6, value=risk.prioritization_approval_status)
-        ws.cell(row=row, column=7, value=risk.response_approval_status)
+        # Alternate row background for better readability
+        fill_color = alt_row_fill if row % 2 == 0 else None
 
-        if define_step:
-            ws.cell(row=row, column=8, value=define_step.department)
-            ws.cell(row=row, column=9, value=define_step.section)
-            ws.cell(row=row, column=10, value=define_step.objective)
-            ws.cell(row=row, column=11, value=define_step.identified_by)
-            ws.cell(row=row, column=12, value=define_step.identification_date.strftime('%Y-%m-%d'))
-            ws.cell(row=row, column=13, value=define_step.category)
-            ws.cell(row=row, column=14, value=define_step.subcategory)
-            ws.cell(row=row, column=15, value=define_step.source)
-            ws.cell(row=row, column=16, value=define_step.likelihood)
-            ws.cell(row=row, column=17, value=define_step.impact)
-            ws.cell(row=row, column=18, value=define_step.risk_score)
-            ws.cell(row=row, column=19, value=define_step.approval_status)
+        # Data Rows
+        cells = [
+            risk.name, risk.description, risk.workflow_status,
+            getattr(define_step, 'department', ''),
+            getattr(define_step, 'section', ''),
+            getattr(define_step, 'objective', ''),
+            getattr(define_step, 'identified_by', ''),
+            getattr(define_step, 'identification_date', '').strftime('%Y-%m-%d') if define_step else '',
+            getattr(define_step, 'category', ''),
+            getattr(define_step, 'subcategory', ''),
+            getattr(define_step, 'source', ''),
+            getattr(define_step, 'likelihood', ''),
+            getattr(define_step, 'impact', ''),
+            getattr(define_step, 'risk_score', ''),
+            getattr(define_step, 'approval_status', ''),
+        ]
+
+        # Add risk score to total
+        risk_score = getattr(define_step, 'risk_score', 0)
+        total_risk_score += risk_score if isinstance(risk_score, (int, float)) else 0
+
+        for col_num, value in enumerate(cells, start=1):
+            cell = ws.cell(row=row, column=col_num, value=value)
+            cell.border = border_style
+            if fill_color:
+                cell.fill = fill_color
+            cell.font = Font(size=10)
         row += 1
 
-    # Adjust column widths
-    for col_num in range(1, len(headers) + 1):
-        column_width = max(
-            len(str(ws.cell(row=row, column=col_num).value or "")) for row in range(1, ws.max_row + 1)
-        )
-        ws.column_dimensions[get_column_letter(col_num)].width = column_width + 2
+    # Adjust column widths dynamically
+    for col_num, col in enumerate(ws.columns, start=1):
+        max_length = max(len(str(cell.value or "")) for cell in col)
+        ws.column_dimensions[get_column_letter(col_num)].width = max_length + 2
 
-    # Save the workbook to an HTTP response
+    # Add a summary row at the end
+    summary_row = row + 1
+    ws.merge_cells(start_row=summary_row, start_column=1, end_row=summary_row, end_column=len(headers))
+    summary_cell = ws.cell(row=summary_row, column=1, value=f"Total Risks: {risks.count()} | Total Risk Score: {total_risk_score}")
+    summary_cell.font = Font(bold=True, size=11, color="FFFFFF")
+    summary_cell.fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    summary_cell.alignment = alignment_center
+
+    # Prepare the HTTP response
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="risks.xlsx"'
+    response["Content-Disposition"] = 'attachment; filename="risks_report.xlsx"'
     wb.save(response)
     return response
+
 
 class RiskWorkflowView(TemplateView):
     template_name = 'erm/workflow.html'
@@ -468,6 +482,36 @@ def list_risks(request):
         paginated_risks = paginator.page(paginator.num_pages)
 
     risks = risk_filter.qs
+    
+    inherent_risk_counts = (
+        RiskDefine.objects.values("category")
+        .annotate(count=Count("category"))
+        .order_by("category")
+    )
+    residual_risks = (
+        RiskAss.objects.filter(residual_risk__gt=0)
+        .values("risk__define_step__category")
+        .annotate(count=Count("risk__define_step__category"))
+    )
+    # Aggregate data: Count risks by likelihood and impact
+    heatmap_data = (
+        RiskDefine.objects
+        .values('likelihood', 'impact', 'risk_score')  # Group by likelihood and impact
+        .annotate(count=Count('id'))  # Count the number of risks
+    )
+
+    # Format data for ECharts: [impact-1, 5-likelihood, count]
+    formatted_data = [
+        [item['impact'] - 1, 5 - item['likelihood'], item['count'], item['risk_score']]
+        for item in heatmap_data
+    ]
+    
+    
+    # Prepare the data for ECharts
+    chart_data_inherent = [{"name": item["category"], "value": item["count"]} for item in inherent_risk_counts]
+    chart_data_residual = [
+        {"name": item["risk__define_step__category"], "value": item["count"]} for item in residual_risks
+    ]
     # Pass necessary context to the template
     context = {
         'page_title': "Risks",
@@ -478,6 +522,9 @@ def list_risks(request):
         'rows_per_page': rows_per_page,
         'form': form,
         'risk_filter': risk_filter,
+        "chart_data_inherent": chart_data_inherent,
+        'chart_data_residual': chart_data_residual,
+        'heatmap_data': formatted_data,
     }
     return render(request, 'erm/list_risks.html', context)
 
