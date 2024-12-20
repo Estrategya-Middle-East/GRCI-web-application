@@ -50,12 +50,10 @@ h2 {
 }
 
 .table thead th {
-    background-color: #343a40;
-    color: white;
-    text-align: center;
+    color: rgb(0, 0, 0);
+    text-align: left;
     border: none;
-    border-top-right-radius: 8px;
-    border-bottom-left-radius: 8px;
+    border-top: 1px solid rgba(128, 128, 128, 0.237);
 }
 a {
     color: inherit; /* Inherit the color from the parent */
@@ -64,7 +62,7 @@ a {
 
 /* Table Cell Styling */
 .table tbody td {
-    text-align: center;
+    text-align: left;
     vertical-align: middle;
     max-width: 400px; /* Set a maximum width */
     overflow: hidden; /* Hide the text that overflows */

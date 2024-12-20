@@ -22,7 +22,7 @@
         //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         margin: 10px auto;
         height: 300px; /* Adjust height */
-        width: 45%; /* Adjust width to make room for other charts */
+        width: 60%; /* Adjust width to make room for other charts */
         display: inline-block; /* Allow charts to sit next to each other */
         vertical-align: top; /* Align the charts at the top */
     }
@@ -51,14 +51,21 @@
         <div class="chart-container">
             <div id="chart_data_inherent"></div>
         </div>
+        <div style="text-align: center; margin-top: -20px;">
+            <div style="font-size: 16px; color: #888;">Total Risks</div>
+            <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_inherent_risks }}</div>
+        </div>
     </div>
     <div id="heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
     <div class="col"> 
         <div class="chart-container">
             <div id="chart_data_residual"></div>
         </div>
+        <div style="text-align: center; margin-top: -20px;">
+            <div style="font-size: 16px; color: #888;">Total Risks</div>
+            <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_residual_risks }}</div>
+        </div>
     </div>
-
 </div>
 
 <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
@@ -107,6 +114,7 @@
             </div>
             <div class="col-3" style = "align-text:right;">
                 <a href="{% url 'export_risks' %}" ><i class="fas fa-download"></i></a>
+                
                 {% comment %} <a href="{% url 'import_risks' %}" ><i class="fas fa-upload" ></i></a> {% endcomment %}
             </div>
             <div class="col-12" style="margin-left: 10px">
@@ -135,7 +143,7 @@
         
         <!-- Table -->
         <div class="table-responsive">
-            <table class="table table-sm table-striped table-bordered">
+            <table class="table table-sm ">
                 <thead>
                     <tr>
                         <th>Select</th>
@@ -511,7 +519,12 @@
     var myChart = echarts.init(chartDom);
 
     // Data from Django: [impact-1, 5-likelihood, count]
-    var data = {{ heatmap_data|safe }};
+    var rawData = {{ heatmap_data|safe }};
+    
+    // Adjust Y-values to match the bottom-to-top order of the Y-axis
+    var data = rawData.map(function(item) {
+        return [item[0], 4 - item[1], item[2], item[3]]; // Reverse Y-axis values
+    });
 
     var option = {
         title: {
@@ -523,12 +536,13 @@
             position: 'top',
             formatter: function (params) {
                 return 'Impact: ' + (params.data[0] + 1) + '<br>' +
-                       'Likelihood: ' + (5 - params.data[1]) + '<br>' +
-                       'Count: ' + params.data[2]+ '<br>' +
+                       'Likelihood: ' + (params.data[1] + 1 ) + '<br>' +
+                       'Count: ' + params.data[2] + '<br>' +
                        'Risk Score: ' + params.data[3];
             }
         },
         grid: {
+            width:'75%',
             height: '65%',
             top: '10%'
         },
@@ -540,7 +554,7 @@
         },
         yAxis: {
             type: 'category',
-            data: [1, 2, 3, 4, 5].reverse(),  // Likelihood values (5–1)
+            data: [1, 2, 3, 4, 5],  // Likelihood values (1–5)
             name: 'Likelihood',
             splitArea: { show: true }
         },
@@ -577,5 +591,6 @@
 
     myChart.setOption(option);
 </script>
+
 
 {% endblock content %}

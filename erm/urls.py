@@ -31,6 +31,7 @@ urlpatterns = [
     #workflow Risk 
     path('risks/', views.list_risks, name='list_risks'),
     path('export_risks/', views.export_risks_to_excel, name='export_risks'),
+    
     path('risks/add/', views.add_risk, name='add_risk'),
     path('risks/<int:id>/edit/', views.edit_risk, name='edit_risk'),
     path('risks/<int:id>/delete/', views.delete_risk, name='delete_risk'),

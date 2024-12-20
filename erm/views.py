@@ -11,6 +11,9 @@ from django.db.models import Count,F,Q
 from main_app.models import *
 import pandas as pd
 from django.http import HttpResponse,JsonResponse
+from reportlab.pdfgen import canvas
+import pdfkit
+from django.template.loader import render_to_string
 from django.apps import apps
 from datetime import datetime
 from django.views.generic import TemplateView
@@ -137,8 +140,6 @@ def export_all_to_excel(request):
         response['Content-Disposition'] = 'attachment; filename="all_data.xlsx"'
         return response
  """
- 
- 
  
 def export_risks_to_excel(request):
     # Create a new workbook
@@ -493,6 +494,12 @@ def list_risks(request):
         .values("risk__define_step__category")
         .annotate(count=Count("risk__define_step__category"))
     )
+    # Calculate total inherent risks
+    total_inherent_risks = sum(item["count"] for item in inherent_risk_counts)
+
+    # Calculate total residual risks
+    total_residual_risks = sum(item["count"] for item in residual_risks)
+    
     # Aggregate data: Count risks by likelihood and impact
     heatmap_data = (
         RiskDefine.objects
@@ -523,7 +530,9 @@ def list_risks(request):
         'form': form,
         'risk_filter': risk_filter,
         "chart_data_inherent": chart_data_inherent,
+        'total_inherent_risks': total_inherent_risks,
         'chart_data_residual': chart_data_residual,
+        'total_residual_risks':total_residual_risks,
         'heatmap_data': formatted_data,
     }
     return render(request, 'erm/list_risks.html', context)

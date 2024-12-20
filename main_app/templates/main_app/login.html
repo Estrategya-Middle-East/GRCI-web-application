@@ -1,96 +1,105 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="utf-8">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title> GRCi | Log In</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- icheck bootstrap -->
     <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
     <!-- Theme style -->
-    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/login-style.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <!-- Google Recaptcha -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-</head>
+    <!--=============== REMIXICONS ===============-->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet" />
 
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href=""><b>ESG</b> GRCi</a>
-        </div>
-        <!-- /.login-logo -->
-        <div class="card">
-            <div class="card-body login-card-body">
-                {% if messages %}
-                <div class="col-12">
-                    {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div class="alert alert-danger text-center ">
-                        {{ message }}
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <form action="doLogin/" method="post">
-                    {% csrf_token %}
-                    <div class="input-group mb-3">
-                        <input required type="email" name="email" class="form-control" placeholder="Email">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input required type="password" name="password" class="form-control" placeholder="Password">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <div class="g-recaptcha" data-sitekey="6LfswtgZAAAAAJ7bhwqZZtDpBsc75ekH6FWA4Fnt"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="remember">
-                                <label for="remember">
-                                    Remember Me
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <button type="submit" class="btn btn-success btn-block">Log In</button>
-                        </div>
-                    </div>
-                </form>
-                <p class="mb-1">
-                    <a href="{% url 'password_reset' %}">Forgot Password?</a>
-                </p>
+    
+  </head>
+  <body>
+    <div class="container">
+      {% if messages %}
+      <div class="col-12">
+          {% for message in messages %}
+          {% if message.tags == 'error' %}
+          <div class="alert alert-danger text-center ">
+              {{ message }}
+          </div>
+          {% endif %}
+          {% endfor %}
+      </div>
+      {% endif %}
+      <div class="login">
+        <div class="login__content">
+          <img class="login__img" src="{% static 'dist/img/bg-login.png'%}" alt="Login image" />
+          
+          <form class="login__form" action="doLogin/" method="post">
+            {% csrf_token %}
+            <div>
+              <h1 class="login__title">
+                <span>Welcome</span> Back
+              </h1>
+
+              <p class="login__description">
+                Welcome! Please login to continue.
+              </p>
             </div>
-            <!-- /.login-card-body -->
+
+            <div>
+              <div class="login__inputs">
+                <div>
+                  <label for="email" class="login__label">Email</label>
+                  <input class="login__input" type="email" name="email" id="email" placeholder="Enter your email address" required />
+                </div>
+
+                <div>
+                  <label for="password" class="login__label">Password</label>
+                  <div class="login__box">
+                    <input class="login__input" type="password" name="password" id="password" placeholder="Enter your password" required />
+                    <i class="ri-eye-off-line login__eye" id="input-icon"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="login__check ">
+                <label class="login__check-label" for="remember">
+                  <input class="login__check-input" type="checkbox" id="remember" />
+                  <i class="ri-check-line login__check-icon"></i>
+                  Remember me
+                </label>
+              </div>
+              <div class="input-group" style="padding-top: 30px;">
+                <div class="g-recaptcha" data-sitekey="6LfswtgZAAAAAJ7bhwqZZtDpBsc75ekH6FWA4Fnt"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="login__buttons">
+                <button type="submit" class="login__button">Log In</button>
+                {% comment %} <button onclick="msg2()" class="login__button login__button-ghost">Sign Up</button> {% endcomment %}
+              </div>
+
+              <a class="login__forgot" href="{% url 'password_reset' %}">Forgot Password?</a>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
     <!-- /.login-box -->
 
     <!-- jQuery -->
     <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Bootstrap-->
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
-</body>
+  <!--=============== MAIN JS ===============-->
+  <script src="{% static 'dist/js/main.js'%}"></script>
+  <script src="{% static 'dist/js/bootstrap.bundle.min.js'%}"></script>
 
+</body>
 </html>
