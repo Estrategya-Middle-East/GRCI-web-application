@@ -5,11 +5,11 @@
 :root {
   /*========== Colors ==========*/
   /*Color mode HSL(hue, saturation, lightness)*/
-  --first-color: hsl(244, 75%, 57%);
-  --second-color: hsl(249, 64%, 47%);
+  --first-color: #cc0000;
+  --second-color: #b3010a;
   --title-color: hsl(244, 12%, 12%);
   --text-color: hsl(244, 4%, 36%);
-  --body-color: hsl(208, 97%, 85%);
+  --body-color: hsl(0, 0%, 100%);
 
   /*========== Font and typography ==========*/
   /*.5rem = 8px | 1rem = 16px ...*/
@@ -76,15 +76,15 @@ img {
 }
 
 .login__img {
-  position: absolute;
-  width: 100%;
+  position: fixed;
+  width: 30%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
+  object-fit: auto;
+  object-position: auto;
 }
 
 .login__form {
-  position: relative;
+  position: absolute;
   background-color: hsla(244, 16%, 92%, 0.6);
   border: 2px solid hsla(244, 16%, 92%, 0.75);
   margin-inline: 1.5rem;
@@ -92,6 +92,7 @@ img {
   backdrop-filter: blur(20px);
   padding: 2rem;
   border-radius: 1rem;
+  margin-top: 100px;
 }
 
 .login__title {
@@ -109,7 +110,6 @@ img {
 }
 
 .login__inputs {
-  row-gap: 0.75rem;
   margin-bottom: 0.5rem;
 }
 
@@ -209,7 +209,19 @@ img {
   color: #fff;
   font-size: var(--small-font-size);
   font-weight: var(--font-semi-bold);
-  box-shadow: 0 6px 24px hsla(244, 75%, 48%, 0.5);
+  box-shadow: 0 6px 24px #000000;
+  margin-bottom: 1rem;
+}
+
+.login__button:hover {
+  width: 100%;
+  padding: 14px 2rem;
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--first-color), var(--second-color));
+  color: #fff;
+  font-size: var(--small-font-size);
+  font-weight: var(--font-semi-bold);
+  box-shadow: 0 6px 24px #b3010a;
   margin-bottom: 1rem;
 }
 
@@ -247,7 +259,7 @@ img {
 @media screen and (min-width: 1064px) {
   .container {
     height: 100vh;
-    display: grid;
+    display: flex;
     place-items: center;
   }
 
@@ -257,8 +269,7 @@ img {
   }
 
   .login__img {
-    border-radius: 3.5rem;
-    box-shadow: 0 24px 48px hsla(244, 75%, 36%, 0.45);
+    box-shadow: 0 24px 48px #b39d9e;
   }
 
   .login__form {

@@ -138,12 +138,12 @@ a {
 /* Modal Tabs */
 .nav-tabs .nav-link {
     font-size: 20px;
-    color: #95ce55;
+    color: #cc0000;
     
 }
 
 .nav-tabs .nav-link.active {
-    background-color: #95ce55;
+    background-color: #cc0000;
     color: white;
 }
 
