@@ -79,18 +79,14 @@ class AdminForm(CustomUserForm):
 
 
 class DepartmentForm(FormSettings):
-    staff = forms.ModelMultipleChoiceField(
-        queryset=Staff.objects.filter(department__isnull=True),
-        required=False,
-        widget=forms.CheckboxSelectMultiple
-    )
+    
 
     def __init__(self, *args, **kwargs):
         super(DepartmentForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Department
-        fields = ['name', 'description', 'staff']
+        fields = ['name', 'description']
 
 class SectionForm(FormSettings):
     staff = forms.ModelMultipleChoiceField(
@@ -131,16 +127,16 @@ class StaffForm(CustomUserForm):
         queryset=Department.objects.all(),
         required=False
     )
-    section = forms.ModelChoiceField(
+    """ section = forms.ModelChoiceField(
         queryset=Section.objects.none(),
         required=False
     )
     group = forms.ModelChoiceField(
         queryset=Group.objects.none(),
         required=False
-    )
+    ) """
 
-    def __init__(self, *args, **kwargs):
+    """ def __init__(self, *args, **kwargs):
         super(StaffForm, self).__init__(*args, **kwargs)
         if 'instance' in kwargs and kwargs['instance']:
             instance = kwargs['instance']
@@ -148,22 +144,22 @@ class StaffForm(CustomUserForm):
             self.fields['section'].queryset = Section.objects.filter(department=instance.department)
             # Filter groups by selected section
             self.fields['group'].queryset = Group.objects.filter(section=instance.section)
-
+ """
     def clean(self):
         cleaned_data = super().clean()
-        department = cleaned_data.get('department')
+        """ department = cleaned_data.get('department')
         section = cleaned_data.get('section')
         group = cleaned_data.get('group')
 
         if group and group.section != section:
             self.add_error('group', "Selected group does not belong to the selected section.")
         if section and section.department != department:
-            self.add_error('section', "Selected section does not belong to the selected department.")
+            self.add_error('section', "Selected section does not belong to the selected department.") """
         return cleaned_data
 
     class Meta(CustomUserForm.Meta):
         model = Staff
-        fields = CustomUserForm.Meta.fields + ['department', 'section', 'group']
+        fields = CustomUserForm.Meta.fields + ['department']
 
 
 class SessionForm(FormSettings):

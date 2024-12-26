@@ -2,31 +2,106 @@
 {% load static %}
 
 {% block content %}
-<section class="content">
-    {% comment %} <div>
-        <h1 class="small-box" style="padding-left: 10px; font-size: 50px; background-color: #85b548; color: white"><b>Choose Your Solution</b></h1>
-    </div> {% endcomment %}
-    <div class="container-fluid">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navigation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="font-sans max-w-6xl max-md:max-w-md mx-auto">
+      <div class="grid md:grid-cols-2 items-center md:gap-8 gap-6">
+        <div class="max-md:order-1 max-md:text-center z-50 relative">
+          <h2
+            class="text-gray-800 lg:text-6xl md:text-5xl text-3xl font-extrabold mb-4 md:!leading-[56px]"
+          >
+            <span class="text-[#f01819]">Smart</span> GRC with
+            <span class="text-[#f01819]">Smart</span> People
+          </h2>
+          <p class="text-gray-600 mt-6 text-base leading-relaxed">
+            Empower your organization with seamless enterprise risk management, compliance, and cyber resilience through AI-driven insights and real-time dashboards.
+          </p>
+
+          <a href="#modules"><button
+            type="button"
+            class="mt-6 bg-[#f01819] hover:bg-transparent hover:text-[#f01819] border-2 border-[#f01819] transition-all text-white font-semibold text-sm tracking-wide rounded-md px-6 py-2.5"
+          >
+            Get Started
+          </button></a>
+
+          <div class="mt-12">
+            <div class="grid sm:grid-cols-3 gap-4 items-center">
+              <div class="flex flex-col items-center text-center">
+                <h5 class="text-gray-800 font-bold text-xl mb-2">10+</h5>
+                <p class="text-gray-600">Years Experience</p>
+              </div>
+              <div class="flex flex-col items-center text-center">
+                <h5 class="text-gray-800 font-bold text-xl mb-2">890</h5>
+                <p class="text-gray-600">Cases Solved</p>
+              </div>
+              <div class="flex flex-col items-center text-center">
+                <h5 class="text-gray-800 font-bold text-xl mb-2">250</h5>
+                <p class="text-gray-600">Business Partners</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="lg:h-[550px] md:h-[550px] flex items-center relative max-md:before:hidden before:absolute before:bg-[#DEE2E5] before:h-[120%] before:w-[120%] before:right-0 before:z-0"
+        >
+          <img
+            src="../../static/dist/img/saudi_man.svg"
+            class="rounded-md z-50 relative"
+            alt="Dining Experience"
+          />
+        </div>
+      </div>
+      <div class="container-fluid" id="modules" style="margin-bottom: 50px">
         {% for group in grouped_modules %}
         <div class="row">
-            {% for module in group %}
-            <div class="col-lg-4 col-12">
-                <div class="small-box">
-                    <div class="inner text-left">
-                        <h3>{{ module.name }}</h3>
-                        <p style="padding-top: 10px">{{ module.description }}</p>
+          {% for module in group %}
+          <div class="col-lg-4 col-12">
+            <div class="max-w-6xl mx-auto font-[sans-serif] relative z-50">
+              <div
+                class="max-md:max-w-lg mx-auto gap-12"
+              >
+                <div
+                  class="p-8 flex gap-6 rounded-lg hover:shadow-md shadow-red-300 hover:scale-105 transition-all duration-300 border-2 border-red-200 bg-white  flex-col items-center text-center"
+                >
+                  <a href="{{ module.url }}" class="items-center text-center flex flex-col gap-6">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      class="w-12 h-12 bg-red-600 text-white p-3 rounded-lg shrink-0"
+                      viewBox="{{ module.viewBox }}"
+                    >
+                      <path
+                        d="{{ module.path1 }}"
+                        data-original="#000000"
+                      />
+                      <path
+                        d="{{ module.path2 }}"
+                        data-original="#000000"
+                      />
+                    </svg>
+                    <div>
+                      <h3 class="text-gray-800 text-xl font-semibold mb-3">{{ module.name }}</h3>
+                      <p class="text-gray-600 text-sm">{{ module.description }}</p>
                     </div>
-                    <div class="icon text-left">
-                        <i class="{{ module.icon }}" style="color: #cc0000; font-size: 50px;"></i>
-                    </div>
-                    <a href="{{ module.url }}" class="small-box-footer" style="color: #cc0000;">
-                        {{ module.action_text }} <i class="fas fa-arrow-circle-right"></i>
-                    </a>
+                  </a>
                 </div>
+              </div>
             </div>
-            {% endfor %}
+            
+          </div>
+          {% endfor %}
         </div>
         {% endfor %}
+      </div>
     </div>
-</section>
+  </body>
+</html>
 {% endblock content %}

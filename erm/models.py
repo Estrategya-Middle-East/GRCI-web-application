@@ -77,10 +77,10 @@ class Risk(models.Model):
 
 class RiskDefine(models.Model):
     risk = models.OneToOneField(Risk, on_delete=models.CASCADE, related_name="define_step", default=1)
-    department = models.CharField(max_length=255, blank=True, null=True)
-    section = models.CharField(max_length=255, blank=True, null=True)
-    objective = models.TextField(blank=True, null=True)
-    identified_by = models.CharField(max_length=255, blank=True, null=True)
+    department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, blank=True, null=True)
+    #section = models.CharField(max_length=255, blank=True, null=True)
+    objective = models.ForeignKey('Objective', on_delete=models.DO_NOTHING, blank=True, null=True)
+    identified_by = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, blank=True, null=True)
     identification_date= models.DateField(default=now)
     category = models.CharField(
         max_length=50,
@@ -142,7 +142,7 @@ class RiskDefine(models.Model):
 class RiskAss(models.Model):
     risk = models.OneToOneField(Risk, on_delete=models.CASCADE, related_name="assessment_step", default=1)
     assessment_date = models.DateField(default=now)
-    assessed_by = models.CharField(max_length=255, blank=True, null=True)
+    assessed_by = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, blank=True, null=True)
     likelihood_rating = models.IntegerField(
         choices=[
             (1, '1'),
@@ -171,7 +171,7 @@ class RiskAss(models.Model):
         ],
         default='Low',)
     mitigation_actions = models.CharField(max_length=255, blank=True, null=True)
-    reviewer_comments=models.TextField(null= True)
+    reviewer_comments=models.TextField(blank=True, null=True)
     approval_status = models.CharField(
         max_length=50,
         choices=[
@@ -213,11 +213,11 @@ class RiskPrioritization(models.Model):
     risk_score = models.IntegerField(default=0) 
     priority_level = models.CharField(max_length=50, choices=PRIORITY_CHOICES, default="Medium")
     justification = models.CharField(max_length=255, blank=True, null=True)
-    assigned_to = models.CharField(max_length=255, blank=True, null=True)
+    assigned_to = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, blank=True, null=True)
     next_reviewdate = models.DateField(default=now)
     review_frequency = models.CharField(max_length=50, choices=REVIEW_FREQUENCY_CHOICES, default="Monthly")
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Open")
-    comments=models.TextField(null= True)
+    comments=models.TextField(blank=True, null=True)
     is_manual_edit = models.BooleanField(default=False)
     approval_status = models.CharField(
         max_length=50,
@@ -264,13 +264,13 @@ class RiskResponse(models.Model):
     
     risk = models.OneToOneField(Risk, on_delete=models.CASCADE, related_name="response_step", default=1)
     response_strategy = models.CharField(max_length=50, choices=STRATEGY_CHOICES, default="Avoid")
-    ActionPlan = models.TextField(null= True)
-    responsible_party = models.CharField(max_length=255, blank=True, null=True)
+    ActionPlan = models.TextField(blank=True, null=True)
+    responsible_party = models.ManyToManyField(Staff, blank=True)
     start_date = models.DateField(default=now)
     end_date = models.DateField(default=now)
     progress_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Not Started")
-    resources_required=models.TextField(null= True)
-    effectiveness_review=models.TextField(null= True)
+    resources_required=models.TextField(blank=True, null=True)
+    effectiveness_review=models.TextField(blank=True, null=True)
     approval_status = models.CharField(
         max_length=50,
         choices=[

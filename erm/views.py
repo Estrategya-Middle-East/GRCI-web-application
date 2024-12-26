@@ -34,7 +34,7 @@ def dashboard(request):
         'page_title': "ERM Dashboard",
         'components': components,
     }
-    return render(request, 'erm/dashboard.html', context)
+    return render(request, 'erm/erm_dashboard.html', context)
 
 def leadership_dashboard(request):
     components = [
@@ -48,7 +48,7 @@ def leadership_dashboard(request):
         'page_title': "Leadership Dashboard",
         'components': components,
     }
-    return render(request, 'leadership/dashboard.html', context)
+    return render(request, 'leadership/leadership_dashboard.html', context)
 
 
 def strategic_planning_dashboard(request):

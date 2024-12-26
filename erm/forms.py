@@ -15,7 +15,7 @@ class RiskForm(forms.ModelForm):
 class RiskDefineForm(forms.ModelForm):
     class Meta:
         model = RiskDefine
-        fields = ['source', 'category', 'subcategory', 'likelihood', 'impact', 'risk_score','identified_by' , 'identification_date', ]
+        fields = ['source', 'category', 'subcategory', 'department', 'objective', 'likelihood', 'impact', 'risk_score','identified_by' , 'identification_date', ]
         
         widgets = {
             'identification_date': forms.DateInput(attrs={'type': 'date'}),
