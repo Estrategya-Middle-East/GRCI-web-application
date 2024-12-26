@@ -1,0 +1,198 @@
+{% extends "chat/base.html" %}
+
+{% load static %}  <!-- Load static files -->
+
+{% block page_title %}
+PioNeer+
+{% endblock page_title %}
+
+
+
+{% block custom_css %}
+<link rel="stylesheet" href="{% static 'chat/styles.css' %}">
+<style>
+    .user-message {
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        max-width: 70%;
+        text-align: left;
+    }
+
+    .assistant-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        max-width: 70%;
+        text-align: left;
+        margin-left: auto;
+    }
+
+    #chat-box {
+        height: 400px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+    }
+</style>
+{% endblock custom_css %}
+
+{% block content %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords"
+        content="wrappixel, admin dashboard, html css dashboard, web dashboard, bootstrap 5 admin, bootstrap 5, css3 dashboard, bootstrap 5 dashboard, AdminWrap lite admin bootstrap 5 dashboard, frontend, responsive bootstrap 5 admin template, AdminWrap lite design, AdminWrap lite dashboard bootstrap 5 dashboard template">
+    <meta name="description"
+        content="AdminWrap Lite is powerful and clean admin dashboard template, inpired from Bootstrap Framework">
+    <meta name="robots" content="noindex,nofollow">
+    
+</head>
+{% comment %} <div class="preloader">
+    <div class="loader">
+        <div class="loader__figure"></div>
+        <p class="loader__label">PioNeer+</p>
+    </div>
+</div> {% endcomment %}
+
+<!-- Button to Toggle Charts -->
+<div class="d-flex align-items-center" style="text-align: center" >
+    <!-- Dropdown Menu (Aligned to the right) -->
+    {% comment %} <div class="dropdown">
+        <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+            <b style="font-size: 16pt">Charts</b>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="action-menu">
+            <li><a href="{% url 'chart' %}" class="dropdown-item">Dublicate Invoices</a></li>
+            <li><a href="{% url 'chart2' %}" class="dropdown-item">Net Amount</a></li>
+        </ul>
+    </div> {% endcomment %}
+</div>
+<div class="container mt-3">
+    <a href="#chat" data-bs-toggle="collapse" class="btn btn-info" style= "margin-bottom: 30px">PioNeer+</a>
+    
+    <div id="chat">
+        <div id="chat-box" >
+            {% for message in chat_messages %}
+                <div class="mb-2 {% if message.role == 'user' %}user-message{% else %}assistant-message{% endif %}">
+                    <strong>{{ message.get_role_display }}:</strong> {{ message.content }}
+                </div>
+            {% endfor %}
+        </div>
+        <form id="chat-form" class="d-flex align-items-center mt-3">
+            <div id="loading-indicator" class="text-center mt-3" style="padding-right: 50px; display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden"></span>
+                </div>
+            </div>
+            {% csrf_token %}
+            <textarea id="prompt" name="prompt" class="form-control me-2" rows="2" placeholder="Type your message..."></textarea>
+            <button style="margin-left: 20px" type="submit" class="btn btn-primary">Send</button>
+        </form>
+        <form id="clear-chat-form" method="post" action="{% url 'clear_chat' %}" class="mt-2">
+            {% csrf_token %}
+            <button style="margin-bottom: 20px; margin-top: 20px" type="submit" class="btn btn-danger">Clear Chat</button>
+        </form>
+    </div>
+        
+</div>
+
+
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+    const chatForm = document.getElementById("chat-form");
+    const clearChatForm = document.getElementById("clear-chat-form");
+    const chatBox = document.getElementById("chat-box");
+
+    // Handle the chat form submission
+    chatForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(chatForm);
+
+        // Show the loading spinner
+        document.getElementById("loading-indicator").style.display = "block";
+
+        try {
+            const response = await fetch("{% url 'ajax_chat' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            });
+
+            const data = await response.json();
+
+            // Hide the loading spinner
+            document.getElementById("loading-indicator").style.display = "none";
+
+            if (data.status === "success") {
+                // Add user message to chat box
+                const userMessage = document.createElement("div");
+                userMessage.classList.add("mb-2", "user-message");
+                userMessage.innerHTML = `<strong>User:</strong> ${formData.get("prompt")}`;
+                chatBox.appendChild(userMessage);
+
+                // Add assistant message to chat box
+                const assistantMessage = document.createElement("div");
+                assistantMessage.classList.add("mb-2", "assistant-message");
+                assistantMessage.innerHTML = `<strong>Assistant:</strong> ${data.response}`;
+                chatBox.appendChild(assistantMessage);
+
+                chatForm.reset(); // Clear the input
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            document.getElementById("loading-indicator").style.display = "none";
+            alert(`Error: Failed to process your message. ${error}`);
+        }
+
+        // Scroll to the bottom of the chat box
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // Handle the clear chat form submission
+    clearChatForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(clearChatForm);
+
+        try {
+            const response = await fetch(clearChatForm.action, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                // Clear the chat box
+                chatBox.innerHTML = "";
+                alert(data.message); // Optional success message
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            alert(`Error: Failed to clear chat. ${error}`);
+        }
+    });
+</script>
+
+
+
+{% endblock custom_js %}

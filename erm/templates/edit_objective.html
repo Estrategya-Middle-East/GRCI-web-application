@@ -1,0 +1,59 @@
+{% comment %} {% extends 'main_app/base.html' %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}{{ page_title }}{% endblock page_title %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form_styles.css' %}">
+<div class="container mt-4">
+    <h2 class="text-center">{{ page_title }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name">Name:</label>
+            {{ form.name|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_description">Description:</label>
+            {{ form.description|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_owner">Owner:</label>
+            {{ form.owner|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_department">Department:</label>
+            {{ form.department|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_start_date">Start Date:</label>
+            {{ form.start_date|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_end_date">End Date:</label>
+            {{ form.end_date|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_status">Status:</label>
+            {{ form.status|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_priority_level">Priority Level:</label>
+            {{ form.priority_level|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_kpis_linked">KPIs Linked:</label>
+            {{ form.kpis_linked|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_budget_allocated">Budget Allocated:</label>
+            {{ form.budget_allocated|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            <label for="id_strategic_importance">Strategic Importance:</label>
+            {{ form.strategic_importance|add_class:"form-control" }}
+        </div>
+        <button type="submit" class="btn btn-success btn-block">Update Objective</button>
+    </form>
+</div>
+{% endblock content %}
+ {% endcomment %}

@@ -1,0 +1,446 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Inherent Risks{% endblock page_title %}
+<head>
+    <meta name="viewport" content="width=960, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-4">
+    <a href="{% url 'list_risk_assessments' %}" class="btn btn-info">Risk Assessment</a>
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <div class="mb-3 action_menu">
+            <select id="action-menu" class="form-control w-25 d-inline-block">
+                <option value="">Select Action</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Owner</th>
+                        <th>Date Identified</th>
+                        <th>Likelihood</th>
+                        <th>Impact</th>
+                        <th>Score</th>
+                        <th>Risk Type</th>
+                        <th>Source of Risk</th>
+                        <th>Associated Objective</th>
+                        <th>Current Controls</th>
+                        <th>Review Frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for risk in inherent_risks %}
+                    <tr class="{% if risk.risk_id == 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 %}hidden-row{% endif %}">
+                        <td>
+                            {% if risk.risk_id != 0 %}
+                            <input type="radio" name="selected_risk" value="{{ risk.risk_id }}">
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ forloop.counter0|add:paginated_risks.start_index|add:-1 }}</td>
+                        <td>{{ risk.name }}</td>
+                        <td>{{ risk.description }}</td>
+                        <td>{{ risk.category }}</td>
+                        <td>{{ risk.owner }}</td>
+                        <td>{% if risk.date_identified %}{{ risk.date_identified|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{{ risk.likelihood }}</td>
+                        <td>{{ risk.impact }}</td>
+                        <td>{{ risk.score }}</td>
+                        <td>{{ risk.risk_type }}</td>
+                        <td>{{ risk.source_of_risk }}</td>
+                        <td>{% if risk.associated_objective %}{{ risk.associated_objective.name }}{% else %}—{% endif %}</td>
+                        <td>{{ risk.current_controls }}</td>
+                        <td>{{ risk.review_frequency }}</td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    {% if risk.risk_id != 0 %}
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal-{{ risk.risk_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ risk.risk_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ risk.risk_id }}">Edit Risk</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_inherent_risk' risk.risk_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ risk.risk_id }}" data-toggle="tab" href="#general-{{ risk.risk_id }}" role="tab">General</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="details-tab-{{ risk.risk_id }}" data-toggle="tab" href="#details-{{ risk.risk_id }}" role="tab">Details</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="additional-tab-{{ risk.risk_id }}" data-toggle="tab" href="#additional-{{ risk.risk_id }}" role="tab">Additional</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="info-tab-{{ risk.risk_id }}" data-toggle="tab" href="#info-{{ risk.risk_id }}" role="tab">Info</a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content mt-3">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ risk.risk_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="name-{{ risk.risk_id }}">Name</label>
+                                                    <input type="text" name="name" id="name-{{ risk.risk_id }}" class="form-control" value="{{ risk.name }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="description-{{ risk.risk_id }}">Description</label>
+                                                    <textarea name="description" id="description-{{ risk.risk_id }}" class="form-control">{{ risk.description }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="category-{{ risk.risk_id }}">Category</label>
+                                                    <input type="text" name="category" id="category-{{ risk.risk_id }}" class="form-control" value="{{ risk.category }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="risk_type-{{ risk.risk_id }}">Risk Type</label>
+                                                    <select name="risk_type" id="id_risk_type_{{  risk.risk_id }}" class="form-control">
+                                                        {% for value, label in risk_type_choices %}
+                                                        <option value="{{ value }}" {% if  risk.risk_type == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_objective_{{ risk.risk_id }}">Objective:</label>
+                                                    <select name="associated_objective" id="id_objective_{{ risk.risk_id }}" class="form-control">
+                                                        {% for objective in objectives %}
+                                                        <option value="{{ risk.risk_id }}" {% if risk.objective and risk.objective.id == objective.id %}selected{% endif %}>
+                                                            {{ objective.name }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>    
+                                            <!-- Details Tab -->
+                                            <div class="tab-pane fade" id="details-{{ risk.risk_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="owner-{{ risk.risk_id }}">Owner</label>
+                                                    <select name="owner" id="id_owner_{{ risk.risk_id }}" class="form-control">
+                                                        {% for owner in owners %}
+                                                        <option value="{{ owner.id }}" {% if risk.owner.id == owner.id %}selected{% endif %}>
+                                                            {{ owner }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="date_identified-{{ risk.risk_id }}">Date Identified</label>
+                                                    <input type="date" name="date_identified" id="date_identified-{{ risk.risk_id }}" class="form-control" value="{{ risk.date_identified|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="likelihood-{{ risk.risk_id }}">Likelihood</label>
+                                                    <select name="likelihood" id="id_likelihood_{{  risk.risk_id }}" class="form-control">
+                                                        {% for value, label in likelihood_choices %}
+                                                        <option value="{{ value }}" {% if  risk.likelihood == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="impact-{{ risk.risk_id }}">Impact</label>
+                                                    <select name="impact" id="id_impact_{{  risk.risk_id }}" class="form-control">
+                                                        {% for value, label in impact_choices %}
+                                                        <option value="{{ value }}" {% if  risk.impact == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="score-{{ risk.risk_id }}">Score</label>
+                                                    <input type="number" step="0.01" name="score" id="score-{{ risk.risk_id }}" class="form-control" value="{{ risk.score }}">
+                                                </div>
+                                            </div>
+
+                                            <!-- Additional Tab -->
+                                            <div class="tab-pane fade" id="additional-{{ risk.risk_id }}" role="tabpanel">
+                                                
+                                                <div class="form-group">
+                                                    <label for="source_of_risk-{{ risk.risk_id }}">Source of Risk</label>
+                                                    <textarea name="source_of_risk" id="source_of_risk-{{ risk.risk_id }}" class="form-control">{{ risk.source_of_risk }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="current_controls-{{ risk.risk_id }}">Current Controls</label>
+                                                    <textarea name="current_controls" id="current_controls-{{ risk.risk_id }}" class="form-control">{{ risk.current_controls }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="review_frequency-{{ risk.risk_id }}">Review Frequency</label>
+                                                    <select name="review_frequency" id="id_review_frequency_{{  risk.risk_id }}" class="form-control">
+                                                        {% for value, label in review_frequency_choices %}
+                                                        <option value="{{ value }}" {% if  risk.review_frequency == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Info Tab -->
+                                            <div class="tab-pane fade" id="info-{{ risk.risk_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="rish_event-{{ risk.risk_id }}">Risk Event</label>
+                                                    <textarea name="rish_event" id="rish_event-{{ risk.risk_id }}" class="form-control">{{ risk.rish_event }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="rish_cause-{{ risk.risk_id }}">Risk Cause</label>
+                                                    <textarea name="rish_cause" id="rish_cause-{{ risk.risk_id }}" class="form-control">{{ risk.rish_cause }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="rish_impact-{{ risk.risk_id }}">Risk Impact</label>
+                                                    <textarea name="rish_impact" id="rish_impact-{{ risk.risk_id }}" class="form-control">{{ risk.rish_impact }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <!-- Pagination -->
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+            <form method="get" class="form-inline">
+                <label for="rows-per-page" class="mr-2">Show:</label>
+                <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                    <option value="5" {% if rows_per_page == '5' %}selected{% endif %}>5</option>
+                    <option value="10" {% if rows_per_page == '10' %}selected{% endif %}>10</option>
+                    <option value="25" {% if rows_per_page == '25' %}selected{% endif %}>25</option>
+                    <option value="50" {% if rows_per_page == '50' %}selected{% endif %}>50</option>
+                </select>
+                {% for key, value in request.GET.items %}
+                {% if key != 'rows_per_page' and key != 'page' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+                {% endfor %}
+            </form>
+            <div>
+                Showing {{ paginated_risks.start_index }} - {{ paginated_risks.end_index }} of {{ paginated_risks.paginator.count }} risks
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if paginated_risks.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginated_risks.previous_page_number }}&rows_per_page={{ rows_per_page }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in paginated_risks.paginator.page_range %}
+                    <li class="page-item {% if num == paginated_risks.number %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if paginated_risks.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginated_risks.next_page_number }}&rows_per_page={{ rows_per_page }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </form>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New Risk</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_inherent_risk' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="details-tab-add" data-toggle="tab" href="#details-add" role="tab">Details</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="additional-tab-add" data-toggle="tab" href="#additional-add" role="tab">Additional</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="info-tab-add" data-toggle="tab" href="#info-add" role="tab">Info</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                {{ form.name|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                {{ form.description|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                {{ form.category|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="risk_type">Risk Type</label>
+                                {{ form.risk_type|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_objective">Objective:</label>
+                                {{ form.associated_objective|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        
+                        <!-- Details Tab -->
+                        <div class="tab-pane fade" id="details-add" role="tabpanel">
+                            <div class="form-group">
+                                <label for="owner">Owner</label>
+                                {{ form.owner|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="date_identified">Date Identified</label>
+                                {{ form.date_identified|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="likelihood">Likelihood</label>
+                                {{ form.likelihood|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="impact">Impact</label>
+                                {{ form.impact|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="score">Score</label>
+                                {{ form.score|add_class:"form-control" }}
+                            </div>
+                        </div>
+
+                        <!-- Additional Tab -->
+                        <div class="tab-pane fade" id="additional-add" role="tabpanel">
+                            <div class="form-group">
+                                <label for="source_of_risk">Source of Risk</label>
+                                {{ form.source_of_risk|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="current_controls">Current Controls</label>
+                                {{ form.current_controls|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="review_frequency">Review Frequency</label>
+                                {{ form.review_frequency|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <!-- Info Tab -->
+                        <div class="tab-pane fade" id="info-add" role="tabpanel">
+                            <div class="form-group">
+                                <label for="rish_event">Risk Event</label>
+                                {{ form.rish_event|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="rish_cause">Risk Cause</label>
+                                {{ form.rish_cause|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="rish_impact">Risk Impact</label>
+                                {{ form.rish_impact|add_class:"form-control" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Risk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const actionMenu = document.getElementById('action-menu'); // Dropdown menu
+    const actionLinks = document.querySelectorAll('.dropdown-item'); // Action items in the dropdown
+
+    // Listen for a change in the dropdown and trigger the action accordingly
+    actionLinks.forEach(link => {
+        link.addEventListener('click', function (event) {
+            const selectedRadio = document.querySelector('input[name="selected_risk"]:checked');
+            
+            // Check if a risk is selected
+            if (!selectedRadio) {
+                alert('Please select a risk.');
+                return;
+            }
+            
+            const selectedId = selectedRadio.value; // Get the selected risk ID
+            const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
+
+            // Handle the "Edit" action
+            if (selectedAction === 'edit') {
+                const editModal = new bootstrap.Modal(document.getElementById(`editModal-${selectedId}`));
+                editModal.show();  // Use Bootstrap's modal API to show the modal
+            }
+            
+            // Handle the "Delete" action
+            else if (selectedAction === 'delete') {
+                const deleteUrl = `/erm/inherent_risks/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this risk?')) {
+                    window.location.href = deleteUrl;  // Redirect to delete the risk
+                }
+            } else {
+                alert('Please select an action.');
+            }
+
+            // Optionally reset the dropdown value to 'Select Action' after performing the action
+            actionMenu.value = '';
+        });
+    });
+});
+
+</script>
+
+{% endblock content %}

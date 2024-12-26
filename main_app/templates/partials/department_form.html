@@ -1,0 +1,9 @@
+<div class="form-group">
+    <label for="id_name">Name</label>
+    {{ form.name }}
+</div>
+<div class="form-group">
+    <label for="id_description">Description</label>
+    {{ form.description }}
+</div>
+<input type="hidden" name="department_id" value="{{ form.instance.id }}">

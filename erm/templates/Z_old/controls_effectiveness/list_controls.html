@@ -1,0 +1,279 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Controls{% endblock page_title %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-4">
+    <a href="{% url 'list_control_assessments' %}" class="btn btn-info">Control Assessments</a>
+    <a href="{% url 'list_control_logs' %}" class="btn btn-info">Controls Logs</a>
+
+    <!-- Action Menu -->
+    <div class="mb-3 text-center">
+        <select id="action-menu" class="form-control w-25 d-inline-block">
+            <option value="">Select Action</option>
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+            Add New
+        </button>
+    </div>
+
+    <!-- Table -->
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Related Risk</th>
+                        <th>Control Type</th>
+                        <th>Implementation Date</th>
+                        <th>Review Date</th>
+                        <th>Owner</th>
+                        <th>Control Strength</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for control in controls %}
+                    <tr class="{% if control.control_id == 0 %}hidden-row{% endif %}">
+                        <td>
+                            {% if control.control_id != 0 %}
+                            <input type="radio" name="selected_control" value="{{ control.control_id }}">
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ forloop.counter0|add:paginated_controls.start_index|add:-1 }}</td>
+                        <td>{{ control.name|default:"[Blank Row]" }}</td>
+                        <td>{% if control.related_risk %}{{ control.related_risk.name }}{% else %}[None]{% endif %}</td>
+                        <td>{{ control.control_type|default:"[Blank Row]" }}</td>
+                        <td>{% if control.implementation_date %}{{ control.implementation_date|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{% if control.review_date %}{{ control.review_date|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{{ control.owner|default:"[Blank Row]" }}</td>
+                        <td>{{ control.control_strength|default:"[Blank Row]" }}</td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal-{{ control.control_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ control.control_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ control.control_id }}">Edit Control</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_control' control.control_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ control.control_id }}" data-toggle="tab" href="#general-{{ control.control_id }}" role="tab">General</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="details-tab-{{ control.control_id }}" data-toggle="tab" href="#details-{{ control.control_id }}" role="tab">Details</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <div class="tab-pane fade show active" id="general-{{ control.control_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="name-{{ control.control_id }}">Name</label>
+                                                    <input type="text" name="name" id="name-{{ control.control_id }}" class="form-control" value="{{ control.name }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="related_risk-{{ control.control_id }}">Related Risk</label>
+                                                    <select name="related_risk" id="related_risk-{{ control.control_id }}" class="form-control">
+                                                        {% for risk in inherent_risks %}
+                                                        <option value="{{ risk.risk_id }}" {% if control.related_risk == risk %}selected{% endif %}>{{ risk.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="control_type-{{ control.control_id }}">Control Type</label>
+                                                    <select name="control_type" id="control_type-{{ control.control_id }}" class="form-control">
+                                                        {% for value, label in control_type_choices %}
+                                                        <option value="{{ value }}" {% if control.control_type == value %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="details-{{ control.control_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="control_strength-{{ control.control_id }}">Control Strength</label>
+                                                    <select name="control_strength" id="control_strength-{{ control.control_id }}" class="form-control">
+                                                        {% for value, label in control_strength_choices %}
+                                                        <option value="{{ value }}" {% if control.control_strength == value %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="implementation_date-{{ control.control_id }}">Implementation Date</label>
+                                                    <input type="date" name="implementation_date" id="implementation_date-{{ control.control_id }}" class="form-control" value="{{ control.implementation_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="review_date-{{ control.control_id }}">Review Date</label>
+                                                    <input type="date" name="review_date" id="review_date-{{ control.control_id }}" class="form-control" value="{{ control.review_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="owner-{{ control.control_id }}">Owner</label>
+                                                    <select name="owner" id="id_owner_{{ control.control_id }}" class="form-control">
+                                                        {% for owner in owners %}
+                                                        <option value="{{ owner.id }}" {% if control.owner.id == owner.id %}selected{% endif %}>
+                                                            {{ owner }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <hr>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <form method="get" class="form-inline">
+            <label for="rows-per-page" class="mr-2">Show:</label>
+            <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+            </select>
+        </form>
+        <div>
+            Showing {{ paginated_controls.start_index }} - {{ paginated_controls.end_index }} of {{ paginated_controls.paginator.count }} controls
+        </div>
+        <nav>
+            <ul class="pagination">
+                {% if paginated_controls.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_controls.previous_page_number }}&rows_per_page={{ rows_per_page }}">«</a></li>
+                {% endif %}
+                {% for num in paginated_controls.paginator.page_range %}
+                <li class="page-item {% if num == paginated_controls.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if paginated_controls.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_controls.next_page_number }}&rows_per_page={{ rows_per_page }}">»</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Control</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_control' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="add-general-tab" data-toggle="tab" href="#add-general" role="tab">General</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="add-details-tab" data-toggle="tab" href="#add-details" role="tab">Details</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="add-general" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_name">Name</label>
+                                {{ form.name|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_related_risk">Related Risk</label>
+                                {{ form.related_risk|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_control_type">Control Type</label>
+                                {{ form.control_type|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="add-details" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_control_strength">Control Strength</label>
+                                {{ form.control_strength|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_implementation_date">Implementation Date</label>
+                                {{ form.implementation_date|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_review_date">Review Date</label>
+                                {{ form.review_date|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_owner">Owner</label>
+                                {{ form.owner|add_class:"form-control" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Control</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_control"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select a control.');
+                return;
+            }
+
+            const selectedId = selectedRadio.value;
+
+            if (selectedAction === 'edit') {
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                const deleteUrl = `/erm/controls_effectiveness/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this control?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select an action.');
+            }
+        });
+    });
+</script>
+{% endblock content %}

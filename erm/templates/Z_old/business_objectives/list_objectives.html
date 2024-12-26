@@ -1,0 +1,311 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Objectives{% endblock page_title %}
+
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-2 " >
+    <div>
+        <a href="{% url 'list_objective_strategies' %}" class="btn btn-info">Strategies</a>
+        <a href="{% url 'list_objective_progress' %}" class="btn btn-info">Progress</a>
+    </div>
+    
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <!-- Action Menu -->
+        <div class="mb-3 action_menu" >
+            <select id="action-menu" class="form-control w-25 d-inline-block">
+                <option value="">Select Action</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
+        </div>
+
+        <!-- Responsive Table Wrapper -->
+        <div class="table-responsive">
+            <table class="table" >
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>#</th>
+                        <th>Objective Name</th>
+                        <th>Owner</th>
+                        <th>Department</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Description</th>
+                        <th>Budget Allocated</th>
+                        <th>Strategic Importance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for objective in objectives %}
+                    <tr class="{% if objective.id == 1 %}hidden-row{% endif %}">
+                        <td>
+                            {% if objective.id != 0 %}
+                            <input type="radio" name="selected_objective" value="{{ objective.id }}">
+                            {% else %}
+                            <!-- Blank row: No radio button -->
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ forloop.counter0|add:paginated_objectives.start_index|add:-1 }}</td>
+                        <td>{{ objective.name|default:"[Blank Row]" }}</td>
+                        <td>{{ objective.owner }}</td>
+                        <td>{{ objective.department }}</td>
+                        <td>{% if objective.start_date %}{{ objective.start_date|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{% if objective.end_date %}{{ objective.end_date|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                        <td>{{ objective.status }}</td>
+                        <td>{{ objective.priority_level }}</td>
+                        <td>{{ objective.description }}</td>
+                        <td>{{ objective.budget_allocated }}</td>
+                        <td>{{ objective.strategic_importance }}</td>
+                    </tr>
+            
+                    {% if objective.id != 0 %}
+                    <div class="modal fade" id="editModal-{{ objective.id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ objective.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ objective.id }}">Edit Objective</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_objective' objective.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tab Navigation -->
+                                        <ul class="nav nav-tabs" id="editObjectiveTabs-{{ objective.id }}" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ objective.id }}" data-toggle="tab" href="#general-{{ objective.id }}" role="tab" aria-controls="general-{{ objective.id }}" aria-selected="true">General</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="details-tab-{{ objective.id }}" data-toggle="tab" href="#details-{{ objective.id }}" role="tab" aria-controls="details-{{ objective.id }}" aria-selected="false">Details</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="financial-tab-{{ objective.id }}" data-toggle="tab" href="#financial-{{ objective.id }}" role="tab" aria-controls="financial-{{ objective.id }}" aria-selected="false">Financial</a>
+                                            </li>
+                                        </ul>
+                                        <!-- Tab Panes -->
+                                        <div class="tab-content" id="editObjectiveTabsContent-{{ objective.id }}">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ objective.id }}" role="tabpanel" aria-labelledby="general-tab-{{ objective.id }}">
+                                                <div class="form-group mt-3">
+                                                    <label for="id_name_{{ objective.id }}">Name:</label>
+                                                    <input type="text" name="name" id="id_name_{{ objective.id }}" class="form-control" value="{{ objective.name }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_description_{{ objective.id }}">Description:</label>
+                                                    <textarea name="description" id="id_description_{{ objective.id }}" class="form-control">{{ objective.description }}</textarea>
+                                                </div>
+                                            </div>
+                                            <!-- Details Tab -->
+                                            <div class="tab-pane fade" id="details-{{ objective.id }}" role="tabpanel" aria-labelledby="details-tab-{{ objective.id }}">
+                                                <div class="form-group mt-3">
+                                                    <label for="id_owner_{{ objective.id }}">Owner:</label>
+                                                    <select name="owner" id="id_owner_{{ objective.id }}" class="form-control">
+                                                        {% for owner in owners %}
+                                                        <option value="{{ owner.id }}" {% if objective.owner.id == owner.id %}selected{% endif %}>
+                                                            {{ owner }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_department_{{ objective.id }}">Department:</label>
+                                                    <select name="department" id="id_department_{{ objective.id }}" class="form-control">
+                                                        {% for department in departments %}
+                                                        <option value="{{ department.id }}" {% if objective.department.id == department.id %}selected{% endif %}>
+                                                            {{ department }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_start_date_{{ objective.id }}">Start Date:</label>
+                                                    <input type="date" name="start_date" id="id_start_date_{{ objective.id }}" class="form-control" value="{{ objective.start_date|date:'Y-m-d' }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_end_date_{{ objective.id }}">End Date:</label>
+                                                    <input type="date" name="end_date" id="id_end_date_{{ objective.id }}" class="form-control" value="{{ objective.end_date|date:'Y-m-d' }}">
+                                                </div>
+                                            </div>
+                                            <!-- Financial Tab -->
+                                            <div class="tab-pane fade" id="financial-{{ objective.id }}" role="tabpanel" aria-labelledby="financial-tab-{{ objective.id }}">
+                                                <div class="form-group mt-3">
+                                                    <label for="id_budget_allocated_{{ objective.id }}">Budget Allocated:</label>
+                                                    <input type="number" step="0.01" name="budget_allocated" id="id_budget_allocated_{{ objective.id }}" class="form-control" value="{{ objective.budget_allocated }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_priority_level_{{ objective.id }}">Priority Level:</label>
+                                                    <select name="priority_level" id="id_priority_level_{{ objective.id }}" class="form-control">
+                                                        {% for value, label in priority_choices %}
+                                                        <option value="{{ value }}" {% if objective.priority_level == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_status_{{ objective.id }}">Status:</label>
+                                                    <select name="status" id="id_status_{{ objective.id }}" class="form-control">
+                                                        {% for value, label in status_choices %}
+                                                        <option value="{{ value }}" {% if objective.status == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="id_strategic_importance_{{ objective.id }}">Strategic Importance:</label>
+                                                    <select name="strategic_importance" id="id_strategic_importance_{{ objective.id }}" class="form-control">
+                                                        {% for value, label in strategic_importance_choices %}
+                                                        <option value="{{ value }}" {% if objective.strategic_importance == value %}selected{% endif %}>
+                                                            {{ label }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>                
+                    {% endif %}
+                    {% endfor %}
+                </tbody>                                                
+            </table>
+        </div>            
+    </form>
+    <hr>
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <form method="get" class="form-inline">
+            <label for="rows-per-page" class="mr-2">Show:</label>
+            <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                <option value="5" {% if rows_per_page == '5' %}selected{% endif %}>5</option>
+                <option value="10" {% if rows_per_page == '10' %}selected{% endif %}>10</option>
+                <option value="25" {% if rows_per_page == '25' %}selected{% endif %}>25</option>
+                <option value="50" {% if rows_per_page == '50' %}selected{% endif %}>50</option>
+                <option value="100" {% if rows_per_page == '100' %}selected{% endif %}>100</option>
+                <option value="200" {% if rows_per_page == '200' %}selected{% endif %}>200</option>
+            </select>
+            <!-- Keep other query parameters -->
+            {% for key, value in request.GET.items %}
+            {% if key != 'rows_per_page' and key != 'page' %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+            {% endfor %}
+        </form>
+        <div>
+            Showing {{ paginated_objectives.start_index }} - {{ paginated_objectives.end_index }} of {{ paginated_objectives.paginator.count }} objectives
+        </div>    
+        <div class="pagination_wrap">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if paginated_objectives.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginated_objectives.previous_page_number }}&rows_per_page={{ rows_per_page }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in paginated_objectives.paginator.page_range %}
+                    <li class="page-item {% if num == paginated_objectives.number %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if paginated_objectives.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginated_objectives.next_page_number }}&rows_per_page={{ rows_per_page }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>    
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New Objective</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_objective' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{form.as_p}}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Objective</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_objective"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select an objective.');
+                return;
+            }
+
+            const selectedId = parseInt(selectedRadio.value, 10);
+            console.log('Selected ID:', selectedId);
+
+            // Skip the placeholder row (id=1)
+            if (selectedId === 1) {
+                alert('Cannot edit or delete the placeholder row.');
+                return;
+            }
+
+            if (selectedAction === 'edit') {
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                const deleteUrl = `/erm/objectives/delete/${selectedId}/`;
+                if (confirm('Are you sure you want to delete this objective?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select an action.');
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% extends 'chat/base.html' %}
+{% load static %}
+{% load form_filters %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Risk Analysis</title>
+</head>
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<body>
+    <style>
+        .container-fluid{
+            min-height: 500px;
+            background-color: #ffffff !important;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto; 
+            margin-top: 20px; 
+            margin-bottom: 20px;
+            
+        }
+    </style>
+    <div class="container-fluid mt-4">
+        <h1>Dashboard Filters</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.main_category|add_class:"form group" }}
+            <div id="subcategory_sales_ledger_container" style="display:none;">
+                {{ form.subcategory_sales_ledger|add_class:"form-group" }}
+            </div>
+            
+            <button class="btn btn-info" type="submit">Submit</button>
+        </form>
+
+        <!-- Include the graph_2.html -->
+        {% if subcategory_sales_ledger == 'duplicate_invoices'%}
+        <h2>duplicate invoices analysis</h2>
+        {% elif subcategory_sales_ledger == 'net_amount'%}
+        <h2>net amount analysis</h2>
+        {% endif %}
+        {% include 'chat/graph_2.html' %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to the main category and subcategory fields
+            var mainCategoryField = document.getElementById('id_main_category');
+            var subcategoryContainer = document.getElementById('subcategory_sales_ledger_container');
+    
+            // Function to toggle visibility of subcategory field
+            function toggleSubcategory() {
+                if (mainCategoryField.value === 'sales_ledger') {
+                    subcategoryContainer.style.display = 'block';
+                } else {
+                    subcategoryContainer.style.display = 'none';
+                }
+            }
+    
+            // Run on page load and on change of the main category field
+            toggleSubcategory();
+            mainCategoryField.addEventListener('change', toggleSubcategory);
+        });
+    </script>
+</body>
+</html>
+{% endblock content %}

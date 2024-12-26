@@ -1,0 +1,226 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Residual Risks{% endblock page_title %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-4">
+    <a href="{% url 'list_residual_risk_assessments' %}" class="btn btn-info">Residual Rsk Assessments</a>
+    <!-- Action Menu -->
+    <div class="mb-3" style="text-align: center">
+        <select id="action-menu" class="form-control w-25 d-inline-block">
+            <option value="">Select Action</option>
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+            Add New
+    </div>
+
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>#</th>
+                    <th>Related Inherent Risk</th>
+                    <th>Mitigation Actions</th>
+                    <th>Current Score</th>
+                    <th>Last Review Date</th>
+                    <th>Next Review Date</th>
+                    <th>Responsible Party</th>
+                    <th>Owner</th>
+                    <th>Residual Risk Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for risk in residual_risks %}
+                <tr>
+                    <!-- Radio Button -->
+                    <td>
+                        <input type="radio" name="selected_risk" value="{{ risk.residual_risk_id }}">
+                    </td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ risk.related_inherent_risk.name }}</td>
+                    <td>{{ risk.mitigation_actions }}</td>
+                    <td>{{ risk.current_score }}</td>
+                    <td>{{ risk.last_review_date|date:"M d, Y" }}</td>
+                    <td>{{ risk.next_review_date|date:"M d, Y" }}</td>
+                    <td>{{ risk.responsible_party }}</td>
+                    <td>{{ risk.owner }}</td>
+                    <td>{{ risk.residual_risk_rating }}</td>
+                </tr>
+
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editModal-{{ risk.residual_risk_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ risk.residual_risk_id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel-{{ risk.residual_risk_id }}">Edit Residual Risk</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="POST" action="{% url 'edit_residual_risk' risk.residual_risk_id %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="related_inherent_risk-{{ risk.residual_risk_id }}">Related Inherent Risk:</label>
+                                        <select name="related_inherent_risk" id="related_inherent_risk-{{ risk.residual_risk_id }}" class="form-control">
+                                            {% for inherent_risk in inherent_risks %}
+                                            <option value="{{ inherent_risk.risk_id }}" {% if risk.related_inherent_risk.risk_id == inherent_risk.risk_id %}selected{% endif %}>
+                                                {{ inherent_risk.name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mitigation_actions-{{ risk.residual_risk_id }}">Mitigation Actions:</label>
+                                        <textarea name="mitigation_actions" id="mitigation_actions-{{ risk.residual_risk_id }}" class="form-control">{{ risk.mitigation_actions }}</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="current_score-{{ risk.residual_risk_id }}">Current Score:</label>
+                                        <input type="number" step="0.01" name="current_score" id="current_score-{{ risk.residual_risk_id }}" class="form-control" value="{{ risk.current_score }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="last_review_date-{{ risk.residual_risk_id }}">Last Review Date:</label>
+                                        <input type="date" name="last_review_date" id="last_review_date-{{ risk.residual_risk_id }}" class="form-control" value="{{ risk.last_review_date|date:'Y-m-d' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="next_review_date-{{ risk.residual_risk_id }}">Next Review Date:</label>
+                                        <input type="date" name="next_review_date" id="next_review_date-{{ risk.residual_risk_id }}" class="form-control" value="{{ risk.next_review_date|date:'Y-m-d' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="responsible_party-{{ risk.residual_risk_id }}">Responsible Party:</label>
+                                        <input type="text" name="responsible_party" id="responsible_party-{{ risk.residual_risk_id }}" class="form-control" value="{{ risk.responsible_party }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="owner-{{ risk.residual_risk_id }}">Owner:</label>
+                                        <input type="text" name="owner" id="owner-{{ risk.residual_risk_id }}" class="form-control" value="{{ risk.owner }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="residual_risk_rating-{{ risk.residual_risk_id }}">Residual Risk Rating:</label>
+                                        <select name="residual_risk_rating" id="residual_risk_rating-{{ risk.residual_risk_id }}" class="form-control">
+                                            {% for value, label in risk_rating_choices %}
+                                            <option value="{{ value }}" {% if risk.residual_risk_rating == value %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Residual Risk</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_residual_risk' %}">
+                {% csrf_token %}
+                <!--
+            'related_inherent_risk',
+            'mitigation_actions',
+            'current_score',
+            'last_review_date',
+            'next_review_date',
+            'responsible_party',
+            'owner',
+            'residual_risk_rating',-->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_related_inherent_risk">Inherent Risk:</label>
+                        {{ form.related_inherent_risk|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_mitigation_actions">Mitigation Actions:</label>
+                        {{ form.mitigation_actions|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_current_score">Current Score:</label>
+                        {{ form.current_score|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_last_review_date">Last Review Date:</label>
+                        {{ form.last_review_date|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_next_review_date">Next Review Date:</label>
+                        {{ form.next_review_date|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_responsible_party">Responsible Party:</label>
+                        {{ form.responsible_party|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_owner">Owner:</label>
+                        {{ form.owner|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_residual_risk_rating">Residual Risk Rating:</label>
+                        {{ form.residual_risk_rating|add_class:"form-control" }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Residual Risk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_risk"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select a residual risk.');
+                return;
+            }
+
+            const selectedId = selectedRadio.value;
+
+            if (selectedAction === 'edit') {
+                // Open Edit Modal
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                // Construct the Delete URL dynamically
+                const deleteUrl = `/erm/residual_risk_zone/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this residual risk?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select an action.');
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

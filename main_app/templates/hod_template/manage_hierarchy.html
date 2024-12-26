@@ -1,0 +1,165 @@
+{% extends "main_app/base.html" %}
+{% load static %}
+{% block page_title %}Manage Hierarchy{% endblock page_title %}
+
+{% block content %}
+<div class="container mt-2">
+    <h1>{{ page_title }}</h1>
+
+    <!-- Action Buttons -->
+    <div class="mb-3">
+        <button class="btn btn-success" data-toggle="modal" data-target="#addModal">Add New</button>
+    </div>
+
+    <!-- Departments Table -->
+    <h3>Departments</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for department in departments %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ department.name }}</td>
+                <td>{{ department.description }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="openEditModal('department', {{ department.id }})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteItem('department', {{ department.id }})">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Sections Table -->
+    <h3>Sections</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for section in sections %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ section.name }}</td>
+                <td>{{ section.department.name }}</td>
+                <td>{{ section.description }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="openEditModal('section', {{ section.id }})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteItem('section', {{ section.id }})">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Groups Table -->
+    <h3>Groups</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Section</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ group.name }}</td>
+                <td>{{ group.section.name }}</td>
+                <td>{{ group.description }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="openEditModal('group', {{ group.id }})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteItem('group', {{ group.id }})">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="modal-form" method="POST" action="">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div id="modal-form-fields">
+                        <!-- Dynamic Form Fields Will Be Loaded Here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditModal(itemType, itemId = null) {
+    let url = `/hierarchy/${itemType}/form/`; // URL to fetch form
+    if (itemId) url += `?id=${itemId}`; // Include ID for editing
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: function (response) {
+            $("#modal-form").attr("action", `/hierarchy/${itemType}/save/`); // Set the form action URL
+            $("#modal-form-fields").html(response.form_html); // Populate form fields
+            $("#addModal").modal("show");
+        },
+        error: function () {
+            alert("Failed to load form.");
+        },
+    });
+}
+
+function deleteItem(itemType, itemId) {
+    if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
+        $.ajax({
+            url: `/hierarchy/${itemType}/delete/`,
+            type: "POST",
+            data: {
+                csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+                id: itemId,
+            },
+            success: function (response) {
+                if (response.status === "success") {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert("Failed to delete item.");
+            },
+        });
+    }
+}
+</script>
+{% endblock %}

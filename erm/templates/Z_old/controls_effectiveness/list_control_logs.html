@@ -1,0 +1,251 @@
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Control Logs{% endblock page_title %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container mt-4">
+    <a href="{% url 'list_controls' %}" class="btn btn-info">Controls</a>
+    <a href="{% url 'list_control_assessments' %}" class="btn btn-info">Control Assessments</a>
+
+    <!-- Action Menu -->
+    <div class="mb-3 text-center">
+        <select id="action-menu" class="form-control w-25 d-inline-block">
+            <option value="">Select Action</option>
+            <option value="edit">Edit</option>
+            <option value="delete">Delete</option>
+        </select>
+        <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+            Add New
+        </button>
+    </div>
+
+    <!-- Table -->
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Activity</th>
+                        <th>Related Control</th>
+                        <th>Performed By</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in control_logs %}
+                    <tr class="{% if log.log_id == 0 %}hidden-row{% endif %}">
+                        <td>
+                            {% if log.log_id != 0 %}
+                            <input type="radio" name="selected_log" value="{{ log.log_id }}">
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ forloop.counter0|add:paginated_logs.start_index|add:-1 }}</td>
+                        <td>{{ log.name|default:" " }}</td>
+                        <td>{{ log.activity|default:" " }}</td>
+                        <td>{% if log.related_control %}{{ log.related_control.name }}{% else %}[None]{% endif %}</td>
+                        <td>{{ log.performed_by|default:" " }}</td>
+                        <td>{% if log.timestamp %}{{ log.timestamp|date:"M d, Y" }}{% else %}—{% endif %}</td>
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    <div class="modal fade" id="editModal-{{ log.log_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ log.log_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ log.log_id }}">Edit Control Log</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_control_log' log.log_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ log.log_id }}" data-toggle="tab" href="#general-{{ log.log_id }}" role="tab">General</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="details-tab-{{ log.log_id }}" data-toggle="tab" href="#details-{{ log.log_id }}" role="tab">Details</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <div class="tab-pane fade show active" id="general-{{ log.log_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="name-{{ log.log_id }}">Name</label>
+                                                    <input type="text" name="name" id="name-{{ log.log_id }}" class="form-control" value="{{ log.name }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="activity-{{ log.log_id }}">Activity</label>
+                                                    <input type="text" name="activity" id="activity-{{ log.log_id }}" class="form-control" value="{{ log.activity }}">
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="details-{{ log.log_id }}" role="tabpanel">
+                                                <div class="form-group">
+                                                    <label for="related_control-{{ log.log_id }}">Related Control</label>
+                                                    <select name="related_control" id="related_control-{{ log.log_id }}" class="form-control">
+                                                        {% for control in controls %}
+                                                        <option value="{{ control.control_id }}" {% if log.related_control == control %}selected{% endif %}>{{ control.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="performed_by-{{ log.log_id }}">Performed By</label>
+                                                    <select name="performed_by" id="id_performed_by_{{ log.log_id }}" class="form-control">
+                                                        {% for performed_by in performed_bys %}
+                                                        <option value="{{ performed_by.id }}" {% if log.performed_by.id and log.performed_by.id == performed_by.id %}selected{% endif %}>
+                                                            {{ performed_by }}
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="timestamp-{{ log.log_id }}">Timestamp</label>
+                                                    <input type="date" name="timestamp" id="timestamp-{{ log.log_id }}" class="form-control" value="{{ log.timestamp|date:'Y-m-d' }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <hr>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <form method="get" class="form-inline">
+            <label for="rows-per-page" class="mr-2">Show:</label>
+            <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+            </select>
+        </form>
+        <div>
+            Showing {{ paginated_logs.start_index }} - {{ paginated_logs.end_index }} of {{ paginated_logs.paginator.count }} logs
+        </div>
+        <nav>
+            <ul class="pagination">
+                {% if paginated_logs.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_logs.previous_page_number }}&rows_per_page={{ rows_per_page }}">«</a></li>
+                {% endif %}
+                {% for num in paginated_logs.paginator.page_range %}
+                <li class="page-item {% if num == paginated_logs.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}&rows_per_page={{ rows_per_page }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if paginated_logs.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ paginated_logs.next_page_number }}&rows_per_page={{ rows_per_page }}">»</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Control Log</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_control_log' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="add-general-tab" data-toggle="tab" href="#add-general" role="tab">General</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="add-details-tab" data-toggle="tab" href="#add-details" role="tab">Details</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="add-general" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_name">Name</label>
+                                {{ form.name|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_activity">Activity</label>
+                                {{ form.activity|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="add-details" role="tabpanel">
+                            <div class="form-group">
+                                <label for="id_related_control">Related Control</label>
+                                {{ form.related_control|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_performed_by">Performed By</label>
+                                {{ form.performed_by|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_timestamp">Timestamp</label>
+                                {{ form.timestamp|add_class:"form-control" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add Control Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionButton = document.getElementById('perform-action');
+        const actionMenu = document.getElementById('action-menu');
+
+        actionButton.addEventListener('click', function () {
+            const selectedAction = actionMenu.value;
+            const selectedRadio = document.querySelector('input[name="selected_log"]:checked');
+
+            if (!selectedRadio) {
+                alert('Please select a control log.');
+                return;
+            }
+
+            const selectedId = selectedRadio.value;
+
+            if (selectedAction === 'edit') {
+                const editModal = document.getElementById(`editModal-${selectedId}`);
+                if (editModal) {
+                    $(editModal).modal('show');
+                } else {
+                    alert('Edit modal not found.');
+                }
+            } else if (selectedAction === 'delete') {
+                const deleteUrl = `/erm/control_logs/${selectedId}/delete/`;
+                if (confirm('Are you sure you want to delete this control log?')) {
+                    window.location.href = deleteUrl;
+                }
+            } else {
+                alert('Please select a valid action.');
+            }
+        });
+    });
+</script>
+{% endblock content %}

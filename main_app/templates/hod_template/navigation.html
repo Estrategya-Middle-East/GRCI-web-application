@@ -1,0 +1,48 @@
+{% extends 'main_app/base.html' %} {% load static %} {% block content %}
+<section class="content">
+  {% comment %}
+  <div>
+    <h1
+      class="small-box"
+      style="
+        padding-left: 10px;
+        font-size: 50px;
+        background-color: #85b548;
+        color: white;
+      "
+    >
+      <b>Choose Your Solution</b>
+    </h1>
+  </div>
+  {% endcomment %}
+  <div class="container-fluid">
+    {% for group in grouped_modules %}
+    <div class="row">
+      {% for module in group %}
+      <div class="col-lg-4 col-12">
+        <div class="small-box" style="height: 550px">
+          <div class="inner text-left">
+            <h3>{{ module.name }}</h3>
+            <p style="padding-top: 10px">{{ module.description }}</p>
+          </div>
+          <div class="icon text-left">
+            <i
+              class="{{ module.icon }}"
+              style="color: #cc0000; font-size: 50px"
+            ></i>
+          </div>
+          <a
+            href="{{ module.url }}"
+            class="small-box-footer"
+            style="color: #cc0000"
+          >
+            {{ module.action_text }} <i class="fas fa-arrow-circle-right"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock content %}
