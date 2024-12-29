@@ -140,13 +140,13 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item">
+                                {% comment %} <li class="nav-item">
                                     {% url 'add_department' as add_department %}
                                     <a href="{{add_department}}" class="nav-link {% if add_department == request.path %} active {% endif %}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Add Department</p>
                                     </a>
-                                </li>
+                                </li> {% endcomment %}
                                 <li class="nav-item">
                                     {% url 'manage_department' as manage_department %}
                                     {% url 'edit_department' department_id as edit_department %}
@@ -168,13 +168,13 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item">
+                                {% comment %} <li class="nav-item">
                                     {% url 'add_staff' as add_staff %}
                                     <a href="{{add_staff}}" class="nav-link {% if add_staff == request.path %} active {% endif %}">
                                         <i class="nav-icon fas fa-user-plus"></i>
                                         <p>Add Staff</p>
                                     </a>
-                                </li>
+                                </li> {% endcomment %}
                                 <li class="nav-item">
                                     {% url 'manage_staff' as manage_staff %}
                                     {% url 'edit_staff' staff_id as edit_staff %}
@@ -264,13 +264,13 @@
                                         <p>Notify Staff</p>
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                {% comment %} <li class="nav-item">
                                     {% url 'admin_notify_user' as admin_notify_user %}
                                     <a href="{{admin_notify_user}}" class="nav-link {% if admin_notify_user == request.path %} active {% endif %}">
                                         <i class="nav-icon fas fa-bullhorn"></i>
                                         <p>Notify User</p>
                                     </a>
-                                </li>
+                                </li> {% endcomment %}
                             </ul>
                         </li>
                 
@@ -485,13 +485,13 @@
                                             </p>
                                         </a>
                                         <ul class="nav nav-treeview">
-                                            <li class="nav-item">
+                                            {% comment %} <li class="nav-item">
                                                 {% url 'add_department' as add_department %}
                                                 <a href="{{add_department}}" class="nav-link {% if add_department == request.path %} active {% endif %}">
                                                     <i class="far fa-circle nav-icon"></i>
                                                     <p>Add Department</p>
                                                 </a>
-                                            </li>
+                                            </li> {% endcomment %}
                                             <li class="nav-item">
                                                 {% url 'manage_department' as manage_department %}
                                                 {% url 'edit_department' department_id as edit_department %}
@@ -513,13 +513,13 @@
                                             </p>
                                         </a>
                                         <ul class="nav nav-treeview">
-                                            <li class="nav-item">
+                                            {% comment %} <li class="nav-item">
                                                 {% url 'add_staff' as add_staff %}
                                                 <a href="{{add_staff}}" class="nav-link {% if add_staff == request.path %} active {% endif %}">
                                                     <i class="nav-icon fas fa-user-plus"></i>
                                                     <p>Add Staff</p>
                                                 </a>
-                                            </li>
+                                            </li> {% endcomment %}
                                             <li class="nav-item">
                                                 {% url 'manage_staff' as manage_staff %}
                                                 {% url 'edit_staff' staff_id as edit_staff %}

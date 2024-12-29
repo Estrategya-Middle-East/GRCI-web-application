@@ -77,6 +77,17 @@ class Admin(models.Model):
 class Department(models.Model):
     name = models.CharField(max_length=120)
     description = models.TextField(null=True, blank=True)
+    org_chart_level = models.CharField(
+        max_length=50,
+        choices=[
+            ('N1', 'N1'),
+            ('N2', 'N2'),
+            ('N3', 'N3'),
+            ('N4', 'N4'),
+        ],
+        default=None,
+        null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -99,7 +110,7 @@ class Staff(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="staff")
     section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True, related_name="staff")
-    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, related_name="staff")
+    
 
     def __str__(self):
         return f"{self.admin.first_name} {self.admin.last_name}"

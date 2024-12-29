@@ -186,7 +186,8 @@
                         
                 </div><!-- /.container-fluid -->
             </div>
-            {% comment %} <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
+            {% if page_title == "Risks" %}
+            <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
                 <!-- Dropdown Menu (Aligned to the right) -->
                 <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -198,7 +199,8 @@
                         <li><a href="" class="dropdown-item trig"  data-action="delete">Delete</a></li>
                     </ul>
                 </div>
-            </div> {% endcomment %}
+            </div>
+            {% endif %}
             
             <!-- /.content-header -->
 

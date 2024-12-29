@@ -15,11 +15,18 @@ class RiskForm(forms.ModelForm):
 class RiskDefineForm(forms.ModelForm):
     class Meta:
         model = RiskDefine
-        fields = ['source', 'category', 'subcategory', 'department', 'objective', 'likelihood', 'impact', 'risk_score','identified_by' , 'identification_date', ]
+        fields = ['source', 'category', 'subcategory', 'department', 'objective', 'risk_impact', 'risk_event', 'risk_cause', 'likelihood', 'impact', 'risk_score','identified_by' , 'identification_date', ]
         
         widgets = {
             'identification_date': forms.DateInput(attrs={'type': 'date'}),
+            'risk_impact': forms.Textarea(attrs={'rows': 2}),
+            'risk_event': forms.Textarea(attrs={'rows': 2}),
+            'risk_cause': forms.Textarea(attrs={'rows': 2}),
             }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mark risk_score as read-only
+        self.fields['risk_score'].widget.attrs['readonly'] = True
 
 class RiskAssForm(forms.ModelForm):
     class Meta:
@@ -30,14 +37,24 @@ class RiskAssForm(forms.ModelForm):
             'assessment_date': forms.DateInput(attrs={'type': 'date'}),
             }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mark risk_score and risk_heatmap_position as read-only
+        self.fields['risk_score'].widget.attrs['readonly'] = True
+        self.fields['risk_heatmap_position'].widget.attrs['readonly'] = True
+
 class RiskPrioritizationForm(forms.ModelForm):
     class Meta:
         model = RiskPrioritization
-        fields = ['risk_score', 'is_manual_edit', 'priority_level', 'justification', 'assigned_to', 'risk_score', 'review_frequency', 'next_reviewdate', 'comments', 'status']
+        fields = ['risk_score', 'priority_level', 'justification', 'assigned_to', 'risk_score', 'review_frequency', 'next_reviewdate', 'comments', 'status']
 
         widgets = {
             'next_reviewdate': forms.DateInput(attrs={'type': 'date'}),
             }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mark risk_score and risk_heatmap_position as read-only
+        self.fields['risk_score'].widget.attrs['readonly'] = True
 
 class RiskResponseForm(forms.ModelForm):
     class Meta:
@@ -48,6 +65,32 @@ class RiskResponseForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
             }
+        
+class RiskResidualAssForm(forms.ModelForm):
+    class Meta:
+        model = RiskResidualAss
+        fields = ['assessment_date', 'assessed_by', 'risk_appetite', 'likelihood_rating', 'impact_rating', 'risk_score', 'risk_heatmap_position', 'mitigation_actions', 'reviewer_comments']
+
+        widgets = {
+            'assessment_date': forms.DateInput(attrs={'type': 'date'}),
+            }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mark risk_score and risk_heatmap_position as read-only
+        self.fields['risk_score'].widget.attrs['readonly'] = True
+        self.fields['risk_heatmap_position'].widget.attrs['readonly'] = True        
+
+class RiskCloseForm(forms.ModelForm):
+    class Meta:
+        model = RiskClose
+        fields = ['close_date', 'closed_by', 'comment', 'reviewer_comments']
+
+        widgets = {
+            'close_date': forms.DateInput(attrs={'type': 'date'}),
+            }
+
+    
 
 class OversightForm(forms.ModelForm):
     class Meta:

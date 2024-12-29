@@ -11,7 +11,7 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        border-bottom: 25px solid gray;
+        border-top: 25px solid #cc0000;
         margin: 0 auto; 
         margin-top: 20px; 
         margin-bottom: 20px;   
@@ -39,7 +39,22 @@
         width: 100%;
         height: 100%;
     }
-
+    #residual_heatmap {
+        width: 100%;
+        height: 100%;
+    }
+    #inherent_gauge_chart_data {
+        width: 100%;
+        height: 100%;
+    }
+    #residual_gauge_chart {
+        width: 100%;
+        height: 100%;
+    }
+    #department_chart {
+        width: 100%;
+        height: 100%;
+    }
 
 </style>
 
@@ -56,7 +71,6 @@
             <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_inherent_risks }}</div>
         </div>
     </div>
-    <div id="heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
     <div class="col"> 
         <div class="chart-container">
             <div id="chart_data_residual"></div>
@@ -66,8 +80,25 @@
             <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_residual_risks }}</div>
         </div>
     </div>
+    {% comment %} <div id="heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
+    <div id="inherent_gauge_chart_data" style="width: 400px; height: 400px;"></div> {% endcomment %}
 </div>
-
+{% comment %} <div class="row text-center justify-content-center" style="margin-top: 20px;"> 
+    <div class="col"> 
+        <div class="chart-container">
+            <div id="chart_data_residual"></div>
+        </div>
+        <div style="text-align: center; margin-top: -20px;">
+            <div style="font-size: 16px; color: #888;">Total Risks</div>
+            <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_residual_risks }}</div>
+        </div>
+    </div>
+    <div id="residual_heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
+    <div id="residual_gauge_chart" style="width: 400px; height: 400px;"></div>
+</div>
+<div class="row text-center justify-content-center" style="margin-top: 20px;"> 
+    <div id="department_chart" style="width: 100%; height: 600px;"></div>
+</div> {% endcomment %}
 <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
 <div class="container-fluid mt-4">
     
@@ -438,7 +469,7 @@
                 {
                     name: 'Risks by Category',
                     type: 'pie',
-                    radius: ['40%', '70%'],
+                    radius: ['40%', '60%'],
                     avoidLabelOverlap: false,
                     padAngle: 5,
                     itemStyle: {
@@ -485,7 +516,7 @@
                 {
                     name: 'Residual Risks',
                     type: 'pie',
-                    radius: ['40%', '70%'],
+                    radius: ['40%', '60%'],
                     avoidLabelOverlap: false,
                     padAngle: 5,
                     itemStyle: {
@@ -591,6 +622,287 @@
 
     myChart.setOption(option);
 </script>
+<script>
+    var chartDom = document.getElementById('residual_heatmap');
+    var myChart = echarts.init(chartDom);
 
+    // Data from Django: [impact-1, 5-likelihood, count]
+    var rawData = {{ residual_heatmap_data|safe }};
+    
+    // Adjust Y-values to match the bottom-to-top order of the Y-axis
+    var data = rawData.map(function(item) {
+        return [item[0], 4 - item[1], item[2], item[3]]; // Reverse Y-axis values
+    });
+
+    var option = {
+        title: {
+            text: 'Residual Risk Matrix',
+            left: 'center',
+            top: '0'
+        },
+        tooltip: {
+            position: 'top',
+            formatter: function (params) {
+                return 'Impact: ' + (params.data[0] + 1) + '<br>' +
+                       'Likelihood: ' + (params.data[1] + 1 ) + '<br>' +
+                       'Count: ' + params.data[2] + '<br>' +
+                       'Risk Score: ' + params.data[3];
+            }
+        },
+        grid: {
+            width:'75%',
+            height: '65%',
+            top: '10%'
+        },
+        xAxis: {
+            type: 'category',
+            data: [1, 2, 3, 4, 5],  // Impact values (1–5)
+            name: 'Impact',
+            splitArea: { show: true }
+        },
+        yAxis: {
+            type: 'category',
+            data: [1, 2, 3, 4, 5],  // Likelihood values (1–5)
+            name: 'Likelihood',
+            splitArea: { show: true }
+        },
+        visualMap: {
+            min: 1,
+            max: 25,  // Risk score max (5 * 5)
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: '5%',
+            inRange: {
+                color: ['#00ff00', '#ffff00', '#ff7f00', '#ff0000']  // Green to red gradient
+            }
+        },
+        series: [{
+            name: 'Risk Matrix',
+            type: 'heatmap',
+            data: data,
+            label: {
+                show: true,
+                color: '#000',
+                formatter: function (params) {
+                    return params.data[2];  // Display count of risks in each cell
+                }
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    };
+
+    myChart.setOption(option);
+</script>
+<script>
+    // Combined JavaScript document for Inherent and Residual Gauge Charts
+    document.addEventListener("DOMContentLoaded", function () {
+        // Chart 1: Inherent Risks
+        var inherentChartDom = document.getElementById('inherent_gauge_chart_data');
+        var inherentChart = echarts.init(inherentChartDom);
+
+        const inherentGaugeData = {{ inherent_gauge_chart_data|safe }}.map((item, index) => {
+            const positions = [
+                { title: ['90%', '80%'], detail: ['90%', '100%'], color: '#cc0000' },
+                { title: ['0%', '80%'], detail: ['0%', '100%'], color: 'orange' },
+                { title: ['-90%', '80%'], detail: ['-90%', '100%'], color: 'green' },
+            ];
+            return {
+                value: item.value,
+                name: item.name,
+                title: {
+                    offsetCenter: positions[index].title,
+                },
+                detail: {
+                    offsetCenter: positions[index].detail,
+                    color: '#FFFFFF',
+                    backgroundColor: positions[index].color,
+                    formatter: `{value}%`,
+                },
+                itemStyle: {
+                    color: positions[index].color,
+                },
+            };
+        });
+
+        var inherentOption = {
+            series: [
+                {
+                    type: 'gauge',
+                    anchor: {
+                        show: true,
+                        showAbove: true,
+                        size: 18,
+                        itemStyle: {
+                            color: '#FAC858',
+                        },
+                    },
+                    pointer: {
+                        icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+                        width: 8,
+                        length: '80%',
+                        offsetCenter: [0, '8%'],
+                    },
+                    progress: {
+                        show: true,
+                        overlap: true,
+                        roundCap: true,
+                    },
+                    axisLine: {
+                        roundCap: true,
+                    },
+                    data: inherentGaugeData,
+                    title: {
+                        fontSize: 14,
+                    },
+                    detail: {
+                        width: 50,
+                        height: 20,
+                        fontSize: 14,
+                        color: '#FFFFFF',
+                        backgroundColor: 'inherit',
+                        borderRadius: 3,
+                        formatter: '{value}%',
+                    },
+                },
+            ],
+        };
+
+        inherentChart.setOption(inherentOption);
+
+        // Chart 2: Residual Risks
+        var residualChartDom = document.getElementById('residual_gauge_chart');
+        var residualChart = echarts.init(residualChartDom);
+
+        const residualGaugeData = {{ residual_gauge_chart_data|safe }}.map((item, index) => {
+            const positions = [
+                { title: ['90%', '80%'], detail: ['90%', '100%'], color: '#cc0000' },
+                { title: ['0%', '80%'], detail: ['0%', '100%'], color: 'orange' },
+                { title: ['-90%', '80%'], detail: ['-90%', '100%'], color: 'green' },
+            ];
+            return {
+                value: item.value,
+                name: item.name,
+                title: {
+                    offsetCenter: positions[index].title,
+                },
+                detail: {
+                    offsetCenter: positions[index].detail,
+                    color: '#FFFFFF',
+                    backgroundColor: positions[index].color,
+                    formatter: `{value}%`,
+                },
+                itemStyle: {
+                    color: positions[index].color,
+                },
+            };
+        });
+
+        var residualOption = {
+            series: [
+                {
+                    type: 'gauge',
+                    anchor: {
+                        show: true,
+                        showAbove: true,
+                        size: 18,
+                        itemStyle: {
+                            color: '#FAC858',
+                        },
+                    },
+                    pointer: {
+                        icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+                        width: 8,
+                        length: '80%',
+                        offsetCenter: [0, '8%'],
+                    },
+                    progress: {
+                        show: true,
+                        overlap: true,
+                        roundCap: true,
+                    },
+                    axisLine: {
+                        roundCap: true,
+                    },
+                    data: residualGaugeData,
+                    title: {
+                        fontSize: 14,
+                    },
+                    detail: {
+                        width: 50,
+                        height: 20,
+                        fontSize: 14,
+                        color: '#FFFFFF',
+                        backgroundColor: 'inherit',
+                        borderRadius: 3,
+                        formatter: '{value}%',
+                    },
+                },
+            ],
+        };
+
+        residualChart.setOption(residualOption);
+    });
+
+</script>
+<script>
+    var departmentChartData = {{ department_chart_data|safe }};
+
+    var chartDom = document.getElementById('department_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        color: ['#5470C6', '#91CC75', '#EE6666'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+        },
+        legend: { data: ['Impact', 'Likelihood', 'Risk Score'] },
+        xAxis: {
+            type: 'category',
+            data: departmentChartData.departments // Department names
+        },
+        yAxis: [
+            {
+                type: 'value',
+                name: 'Impact & Likelihood',
+                position: 'right',
+                axisLine: { lineStyle: { color: '#5470C6' } }
+            },
+            {
+                type: 'value',
+                name: 'Risk Score',
+                position: 'left',
+                axisLine: { lineStyle: { color: '#CC0000' } }
+            }
+        ],
+        series: [
+            {
+                name: 'Impact',
+                type: 'bar',
+                data: departmentChartData.impact_totals // Total impacts
+            },
+            {
+                name: 'Likelihood',
+                type: 'bar',
+                data: departmentChartData.likelihood_totals // Total likelihoods
+            },
+            {
+                name: 'Risk Score',
+                type: 'line',
+                yAxisIndex: 1,
+                data: departmentChartData.risk_scores // Total risk scores
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
+  
 
 {% endblock content %}

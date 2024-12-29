@@ -27,6 +27,8 @@ class Risk(models.Model):
         ('assessment', 'Assessment'),
         ('prioritization', 'Prioritization'),
         ('response', 'Response'),
+        ('residual', 'Residual'),
+        ('close', 'Close'),
         ('completed', 'Completed'),
     ])
     define_approval_status = models.CharField(
@@ -69,6 +71,26 @@ class Risk(models.Model):
         ],
         default='pending',
     )
+    residual_approval_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('pending', 'Pending'),
+            ('under_review', 'Under Review'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending',
+    )
+    close_approval_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('pending', 'Pending'),
+            ('under_review', 'Under Review'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending',
+    )
     
     def __str__(self):
         return self.name
@@ -82,6 +104,9 @@ class RiskDefine(models.Model):
     objective = models.ForeignKey('Objective', on_delete=models.DO_NOTHING, blank=True, null=True)
     identified_by = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, blank=True, null=True)
     identification_date= models.DateField(default=now)
+    risk_cause= models.TextField(blank=True, null=True)
+    risk_event= models.TextField(blank=True, null=True)
+    risk_impact= models.TextField(blank=True, null=True)
     category = models.CharField(
         max_length=50,
         choices=[
@@ -109,7 +134,7 @@ class RiskDefine(models.Model):
             (4, '4'),
             (5, '5'),
         ],
-        default=1,)
+        default=0,)
     impact= models.IntegerField(
         choices=[
             (1, '1'),
@@ -118,7 +143,7 @@ class RiskDefine(models.Model):
             (4, '4'),
             (5, '5'),
         ],
-        default=1,)
+        default=0,)
     risk_score = models.IntegerField(default=0)
     approval_status = models.CharField(
         max_length=50,
@@ -151,7 +176,7 @@ class RiskAss(models.Model):
             (4, '4'),
             (5, '5'),
         ],
-        default=1,)
+        default=0,)
     impact_rating = models.IntegerField(
         choices=[
             (1, '1'),
@@ -160,7 +185,7 @@ class RiskAss(models.Model):
             (4, '4'),
             (5, '5'),
         ],
-        default=1,)
+        default=0,)
     risk_score = models.IntegerField(default=0) 
     residual_risk = models.IntegerField(default=0) 
     risk_heatmap_position =models.CharField(max_length=50,
@@ -168,6 +193,7 @@ class RiskAss(models.Model):
             ('Low', 'Low'),
             ('Medium', 'Medium'),
             ('High', 'High'),
+            ('Severe', 'Severe'),
         ],
         default='Low',)
     mitigation_actions = models.CharField(max_length=255, blank=True, null=True)
@@ -185,7 +211,20 @@ class RiskAss(models.Model):
 
     
     def save(self, *args, **kwargs):
+        # Calculate risk score
         self.risk_score = self.impact_rating * self.likelihood_rating
+        
+        # Determine risk heatmap position
+        if self.risk_score <= 4:
+            self.risk_heatmap_position = 'Low'
+        elif 4 < self.risk_score < 10:
+            self.risk_heatmap_position = 'Medium'
+        elif 10 <= self.risk_score < 20:
+            self.risk_heatmap_position = 'High'
+        elif 20 <= self.risk_score <= 25:
+            self.risk_heatmap_position = 'Severe'
+        
+        # Save the instance
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -286,6 +325,89 @@ class RiskResponse(models.Model):
     def __str__(self):
         return f"Response - {self.risk.name}"
 
+class RiskResidualAss(models.Model):
+    risk = models.OneToOneField(Risk, on_delete=models.CASCADE, related_name="residual_step", default=1)
+    assessment_date = models.DateField(default=now)
+    assessed_by = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, blank=True, null=True)
+    risk_appetite = models.ForeignKey('RiskAppetite', on_delete=models.DO_NOTHING, blank=True, null=True)
+    likelihood_rating = models.IntegerField(
+        choices=[
+            (1, '1'),
+            (2, '2'),
+            (3, '3'),
+            (4, '4'),
+            (5, '5'),
+        ],
+        default=0,)
+    impact_rating = models.IntegerField(
+        choices=[
+            (1, '1'),
+            (2, '2'),
+            (3, '3'),
+            (4, '4'),
+            (5, '5'),
+        ],
+        default=0,)
+    risk_score = models.IntegerField(default=0) 
+    risk_heatmap_position =models.CharField(max_length=50,
+        choices=[
+            ('Low', 'Low'),
+            ('Medium', 'Medium'),
+            ('High', 'High'),
+            ('Severe', 'Severe'),
+        ],
+        default='Low',)
+    mitigation_actions = models.CharField(max_length=255, blank=True, null=True)
+    reviewer_comments=models.TextField(blank=True, null=True)
+    approval_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('pending', 'Pending'),
+            ('under_review', 'Under Review'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending',
+    )
+
+    
+    def save(self, *args, **kwargs):
+        # Calculate risk score
+        self.risk_score = self.impact_rating * self.likelihood_rating
+        
+        # Determine risk heatmap position
+        if self.risk_score <= 4:
+            self.risk_heatmap_position = 'Low'
+        elif 4 < self.risk_score < 10:
+            self.risk_heatmap_position = 'Medium'
+        elif 10 <= self.risk_score < 20:
+            self.risk_heatmap_position = 'High'
+        elif 20 <= self.risk_score <= 25:
+            self.risk_heatmap_position = 'Severe'
+        
+        # Save the instance
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"Residual Risk Assessment - {self.risk.name}"
+
+class RiskClose(models.Model):
+    risk = models.OneToOneField(Risk, on_delete=models.CASCADE, related_name="close_step", default=1)
+    close_date = models.DateField(default=now)
+    closed_by = models.ForeignKey(Staff, on_delete=models.DO_NOTHING, blank=True, null=True)
+    comment = models.TextField(null= True)
+    reviewer_comments=models.TextField(blank=True, null=True)
+    approval_status = models.CharField(
+        max_length=50,
+        choices=[
+            ('pending', 'Pending'),
+            ('under_review', 'Under Review'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending',
+    )
+    
 
 class Oversight(models.Model):
     OversightID = models.AutoField(primary_key=True)
@@ -403,7 +525,7 @@ class RiskAppetite(models.Model):
     supporting_evidence = models.FileField(upload_to='risk_appetite_docs/', null=True, blank=True)
 
     def __str__(self):
-        return f"Risk Appetite {self.appetite_id}"
+        return self.risk_thresholds
 
 
 class StrategicEvaluation(models.Model):

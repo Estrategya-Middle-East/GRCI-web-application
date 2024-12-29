@@ -10,9 +10,17 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+                        <div class="row  d-flex justify-content-center align-items-center">
+                            <div class="col-11">
+                                <h3 class="card-title">{{page_title}}</h3>
+                            </div>
+                            <div class="col">
+                                <a href="{% url 'add_department' %}" class="btn btn-success">Add</a>
+                            </div>
+                        </div>
                     </div>
                     <!-- /.card-header -->
+                    
                     <div class="card-body">
                         <table id="example2" class="table table-bordered table-hover">
                             <theaD class="thead-dark">

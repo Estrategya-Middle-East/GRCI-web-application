@@ -86,7 +86,11 @@ class DepartmentForm(FormSettings):
 
     class Meta:
         model = Department
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'org_chart_level']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
 
 class SectionForm(FormSettings):
     staff = forms.ModelMultipleChoiceField(
@@ -104,23 +108,6 @@ class SectionForm(FormSettings):
     class Meta:
         model = Section
         fields = ['name', 'description', 'department', 'staff']
-
-class GroupForm(FormSettings):
-    staff = forms.ModelMultipleChoiceField(
-        queryset=Staff.objects.none(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(GroupForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs:
-            section = kwargs['instance'].section
-            self.fields['staff'].queryset = Staff.objects.filter(section=section, group__isnull=True)
-
-    class Meta:
-        model = Group
-        fields = ['name', 'description', 'section', 'staff']
 
 class StaffForm(CustomUserForm):
     department = forms.ModelChoiceField(

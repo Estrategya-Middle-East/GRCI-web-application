@@ -440,12 +440,14 @@ def edit_department(request, department_id):
         if form.is_valid():
             # Retrieve the cleaned data for name and description
             name = form.cleaned_data.get('name')
-            description = form.cleaned_data.get('description')  
+            description = form.cleaned_data.get('description')
+            org_chart_level = form.cleaned_data.get('org_chart_level')
             try:
                 # Update the department instance
                 department = Department.objects.get(id=department_id)
                 department.name = name
                 department.description = description  
+                department.org_chart_level = org_chart_level  
                 department.save()
                 messages.success(request, "Successfully Updated")
             except Exception as e:

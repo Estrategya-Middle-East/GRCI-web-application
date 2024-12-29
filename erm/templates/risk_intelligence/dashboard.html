@@ -1,27 +1,814 @@
-{% extends 'erm/erm_base.html' %}
-
-{% block title %}
-    {{ page_title }}
-{% endblock title %}
+{% extends "erm/erm_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Risk Management Dashboard{% endblock page_title %}
 
 {% block content %}
-<div class="container mt-4">
-    {% comment %} <a style="margin-left:20px" href="{% url 'list_risks' %}" class="btn btn-info">Risks</a> {% endcomment %}
-    <h1 class="text-center">Risk Intelligence and Reporting Systems</h1>
-    <p class="text-center">Coming Soon...</p>
-    {% comment %} <div class="row mt-5">
-        {% for component in components %}
-        <div class="col-lg-6 col-md-6 mb-4">
-            <a href="{{ component.link }}" class="card shadow text-decoration-none" style="color: inherit;">
-                <div class="card-body d-flex align-items-center">
-                    <!-- Icon -->
-                    <i class="{{ component.icon }} fa-3x mr-3" style="color: #95ce55;"></i>
-                    <!-- Title -->
-                    <h5 class="card-title m-0 " style="font-size: 1.5rem;">{{ component.name }}</h5>
+<style>
+   
+    .chart-container {
+        padding: 20px;
+        border-radius: 8px;
+        //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 10px auto;
+        height: 300px; /* Adjust height */
+        width: 60%; /* Adjust width to make room for other charts */
+        display: inline-block; /* Allow charts to sit next to each other */
+        vertical-align: top; /* Align the charts at the top */
+    }
+
+    #chart_data_inherent {
+        width: 100%;
+        height: 100%;
+    }
+    #chart_data_residual {
+        width: 100%;
+        height: 100%;
+    }
+    #heatmap {
+        width: 100%;
+        height: 100%;
+    }
+    #residual_heatmap {
+        width: 100%;
+        height: 100%;
+    }
+    #inherent_gauge_chart_data {
+        width: 100%;
+        height: 100%;
+    }
+    #residual_gauge_chart {
+        width: 100%;
+        height: 100%;
+    }
+    #department_chart {
+        width: 100%;
+        height: 100%;
+    }
+    #org_chart {
+        width: 100%;
+        height: 100%;
+    }
+
+</style>
+<section class="content">
+    {% comment %} <h1 class="text-center">Risk Management Dashboard</h1> {% endcomment %}
+    <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+            {% comment %} <!-- Total Departments -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box">
+                    <div class="inner text-left">
+                        <h3>{{ total_department }}</h3>
+                        <p>Total Departments</p>
+                    </div>
+                    <div class="icon text-left">
+                        <i class="nav-icon fas fa-cog" style="color: #cc0000; font-size: 50px;"></i>
+                    </div>
+                    <a href="{% url 'manage_department' %}" class="small-box-footer bg-dark">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
                 </div>
-            </a>
+            </div>
+            <!-- Placeholder -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box">
+                    <div class="inner text-left">
+                        <h3>#</h3>
+                        <p>###</p>
+                    </div>
+                    <div class="icon text-left">
+                        <i class="nav-icon fas fa-list" style="color: #cc0000; font-size: 50px;"></i>
+                    </div>
+                    <a href="#" class="small-box-footer bg-dark">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>{% endcomment %}
         </div>
-        {% endfor %}
-    </div> {% endcomment %}
-</div>
+        <!-- /.row --> 
+  
+        <!-- Chart Rows -->
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Total inherent risks -->
+                <div class="col">
+                    <div class="small-box">
+                        <div class="inner text-left">
+                            <h3>{{ total_inherent_risks }}</h3>
+                            <p>Total Inherent Risks</p>
+                        </div>
+                        {% comment %} <div class="icon text-left">
+                            <i class="nav-icon fas fa-user" style="color: #cc0000; font-size: 50px;"></i>
+                        </div>
+                        <a href="{% url 'manage_user' %}" class="small-box-footer bg-dark">
+                            More info <i class="fas fa-arrow-circle-right"></i>
+                        </a> {% endcomment %}
+                    </div>
+                </div>
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">Inherent Risk Assessment by Category</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div class="chart-container">
+                            <div id="chart_data_inherent"></div>
+                            {% comment %} <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Total residual risks -->
+                <div class="col">
+                    <div class="small-box">
+                        <div class="inner text-left">
+                            <h3>{{ total_residual_risks }}</h3>
+                            <p>Total Residual Risks</p>
+                        </div>
+                        {% comment %} <div class="icon text-left">
+                            <i class="nav-icon fas fa-users" style="color: #cc0000; font-size: 50px;"></i>
+                        </div>
+                        <a href="{% url 'manage_staff' %}" class="small-box-footer bg-dark">
+                            More info <i class="fas fa-arrow-circle-right"></i>
+                        </a> {% endcomment %}
+                    </div>
+                </div>
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">Residual Risk Assessment by Category</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div class="chart-container">
+                            <div id="chart_data_residual"></div>
+                            {% comment %} <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- /.row -->
+  
+        <!-- Additional Charts -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-light">
+                    <div class="card-header">
+                        <h3 class="card-title">Departments Inherent Risk Assessment</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <div id="department_chart" style="width: 100%; height: 600px;"></div>
+                            {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  
+        <!-- heatmap Charts -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">Inherint Risks Heatmap</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body  justify-content-center align-items-center">
+                        <div id="heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
+                        {% comment %} <canvas id="pieChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">Residual Risks Heatmap</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body  justify-content-center align-items-center">
+                        <div id="residual_heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
+                        {% comment %} <canvas id="pieChart3" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gauge Charts -->
+        <div class="row">
+            <!-- Inherent Gauge Chart -->
+            <div class="col-lg-6">
+                <div class="card card-light">
+                    <div class="card-header">
+                        <h3 class="card-title">Inherent Risk Appetite</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div id="inherent_gauge_chart_data" style="width: 400px; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Residual Gauge Chart -->
+            <div class="col-lg-6">
+                <div class="card card-light">
+                    <div class="card-header">
+                        <h3 class="card-title">Residual Risk Appetite</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div id="residual_gauge_chart" style="width: 400px; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h3 class="card-title">Organizational Structure</h3>
+                </div>
+                <div class="card-body">
+                    <div id="org_chart" style="width: 100%; height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</section>
+
+       
+        
+<script src="{% static 'dist/js/echarts.min.js'%}"></script>
+<script>
+    var chartDom = document.getElementById('org_chart');
+    var myChart = echarts.init(chartDom);
+
+    // Use org_chart_data passed from the backend
+    var orgChartData = {{ org_chart_data|safe }};
+
+    var option = {
+        tooltip: {
+            trigger: 'item',
+            triggerOn: 'mousemove',
+            formatter: function (params) {
+                return params.data.tooltip ? params.data.tooltip.formatter : params.name;
+            }
+        },
+        series: [
+            {
+                type: 'tree',
+                data: orgChartData,
+                top: '1%',
+                left: '7%',
+                bottom: '1%',
+                right: '20%',
+                symbolSize: 7,
+                label: {
+                    position: 'left',
+                    verticalAlign: 'middle',
+                    align: 'right',
+                    fontSize: 12
+                },
+                leaves: {
+                    label: {
+                        position: 'right',
+                        verticalAlign: 'middle',
+                        align: 'left'
+                    }
+                },
+                emphasis: {
+                    focus: 'descendant'
+                },
+                expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var chartDom = document.getElementById('chart_data_inherent');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        option = {
+            title: {
+                text: 'Inhernt Risks',  // Add the chart label here
+                left: 'center',
+                bottom: 0,  // Position the label under the chart
+                textStyle: {
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    color: '#555'  // Custom color
+                }},
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c} ({d}%)'
+            },
+            legend: {
+                top: '0%',
+                left: 'center'
+            },
+            series: [
+                {
+                    name: 'Risks by Category',
+                    type: 'pie',
+                    top: '10%',
+                    radius: ['40%', '60%'],
+                    avoidLabelOverlap: false,
+                    padAngle: 5,
+                    itemStyle: {
+                        borderRadius: 10
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '30',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: {{ chart_data_inherent|safe }}  // Dynamic Data
+                }
+            ]
+        };
+
+        option && myChart.setOption(option);
+
+        // Chart 2: Residual Risks
+        var residualChartDom = document.getElementById('chart_data_residual');
+        var residualChart = echarts.init(residualChartDom);
+        var residualOption = {
+            title: {
+                text: 'Residual Risks',
+                left: 'center',
+                bottom: 0,
+                textStyle: {
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    color: '#555'
+                }
+            },
+            tooltip: { trigger: 'item' },
+            legend: { top: '0%', left: 'center' },
+            series: [
+                {
+                    name: 'Residual Risks',
+                    type: 'pie',
+                    top: '10%',
+                    radius: ['40%', '60%'],
+                    avoidLabelOverlap: false,
+                    padAngle: 5,
+                    itemStyle: {
+                        borderRadius: 10
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '30',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: {{ chart_data_residual|safe }}  // Dynamic Data
+                }
+            ]
+        };
+        residualChart.setOption(residualOption);
+    });
+</script>
+
+
+<script>
+    var chartDom = document.getElementById('heatmap');
+    var myChart = echarts.init(chartDom);
+
+    // Data from Django: [impact-1, 5-likelihood, count]
+    var rawData = {{ heatmap_data|safe }};
+    
+    // Adjust Y-values to match the bottom-to-top order of the Y-axis
+    var data = rawData.map(function(item) {
+        return [item[0], 4 - item[1], item[2], item[3]]; // Reverse Y-axis values
+    });
+
+    var option = {
+        title: {
+            text: 'Risk Matrix (Impact vs Likelihood)',
+            left: 'center',
+            top: '0'
+        },
+        tooltip: {
+            position: 'top',
+            formatter: function (params) {
+                return 'Impact: ' + (params.data[0] + 1) + '<br>' +
+                       'Likelihood: ' + (params.data[1] + 1 ) + '<br>' +
+                       'Count: ' + params.data[2] + '<br>' +
+                       'Risk Score: ' + params.data[3];
+            }
+        },
+        grid: {
+            width:'75%',
+            height: '65%',
+            top: '10%'
+        },
+        xAxis: {
+            type: 'category',
+            data: [1, 2, 3, 4, 5],  // Impact values (1–5)
+            name: 'Impact',
+            splitArea: { show: true }
+        },
+        yAxis: {
+            type: 'category',
+            data: [1, 2, 3, 4, 5],  // Likelihood values (1–5)
+            name: 'Likelihood',
+            splitArea: { show: true }
+        },
+        visualMap: {
+            min: 1,
+            max: 25,  // Risk score max (5 * 5)
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: '5%',
+            inRange: {
+                color: ['#00ff00', '#ffff00', '#ff7f00', '#ff0000']  // Green to red gradient
+            }
+        },
+        series: [{
+            name: 'Risk Matrix',
+            type: 'heatmap',
+            data: data,
+            label: {
+                show: true,
+                color: '#000',
+                formatter: function (params) {
+                    return params.data[2];  // Display count of risks in each cell
+                }
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    };
+
+    myChart.setOption(option);
+</script>
+<script>
+    var chartDom = document.getElementById('residual_heatmap');
+    var myChart = echarts.init(chartDom);
+
+    // Data from Django: [impact-1, 5-likelihood, count]
+    var rawData = {{ residual_heatmap_data|safe }};
+    
+    // Adjust Y-values to match the bottom-to-top order of the Y-axis
+    var data = rawData.map(function(item) {
+        return [item[0], 4 - item[1], item[2], item[3]]; // Reverse Y-axis values
+    });
+
+    var option = {
+        title: {
+            text: 'Risk Matrix (Impact vs Likelihood',
+            left: 'center',
+            top: '0'
+        },
+        tooltip: {
+            position: 'top',
+            formatter: function (params) {
+                return 'Impact: ' + (params.data[0] + 1) + '<br>' +
+                       'Likelihood: ' + (params.data[1] + 1 ) + '<br>' +
+                       'Count: ' + params.data[2] + '<br>' +
+                       'Risk Score: ' + params.data[3];
+            }
+        },
+        grid: {
+            width:'75%',
+            height: '65%',
+            top: '10%'
+        },
+        xAxis: {
+            type: 'category',
+            data: [1, 2, 3, 4, 5],  // Impact values (1–5)
+            name: 'Impact',
+            splitArea: { show: true }
+        },
+        yAxis: {
+            type: 'category',
+            data: [1, 2, 3, 4, 5],  // Likelihood values (1–5)
+            name: 'Likelihood',
+            splitArea: { show: true }
+        },
+        visualMap: {
+            min: 1,
+            max: 25,  // Risk score max (5 * 5)
+            calculable: true,
+            orient: 'horizontal',
+            left: 'center',
+            bottom: '5%',
+            inRange: {
+                color: ['#00ff00', '#ffff00', '#ff7f00', '#ff0000']  // Green to red gradient
+            }
+        },
+        series: [{
+            name: 'Risk Matrix',
+            type: 'heatmap',
+            data: data,
+            label: {
+                show: true,
+                color: '#000',
+                formatter: function (params) {
+                    return params.data[2];  // Display count of risks in each cell
+                }
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    };
+
+    myChart.setOption(option);
+</script>
+<script>
+    // Combined JavaScript document for Inherent and Residual Gauge Charts
+    document.addEventListener("DOMContentLoaded", function () {
+        // Chart 1: Inherent Risks
+        var inherentChartDom = document.getElementById('inherent_gauge_chart_data');
+        var inherentChart = echarts.init(inherentChartDom);
+
+        const inherentGaugeData = {{ inherent_gauge_chart_data|safe }}.map((item, index) => {
+            const positions = [
+                { title: ['90%', '80%'], detail: ['90%', '100%'], color: '#cc0000' },
+                { title: ['0%', '80%'], detail: ['0%', '100%'], color: 'orange' },
+                { title: ['-90%', '80%'], detail: ['-90%', '100%'], color: 'green' },
+            ];
+            return {
+                value: item.value,
+                name: item.name,
+                title: {
+                    offsetCenter: positions[index].title,
+                },
+                detail: {
+                    offsetCenter: positions[index].detail,
+                    color: '#FFFFFF',
+                    backgroundColor: positions[index].color,
+                    formatter: `{value}%`,
+                },
+                itemStyle: {
+                    color: positions[index].color,
+                },
+            };
+        });
+
+        var inherentOption = {
+            series: [
+                {
+                    type: 'gauge',
+                    anchor: {
+                        show: true,
+                        showAbove: true,
+                        size: 18,
+                        itemStyle: {
+                            color: '#FAC858',
+                        },
+                    },
+                    pointer: {
+                        icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+                        width: 8,
+                        length: '80%',
+                        offsetCenter: [0, '8%'],
+                    },
+                    progress: {
+                        show: true,
+                        overlap: true,
+                        roundCap: true,
+                    },
+                    axisLine: {
+                        roundCap: true,
+                    },
+                    data: inherentGaugeData,
+                    title: {
+                        fontSize: 14,
+                    },
+                    detail: {
+                        width: 50,
+                        height: 20,
+                        fontSize: 14,
+                        color: '#FFFFFF',
+                        backgroundColor: 'inherit',
+                        borderRadius: 3,
+                        formatter: '{value}%',
+                    },
+                },
+            ],
+        };
+
+        inherentChart.setOption(inherentOption);
+
+        // Chart 2: Residual Risks
+        var residualChartDom = document.getElementById('residual_gauge_chart');
+        var residualChart = echarts.init(residualChartDom);
+
+        const residualGaugeData = {{ residual_gauge_chart_data|safe }}.map((item, index) => {
+            const positions = [
+                { title: ['90%', '80%'], detail: ['90%', '100%'], color: '#cc0000' },
+                { title: ['0%', '80%'], detail: ['0%', '100%'], color: 'orange' },
+                { title: ['-90%', '80%'], detail: ['-90%', '100%'], color: 'green' },
+            ];
+            return {
+                value: item.value,
+                name: item.name,
+                title: {
+                    offsetCenter: positions[index].title,
+                },
+                detail: {
+                    offsetCenter: positions[index].detail,
+                    color: '#FFFFFF',
+                    backgroundColor: positions[index].color,
+                    formatter: `{value}%`,
+                },
+                itemStyle: {
+                    color: positions[index].color,
+                },
+            };
+        });
+
+        var residualOption = {
+            series: [
+                {
+                    type: 'gauge',
+                    anchor: {
+                        show: true,
+                        showAbove: true,
+                        size: 18,
+                        itemStyle: {
+                            color: '#FAC858',
+                        },
+                    },
+                    pointer: {
+                        icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+                        width: 8,
+                        length: '80%',
+                        offsetCenter: [0, '8%'],
+                    },
+                    progress: {
+                        show: true,
+                        overlap: true,
+                        roundCap: true,
+                    },
+                    axisLine: {
+                        roundCap: true,
+                    },
+                    data: residualGaugeData,
+                    title: {
+                        fontSize: 14,
+                    },
+                    detail: {
+                        width: 50,
+                        height: 20,
+                        fontSize: 14,
+                        color: '#FFFFFF',
+                        backgroundColor: 'inherit',
+                        borderRadius: 3,
+                        formatter: '{value}%',
+                    },
+                },
+            ],
+        };
+
+        residualChart.setOption(residualOption);
+    });
+
+</script>
+<script>
+    var departmentChartData = {{ department_chart_data|safe }};
+
+    var chartDom = document.getElementById('department_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        color: ['#5470C6', '#91CC75', '#EE6666'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+        },
+        legend: { data: ['Impact', 'Likelihood', 'Risk Score'] },
+        xAxis: {
+            type: 'category',
+            data: departmentChartData.departments // Department names
+        },
+        yAxis: [
+            {
+                type: 'value',
+                name: 'Impact & Likelihood',
+                position: 'right',
+                axisLine: { lineStyle: { color: '#5470C6' } }
+            },
+            {
+                type: 'value',
+                name: 'Risk Score',
+                position: 'left',
+                axisLine: { lineStyle: { color: '#CC0000' } }
+            }
+        ],
+        series: [
+            {
+                name: 'Impact',
+                type: 'bar',
+                data: departmentChartData.impact_totals // Total impacts
+            },
+            {
+                name: 'Likelihood',
+                type: 'bar',
+                data: departmentChartData.likelihood_totals // Total likelihoods
+            },
+            {
+                name: 'Risk Score',
+                type: 'line',
+                yAxisIndex: 1,
+                data: departmentChartData.risk_scores // Total risk scores
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
+  
+
 {% endblock content %}

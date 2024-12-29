@@ -7,7 +7,7 @@ from collections import namedtuple
 from .forms import *
 from .models import *
 from .filters import RiskFilter
-from django.db.models import Count,F,Q
+from django.db.models import Count,F,Q,Sum
 from main_app.models import *
 import pandas as pd
 from django.http import HttpResponse,JsonResponse
@@ -28,10 +28,10 @@ def dashboard(request):
         {"name": "Strategic Planning and Goal Alignment", "icon": "fas fa-chart-line", "link": "strategic_planning/"},
         {"name": "Risk Operations and Execution", "icon": "fas fa-bullseye", "link": "risks/"},
         {"name": "Continuous Monitoring and Optimization", "icon": "fas fa-balance-scale", "link": "continuous_monitoring/"},
-        {"name": "Risk Intelligence and Reporting Systems", "icon": "fas fa-cogs", "link": "risk_intelligence/"},
+        {"name": "Risk Management Dashboard", "icon": "fas fa-cogs", "link": "risk_intelligence/"},
     ]
     context = {
-        'page_title': "ERM Dashboard",
+        'page_title': "ERM",
         'components': components,
     }
     return render(request, 'erm/erm_dashboard.html', context)
@@ -45,7 +45,7 @@ def leadership_dashboard(request):
         {"name": "Talent Management for Risk", "icon": "fas fa-user-tie", "link": "talent_managements"},
     ]
     context = {
-        'page_title': "Leadership Dashboard",
+        'page_title': "Leadership",
         'components': components,
     }
     return render(request, 'leadership/leadership_dashboard.html', context)
@@ -79,14 +79,158 @@ def continuous_monitoring_dashboard(request):
 
 
 def risk_intelligence_dashboard(request):
-    components = [
-        {"name": "Risk Information Hub", "icon": "fas fa-database", "link": "#"},
-        {"name": "Risk Communication Platform", "icon": "fas fa-comments", "link": "#"},
-        {"name": "Risk Reporting System", "icon": "fas fa-file-alt", "link": "#"},
+    inherent_risk_counts = (
+        RiskDefine.objects.values("category")
+        .annotate(count=Count("category"))
+        .order_by("category")
+    )
+    
+     # Calculate total inherent risks
+    total_inherent_risks = sum(item["count"] for item in inherent_risk_counts)
+    
+    # Prepare the data for ECharts
+    chart_data_inherent = [{"name": item["category"], "value": item["count"]} for item in inherent_risk_counts]
+    
+    residual_risks = (
+        RiskResidualAss.objects.filter(risk_score__gt=0)
+        .values("risk__define_step__category")
+        .annotate(count=Count("risk__define_step__category"))
+    )
+   
+    # Calculate total residual risks
+    total_residual_risks = sum(item["count"] for item in residual_risks)
+    
+    chart_data_residual = [
+        {"name": item["risk__define_step__category"], "value": item["count"]} for item in residual_risks
     ]
+    
+    # Aggregate data: Count risks by likelihood and impact
+    heatmap_data = (
+        RiskAss.objects
+        .values('likelihood_rating', 'impact_rating', 'risk_score')  # Group by likelihood and impact
+        .annotate(count=Count('id'))  # Count the number of risks
+    )
+
+    # Format data for ECharts: [impact-1, 5-likelihood, count]
+    formatted_data = [
+        [item['impact_rating'] - 1, 5 - item['likelihood_rating'], item['count'], item['risk_score']]
+        for item in heatmap_data
+    ]
+    
+    residual_heatmap_data = (
+        RiskResidualAss.objects
+        .values('likelihood_rating', 'impact_rating', 'risk_score')  # Group by likelihood and impact
+        .annotate(count=Count('id'))  # Count the number of risks
+    )
+
+    # Format data for ECharts: [impact-1, 5-likelihood, count]
+    residual_formatted_data = [
+        [item['impact_rating'] - 1, 5 - item['likelihood_rating'], item['count'], item['risk_score']]
+        for item in residual_heatmap_data
+    ]
+    
+    
+    # risk score ranges
+    high_risk_range = Q(risk_score__gte=20, risk_score__lte=25)
+    risk_tolerance_range = Q(risk_score__gte=10, risk_score__lt=20)
+    risk_appetite_range = Q(risk_score__lt=10)
+
+    # Calculate counts for each risk range
+    high_risk_count = RiskAss.objects.filter(high_risk_range).count()
+    risk_tolerance_count = RiskAss.objects.filter(risk_tolerance_range).count()
+    risk_appetite_count = RiskAss.objects.filter(risk_appetite_range).count()
+
+    # Total risks
+    inherent_gauge_total_risks = high_risk_count + risk_tolerance_count + risk_appetite_count
+
+    # Calculate percentages
+    inherent_gauge_chart_data = [
+        {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
+        {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
+        {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
+    ]
+
+    
+    # Calculate counts for each risk range
+    high_residual_risk_count = RiskResidualAss.objects.filter(high_risk_range).count()
+    residual_risk_tolerance_count = RiskResidualAss.objects.filter(risk_tolerance_range).count()
+    residual_risk_appetite_count = RiskResidualAss.objects.filter(risk_appetite_range).count()
+
+    # Total risks
+    residual_gauge_risks = high_residual_risk_count + residual_risk_tolerance_count + residual_risk_appetite_count
+
+    # Calculate percentages
+    residual_gauge_chart_data = [
+        {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
+        {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
+        {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
+    ]
+    
+    department_totals = RiskDefine.objects.values('department__name').annotate(
+    total_impact=Sum('impact'),
+    total_likelihood=Sum('likelihood'),
+    total_risk_score=Sum('risk_score')
+    )
+
+    # Format data for the chart
+    department_data = {
+        'departments': [dept['department__name'] or 'Unknown' for dept in department_totals],
+        'impact_totals': [dept['total_impact'] or 0 for dept in department_totals],
+        'likelihood_totals': [dept['total_likelihood'] or 0 for dept in department_totals],
+        'risk_scores': [dept['total_risk_score'] or 0 for dept in department_totals],
+    }
+    
+    # Organizational structure tree logic
+    levels = ['N1', 'N2', 'N3', 'N4']
+    org_chart_data = []
+
+    # Add CEO as the root node
+    ceo_node = {
+        "name": "CEO",
+        "value": 0,
+        "children": []
+    }
+
+    # Build hierarchy for each level
+    current_level_nodes = [ceo_node]  # Start from CEO
+
+    for level in levels:
+        departments = Department.objects.filter(org_chart_level=level).annotate(staff_count=Count('staff'))
+        next_level_nodes = []
+
+        for department in departments:
+            department_node = {
+                "name": department.name,
+                "value": department.staff_count,
+                "tooltip": {
+                    "formatter": f"{department.name}: {department.staff_count} staff"
+                },
+                "children": []
+            }
+            # Add this node to the parent's children
+            for parent in current_level_nodes:
+                if parent["name"] == "CEO" or parent.get("children"):
+                    parent["children"].append(department_node)
+            next_level_nodes.append(department_node)
+
+        # Update the current level nodes for the next iteration
+        current_level_nodes = next_level_nodes
+
+    # Add CEO node to the data
+    org_chart_data.append(ceo_node)
+    
     context = {
-        'page_title': "Risk Intelligence and Reporting Systems",
-        'components': components,
+        'page_title': "Risk Management Dashboard",
+        "chart_data_inherent": chart_data_inherent,
+        'total_inherent_risks': total_inherent_risks,
+        'heatmap_data': formatted_data,
+        'inherent_gauge_chart_data': inherent_gauge_chart_data,
+        'chart_data_residual': chart_data_residual,
+        'total_residual_risks':total_residual_risks,
+        'residual_heatmap_data': residual_formatted_data,
+        'residual_gauge_chart_data': residual_gauge_chart_data,
+        'department_chart_data': department_data,
+        'org_chart_data': org_chart_data,  # Pass organizational structure data
     }
     return render(request, 'risk_intelligence/dashboard.html', context)
 
@@ -149,16 +293,17 @@ def export_risks_to_excel(request):
 
     # Define headers
     headers = [
-        "Risk Name", "Description", "Workflow Status",
-        "Department", "Section", "Objective", "Identified By", "Identification Date",
-        "Category", "Subcategory", "Source", "Likelihood", "Impact", "Risk Score", "Approval Status"
+        "Risk Name", "Description",
+        "Department", "Objective", "Identified By", "Identification Date",
+        "Category", "Subcategory", "Source", "Risk Cause", "Risk Event", "Risk Score", 
+        "Likelihood Rating", "Impact Rating", "Risk Score",  "Risk Heatmap Position", "Approval Status"
     ]
 
     # Styles
     header_font = Font(bold=True, color="FFFFFF", size=11)
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
     border_style = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
-    alignment_center = Alignment(horizontal="center", vertical="center")
+    alignment_center = Alignment(horizontal="left", vertical="center")
     alt_row_fill = PatternFill(start_color="F9F9F9", end_color="F9F9F9", fill_type="solid")
 
     # Apply header styles
@@ -169,32 +314,42 @@ def export_risks_to_excel(request):
         cell.alignment = alignment_center
         cell.border = border_style
 
-    # Query data from Risk and RiskDefine models
+    # Query data from Risk, RiskDefine, and RiskAss models
     risks = Risk.objects.all()
     row = 2
     total_risk_score = 0  # Initialize total risk score
 
     for index, risk in enumerate(risks):
         define_step = getattr(risk, 'define_step', None)
-        
+        assessment_step = getattr(risk, 'assessment_step', None)
+
         # Alternate row background for better readability
         fill_color = alt_row_fill if row % 2 == 0 else None
 
+        # Safely extract foreign key fields and handle None values
+        department = str(getattr(define_step, 'department', '')) if define_step and define_step.department else ''
+        identified_by = str(getattr(define_step, 'identified_by', '')) if define_step and define_step.identified_by else ''
+        objective = str(getattr(define_step, 'objective', '')) if define_step and define_step.objective else ''
+
         # Data Rows
         cells = [
-            risk.name, risk.description, risk.workflow_status,
-            getattr(define_step, 'department', ''),
-            getattr(define_step, 'section', ''),
-            getattr(define_step, 'objective', ''),
-            getattr(define_step, 'identified_by', ''),
-            getattr(define_step, 'identification_date', '').strftime('%Y-%m-%d') if define_step else '',
+            risk.name, 
+            risk.description, 
+            department, 
+            objective,
+            identified_by, 
+            getattr(define_step, 'identification_date', '').strftime('%Y-%m-%d') if define_step and define_step.identification_date else '',
             getattr(define_step, 'category', ''),
             getattr(define_step, 'subcategory', ''),
             getattr(define_step, 'source', ''),
-            getattr(define_step, 'likelihood', ''),
-            getattr(define_step, 'impact', ''),
-            getattr(define_step, 'risk_score', ''),
-            getattr(define_step, 'approval_status', ''),
+            getattr(define_step, 'risk_cause', ''),
+            getattr(define_step, 'risk_event', ''),
+            getattr(define_step, 'risk_impact', ''),
+            getattr(assessment_step, 'likelihood_rating', ''),
+            getattr(assessment_step, 'impact_rating', ''),
+            getattr(assessment_step, 'risk_score', ''),
+            getattr(assessment_step, 'risk_heatmap_position', ''),
+            getattr(define_step, 'approval_status', '')
         ]
 
         # Add risk score to total
@@ -270,6 +425,20 @@ class RiskWorkflowView(TemplateView):
             response_step = RiskResponse(risk=risk)
             response_step.save()
         context['form_response'] = RiskResponseForm(instance=response_step)
+        
+        # Residual step form
+        residual_step = RiskResidualAss.objects.filter(risk=risk).first()
+        if not residual_step:
+            residual_step = RiskResidualAss(risk=risk)
+            residual_step.save()
+        context['form_residual'] = RiskResidualAssForm(instance=residual_step)
+        
+        # Close step form
+        close_step = RiskClose.objects.filter(risk=risk).first()
+        if not close_step:
+            close_step = RiskClose(risk=risk)
+            close_step.save()
+        context['form_close'] = RiskCloseForm(instance=close_step)
             
         # Set the current step
         if risk.workflow_status == 'define':
@@ -280,7 +449,11 @@ class RiskWorkflowView(TemplateView):
             context['current_step'] = 'prioritization'
         elif risk.workflow_status == 'response':
             context['current_step'] = 'response'
-            
+        elif risk.workflow_status == 'residual':
+            context['current_step'] = 'residual'
+        elif risk.workflow_status == 'close':
+            context['current_step'] = 'close'
+        
         context['risk'] = risk
         return context
 
@@ -426,7 +599,7 @@ class RiskWorkflowView(TemplateView):
 
                 elif 'approve' in request.POST:
                     # Approve action for response: move to the next step 
-                    risk.workflow_status = 'completed'  
+                    risk.workflow_status = 'residual'  
                     risk.response_approval_status = 'approved'
                     response_step.approval_status = 'approved'
                     risk.save()
@@ -441,6 +614,82 @@ class RiskWorkflowView(TemplateView):
                     risk.save()
                     response_step.save()
                     messages.info(request, "Response rejected.")
+        
+        elif risk.workflow_status == 'residual':
+            residual_step = RiskResidualAss.objects.filter(risk=risk).first()
+
+            form = RiskResidualAssForm(request.POST, instance=residual_step)
+            if form.is_valid():
+                form.save()
+
+                if 'save' in request.POST:
+                    # Save action for residual
+                    messages.success(request, "Residual data saved.")
+
+                elif 'submit_to_manager' in request.POST:
+                    # Submit to Manager action for residual
+                    risk.workflow_status = 'residual'
+                    risk.residual_approval_status = 'under_review'
+                    residual_step.approval_status = 'under_review'
+                    risk.save()
+                    residual_step.save()
+                    messages.success(request, "Residual submitted to manager.")
+
+                elif 'approve' in request.POST:
+                    # Approve action for residual: move to the next step 
+                    risk.workflow_status = 'close'  
+                    risk.residual_approval_status = 'approved'
+                    residual_step.approval_status = 'approved'
+                    risk.save()
+                    residual_step.save()
+                    messages.success(request, "Residual approved.")
+
+                elif 'reject' in request.POST:
+                    # Reject action for residual: revert to under review
+                    risk.workflow_status = 'residual'
+                    risk.residual_approval_status = 'rejected'
+                    residual_step.approval_status = 'rejected'
+                    risk.save()
+                    residual_step.save()
+                    messages.info(request, "Residual rejected.")
+            
+        elif risk.workflow_status == 'close':
+            close_step = RiskClose.objects.filter(risk=risk).first()
+
+            form = RiskCloseForm(request.POST, instance=close_step)
+            if form.is_valid():
+                form.save()
+
+                if 'save' in request.POST:
+                    # Save action for close
+                    messages.success(request, "Close data saved.")
+
+                elif 'submit_to_manager' in request.POST:
+                    # Submit to Manager action for close
+                    risk.workflow_status = 'close'
+                    risk.close_approval_status = 'under_review'
+                    close_step.approval_status = 'under_review'
+                    risk.save()
+                    close_step.save()
+                    messages.success(request, "Close submitted to manager.")
+
+                elif 'approve' in request.POST:
+                    # Approve action for close: move to the next step 
+                    risk.workflow_status = 'completed'  
+                    risk.close_approval_status = 'approved'
+                    close_step.approval_status = 'approved'
+                    risk.save()
+                    close_step.save()
+                    messages.success(request, "close approved.")
+
+                elif 'reject' in request.POST:
+                    # Reject action for close: revert to under review
+                    risk.workflow_status = 'close'
+                    risk.close_approval_status = 'rejected'
+                    close_step.approval_status = 'rejected'
+                    risk.save()
+                    close_step.save()
+                    messages.info(request, "Close rejected.")
 
         return redirect('workflow_view', id=risk.id)
     
@@ -489,36 +738,102 @@ def list_risks(request):
         .annotate(count=Count("category"))
         .order_by("category")
     )
+    
+     # Calculate total inherent risks
+    total_inherent_risks = sum(item["count"] for item in inherent_risk_counts)
+    
+    # Prepare the data for ECharts
+    chart_data_inherent = [{"name": item["category"], "value": item["count"]} for item in inherent_risk_counts]
+    
     residual_risks = (
-        RiskAss.objects.filter(residual_risk__gt=0)
+        RiskResidualAss.objects.filter(risk_score__gt=0)
         .values("risk__define_step__category")
         .annotate(count=Count("risk__define_step__category"))
     )
-    # Calculate total inherent risks
-    total_inherent_risks = sum(item["count"] for item in inherent_risk_counts)
-
+   
     # Calculate total residual risks
     total_residual_risks = sum(item["count"] for item in residual_risks)
     
+    chart_data_residual = [
+        {"name": item["risk__define_step__category"], "value": item["count"]} for item in residual_risks
+    ]
+    
     # Aggregate data: Count risks by likelihood and impact
     heatmap_data = (
-        RiskDefine.objects
-        .values('likelihood', 'impact', 'risk_score')  # Group by likelihood and impact
+        RiskAss.objects
+        .values('likelihood_rating', 'impact_rating', 'risk_score')  # Group by likelihood and impact
         .annotate(count=Count('id'))  # Count the number of risks
     )
 
     # Format data for ECharts: [impact-1, 5-likelihood, count]
     formatted_data = [
-        [item['impact'] - 1, 5 - item['likelihood'], item['count'], item['risk_score']]
+        [item['impact_rating'] - 1, 5 - item['likelihood_rating'], item['count'], item['risk_score']]
         for item in heatmap_data
     ]
     
-    
-    # Prepare the data for ECharts
-    chart_data_inherent = [{"name": item["category"], "value": item["count"]} for item in inherent_risk_counts]
-    chart_data_residual = [
-        {"name": item["risk__define_step__category"], "value": item["count"]} for item in residual_risks
+    residual_heatmap_data = (
+        RiskResidualAss.objects
+        .values('likelihood_rating', 'impact_rating', 'risk_score')  # Group by likelihood and impact
+        .annotate(count=Count('id'))  # Count the number of risks
+    )
+
+    # Format data for ECharts: [impact-1, 5-likelihood, count]
+    residual_formatted_data = [
+        [item['impact_rating'] - 1, 5 - item['likelihood_rating'], item['count'], item['risk_score']]
+        for item in residual_heatmap_data
     ]
+    
+    
+    # risk score ranges
+    high_risk_range = Q(risk_score__gte=20, risk_score__lte=25)
+    risk_tolerance_range = Q(risk_score__gte=10, risk_score__lt=20)
+    risk_appetite_range = Q(risk_score__lt=10)
+
+    # Calculate counts for each risk range
+    high_risk_count = RiskAss.objects.filter(high_risk_range).count()
+    risk_tolerance_count = RiskAss.objects.filter(risk_tolerance_range).count()
+    risk_appetite_count = RiskAss.objects.filter(risk_appetite_range).count()
+
+    # Total risks
+    inherent_gauge_total_risks = high_risk_count + risk_tolerance_count + risk_appetite_count
+
+    # Calculate percentages
+    inherent_gauge_chart_data = [
+        {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
+        {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
+        {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
+    ]
+
+    
+    # Calculate counts for each risk range
+    high_residual_risk_count = RiskResidualAss.objects.filter(high_risk_range).count()
+    residual_risk_tolerance_count = RiskResidualAss.objects.filter(risk_tolerance_range).count()
+    residual_risk_appetite_count = RiskResidualAss.objects.filter(risk_appetite_range).count()
+
+    # Total risks
+    residual_gauge_risks = high_residual_risk_count + residual_risk_tolerance_count + residual_risk_appetite_count
+
+    # Calculate percentages
+    residual_gauge_chart_data = [
+        {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
+        {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
+        {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
+    ]
+    
+    department_totals = RiskDefine.objects.values('department__name').annotate(
+    total_impact=Sum('impact'),
+    total_likelihood=Sum('likelihood'),
+    total_risk_score=Sum('risk_score')
+    )
+
+    # Format data for the chart
+    department_data = {
+        'departments': [dept['department__name'] or 'Unknown' for dept in department_totals],
+        'impact_totals': [dept['total_impact'] or 0 for dept in department_totals],
+        'likelihood_totals': [dept['total_likelihood'] or 0 for dept in department_totals],
+        'risk_scores': [dept['total_risk_score'] or 0 for dept in department_totals],
+    }
+    
     # Pass necessary context to the template
     context = {
         'page_title': "Risks",
@@ -531,9 +846,13 @@ def list_risks(request):
         'risk_filter': risk_filter,
         "chart_data_inherent": chart_data_inherent,
         'total_inherent_risks': total_inherent_risks,
+        'heatmap_data': formatted_data,
+        'inherent_gauge_chart_data': inherent_gauge_chart_data,
         'chart_data_residual': chart_data_residual,
         'total_residual_risks':total_residual_risks,
-        'heatmap_data': formatted_data,
+        'residual_heatmap_data': residual_formatted_data,
+        'residual_gauge_chart_data': residual_gauge_chart_data,
+        'department_chart_data': department_data,
     }
     return render(request, 'erm/list_risks.html', context)
 
