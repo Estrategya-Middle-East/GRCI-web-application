@@ -1,5 +1,8 @@
 /*=============== GOOGLE FONTS ===============*/
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /*=============== VARIABLES CSS ===============*/
 :root {
@@ -15,8 +18,8 @@
   /*.5rem = 8px | 1rem = 16px ...*/
   --body-font: "Poppins", sans-serif;
   --h2-font-size: 1.25rem;
-  --small-font-size: .813rem;
-  --smaller-font-size: .75rem;
+  --small-font-size: 0.813rem;
+  --smaller-font-size: 0.75rem;
 
   /*========== Font weight ==========*/
   --font-medium: 500;
@@ -28,8 +31,8 @@
   :root {
     --h2-font-size: 1.75rem;
     --normal-font-size: 1rem;
-    --small-font-size: .875rem;
-    --smaller-font-size: .813rem;
+    --small-font-size: 0.875rem;
+    --smaller-font-size: 0.813rem;
   }
 }
 
@@ -59,28 +62,40 @@ button {
 
 img {
   max-width: 100%;
-  height: auto;
 }
 
 /*=============== LOGIN FORM ===============*/
-.login__content,
-.login__form,
+/* .login__content, */
+/* .login__form,
 .login__inputs {
   display: grid;
+} */
+.container {
+  overflow: hidden;
 }
-
 .login__content {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  align-items: center;
   position: relative;
-  height: 100vh;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
-
-.login__img {
-  position: fixed;
-  width: 30%;
+.login__content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  object-fit: auto;
-  object-position: auto;
+  background-color: #00000043;
+}
+.login__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .login__form {
@@ -257,25 +272,20 @@ img {
 
 /* For large devices */
 @media screen and (min-width: 1064px) {
-  .container {
-    height: 100vh;
+  /* .container { */
+  /* height: 100vh;
     display: flex;
-    place-items: center;
-  }
+    place-items: center; */
+  /* } */
 
-  .login__content {
-    width: 1024px;
-    height: 600px;
-  }
+  /* .login__content {
+    /* height: 600px; */
+  /* } */
 
-  .login__img {
-    box-shadow: 0 24px 48px #b39d9e;
-  }
-
-  .login__form {
+  /* .login__form {
     justify-self: flex-end;
     margin-right: 4.5rem;
-  }
+  } */
 }
 
 @media screen and (min-width: 1200px) {

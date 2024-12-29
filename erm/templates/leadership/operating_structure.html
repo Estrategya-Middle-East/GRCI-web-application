@@ -1,7 +1,7 @@
 {% extends "leadership/leadership_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Operating Structures Manager{% endblock page_title %}
+{% block page_title %}Board Oversight Dashboard{% endblock page_title %}
 
 {% block content %}
 <style>
@@ -74,7 +74,7 @@
                         </div>
                         
                         <div class="col-2">
-                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                            <button type="submit" class="btn ml-2" style="background-color: #f01819; color: white;">Search</button>
                         </div>
                     </div>  
                 </form>
@@ -82,15 +82,17 @@
                 
             </div>
         </div>
+        
+        <!-- Table -->
         <div class="table-responsive">
             <table class="table table-sm table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=StructureID&order={% if current_sort == 'StructureID' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=OversightID&order={% if current_sort == 'OversightID' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'StructureID' %}
+                                {% if current_sort == 'OversightID' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -100,9 +102,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=DepartmentName&order={% if current_sort == 'DepartmentName' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                DepartmentName
-                                {% if current_sort == 'DepartmentName' %}
+                            <a href="?sort_by=MeetingDate&order={% if current_sort == 'MeetingDate' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Meeting Date
+                                {% if current_sort == 'MeetingDate' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -111,10 +113,16 @@
                                 {% endif %}
                             </a>
                         </th>
+                        <th>Committee Members</th>
+                        <th>Meeting Agenda</th>
+                        <th>Decisions Made</th>
+                        <th>Action Items</th>
+                        <th>Risk Topics Discussed</th>
+                        <th>FollowUp Actions</th>
                         <th>
-                            <a href="?sort_by=RoleName&order={% if current_sort == 'RoleName' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                RoleName
-                                {% if current_sort == 'RoleName' %}
+                            <a href="?sort_by=MeetingMinutes&order={% if current_sort == 'MeetingMinutes' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Meeting Minutes
+                                {% if current_sort == 'MeetingMinutes' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -123,114 +131,95 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Responsibilities</th>
-                        <th>Risk Ownership</th>
-                        <th>Reporting Hierarchy</th>
-                        <th>Approval Matrix</th>
-                        <th>Status</th>
-                        <th>Budget Allocated</th>
-                        <th>KPI Tracking</th>
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for operating_structure in paginated_operating_structures %}
+                    {% for board_oversight in paginated_operating_structures %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ operating_structure.StructureID }}"></td>
+                        <td><input type="radio" name="selected" value="{{ board_oversight.OversightID }}"></td>
                         <td>{{ forloop.counter|add:paginated_operating_structures.start_index|add:-1 }}</td>
-                        <td>{{ operating_structure.DepartmentName }}</td>
-                        <td>{{ operating_structure.RoleName }}</td>
-                        <td>{{ operating_structure.Responsibilities }}</td>
-                        <td>{{ operating_structure.RiskOwnership }}</td>
-                        <td>{{ operating_structure.ReportingHierarchy }}</td>
-                        <td>{{ operating_structure.ApprovalMatrix }}</td>
-                        <td>{{ operating_structure.Status }}</td>
-                        <td>{{ operating_structure.BudgetAllocated }}</td>
-                        <td>{{ operating_structure.KPITracking }}</td>
+                        <td>{{ board_oversight.MeetingDate }}</td>
+                        <td>{{ board_oversight.CommitteeMembers }}</td>
+                        <td>{{ board_oversight.MeetingAgenda }}</td>
+                        <td>{{ board_oversight.DecisionsMade }}</td>
+                        <td>{{ board_oversight.ActionItems }}</td>
+                        <td>{{ board_oversight.RiskTopicsDiscussed }}</td>
+                        <td>{{ board_oversight.FollowUpActions }}</td>
+                        <td>{{ board_oversight.MeetingMinutes }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' operating_structure.StructureID %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' board_oversight.OversightID %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if operating_structure.StructureID %}
-                    <div class="modal fade" id="editModal-{{ operating_structure.StructureID }}" tabindex="-1" aria-labelledby="editModalLabel-{{ operating_structure.StructureID }}" aria-hidden="true">
+                    {% if board_oversight.OversightID %}
+                    <div class="modal fade" id="editModal-{{ board_oversight.OversightID }}" tabindex="-1" aria-labelledby="editModalLabel-{{ board_oversight.OversightID }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ operating_structure.StructureID }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ board_oversight.OversightID }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_operating_structure' operating_structure.StructureID %}">
+                                <form method="POST" action="{% url 'edit_board_oversight' board_oversight.OversightID %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ operating_structure.StructureID }}" data-toggle="tab" href="#general-{{ operating_structure.StructureID }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ board_oversight.OversightID }}" data-toggle="tab" href="#general-{{ board_oversight.OversightID }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
-                                            <div class="tab-pane fade show active" id="general-{{ operating_structure.StructureID }}" role="tabpanel">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ board_oversight.OversightID }}" role="tabpanel">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="DepartmentName-{{ operating_structure.StructureID }}">Department Name</label>
-                                                        <input type="text" name="DepartmentName" id="DepartmentName-{{ operating_structure.StructureID }}" class="form-control" value="{{ operating_structure.DepartmentName }}">
+                                                        <label for="MeetingDate-{{ board_oversight.OversightID }}">Meeting Date</label> 
+                                                        <input type="datetime-local" name="MeetingDate" id="MeetingDate-{{ board_oversight.OversightID }}" class="form-control" value="{{ board_oversight.MeetingDate|date:'Y-m-d\TH:i' }}">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="RoleName-{{ operating_structure.StructureID }}">Role Name</label>
-                                                        <input type="text" name="RoleName" id="RoleName-{{ operating_structure.StructureID }}" class="form-control" value="{{ operating_structure.RoleName }}">
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="Responsibilities-{{ operating_structure.StructureID }}">Responsibilities</label>
-                                                        <textarea name="Responsibilities" id="Responsibilities-{{ operating_structure.StructureID }}" class="form-control">{{ operating_structure.Responsibilities }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="RiskOwnership-{{ operating_structure.StructureID }}">Risk Ownership</label>
-                                                        <input type="text" name="RiskOwnership" id="RiskOwnership-{{ operating_structure.StructureID }}" class="form-control" value="{{ operating_structure.RiskOwnership }}">
+                                                        <label for="MeetingMinutes-{{ board_oversight.OversightID }}">Meeting Minutes</label>
+                                                        <textarea name="MeetingMinutes" id="MeetingMinutes-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.MeetingMinutes }}</textarea>
                                                     </div>
                                                 </div>
-                                                <div class="row mt-2">
+                                                <div class="row">
                                                     <div class="col">
-                                                        <label for="ReportingHierarchy-{{ operating_structure.StructureID }}">Reporting Hierarchy</label>
-                                                        <textarea name="ReportingHierarchy" id="ReportingHierarchy-{{ operating_structure.StructureID }}" class="form-control">{{ operating_structure.ReportingHierarchy }}</textarea >
+                                                        <label for="MeetingAgenda-{{ board_oversight.OversightID }}">Meeting Agenda</label>
+                                                        <textarea name="MeetingAgenda" id="MeetingAgenda-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.MeetingAgenda }}</textarea>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="ApprovalMatrix-{{ operating_structure.StructureID }}">Approval Matrix</label>
-                                                        <input type="text" name="ApprovalMatrix" id="ApprovalMatrix-{{ operating_structure.StructureID }}" class="form-control" value="{{ operating_structure.ApprovalMatrix }}">
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="Status-{{ operating_structure.StructureID }}">Status</label>
-                                                        <select name="Status" id="id_Status-{{ operating_structure.StructureID }}" class="form-control">
-                                                            {% for value, label in Status_choices %}
-                                                                <option value="{{ value }}" {% if operating_structure.Status == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="BudgetAllocated-{{ operating_structure.StructureID }}">Budget Allocated</label>
-                                                        <input type="number" name="BudgetAllocated" id="BudgetAllocated-{{ operating_structure.StructureID }}" class="form-control" value="{{ operating_structure.BudgetAllocated }}">
+                                                        <label for="DecisionsMade-{{ board_oversight.OversightID }}">Decisions Made</label>
+                                                        <textarea name="DecisionsMade" id="DecisionsMade-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.DecisionsMade }}</textarea>
                                                     </div>
                                                 </div>
-                                                <div class="row mt-2">
+                                                <div class="row">
                                                     <div class="col">
-                                                        <label for="KPITracking-{{ operating_structure.StructureID }}">KPI Tracking</label>
-                                                        <textarea name="KPITracking" id="KPITracking-{{ operating_structure.StructureID }}" class="form-control">{{ operating_structure.KPITracking }}</textarea>
+                                                        <label for="CommitteeMembers-{{ board_oversight.OversightID }}">Committee Members</label>
+                                                        <textarea name="CommitteeMembers" id="CommitteeMembers-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.CommitteeMembers }}</textarea>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="RiskTopicsDiscussed-{{ board_oversight.OversightID }}">Risk Topics Discussed</label>
+                                                        <textarea name="RiskTopicsDiscussed" id="RiskTopicsDiscussed-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.RiskTopicsDiscussed }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="FollowUpActions-{{ board_oversight.OversightID }}">FollowUp Actions</label>
+                                                        <textarea name="FollowUpActions" id="FollowUpActions-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.FollowUpActions }}</textarea>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="ActionItems-{{ board_oversight.OversightID }}">Action Items</label>
+                                                        <textarea name="ActionItems" id="ActionItems-{{ board_oversight.OversightID }}" class="form-control">{{ board_oversight.ActionItems }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>    
+                                        </div>       
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -247,7 +236,7 @@
         </div>
         <hr>
         <!-- Pagination -->
-        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center ">
             <form method="get" class="form-inline">
                 <label for="rows-per-page" class="mr-2">Show:</label>
                 <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
@@ -264,21 +253,21 @@
             </form>
 
             <div>
-                Showing {{ paginated_operating_structures.start_index }} - {{ paginated_operating_structures.end_index }} of {{ paginated_operating_structures.paginator.count }} Operating Structures
+                Showing {{ paginated_operating_structures.start_index }} - {{ paginated_operating_structures.end_index }} of {{ paginated_operating_structures.paginator.count }} Board Oversights
             </div>
             
             <nav aria-label="Page navigation">
-                <ul class="pagination">
+                <ul class="pagination ">
                     {% if paginated_operating_structures.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_operating_structures.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link " href="?page={{ paginated_operating_structures.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
-                    <li class="page-item active">
-                        <span class="page-link">{{ paginated_operating_structures.number }}</span>
+                    <li class="page-item active ">
+                        <span class="page-link" style="background-color: #f01819 !important; border:#f01819">{{ paginated_operating_structures.number }}</span>
                     </li>
                     
                     {% if paginated_operating_structures.has_next %}
@@ -304,7 +293,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_operating_structure' %}">
+            <form method="POST" action="{% url 'add_board_oversight' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -320,48 +309,43 @@
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             <div class="row">
                                 <div class="col">
-                                    <label for="id_DepartmentName">Department Name</label>
-                                    {{ form.DepartmentName|add_class:"form-control" }}
+                                    <label for="MeetingDate">Meeting Date</label>    
+                                    {{ form.MeetingDate|add_class:"form-control"|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_RoleName">Role Name</label>
-                                    {{ form.RoleName|add_class:"form-control" }}
+                                    <label for="Meeting Minutes">Meeting Minutes</label>
+                                    {{ form.MeetingMinutes|add_class:"form-control" }}
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label for="MeetingAgenda">Meeting Agenda</label>
+                                    {{ form.MeetingAgenda|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="DecisionsMade">Decisions Made</label>
+                                    {{ form.DecisionsMade|add_class:"form-control" }}
                                 </div>
                             </div>
-                            <div class="row mt-2">
+                            <div class="row">
                                 <div class="col">
-                                    <label for="id_Responsibilities">Responsibilities</label>
-                                    {{ form.Responsibilities|add_class:"form-control" }}
+                                    <label for="CommitteeMembers">Committee Members</label>
+                                    {{ form.CommitteeMembers|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_RiskOwnership">Risk Ownership</label>
-                                    {{ form.RiskOwnership|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_ReportingHierarchy">Reporting Hierarchy</label>
-                                    {{ form.ReportingHierarchy|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_ApprovalMatrix">Approval Matrix</label>
-                                    {{ form.ApprovalMatrix|add_class:"form-control" }}
+                                    <label for="RiskTopicsDiscussed">Risk Topics Discussed</label>
+                                    {{ form.RiskTopicsDiscussed|add_class:"form-control" }}
                                 </div>
                             </div>
-                            <div class="row mt-2">
+                            <div class="row">
                                 <div class="col">
-                                    <label for="id_Status">Status</label>
-                                    {{ form.Status|add_class:"form-control" }}
+                                    <label for="FollowUp Actions">FollowUp Actions</label>
+                                    {{ form.FollowUpActions|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_BudgetAllocated">Budget Allocated</label>
-                                    {{ form.BudgetAllocated|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_KPITracking">KPI Tracking</label>
-                                    {{ form.KPITracking|add_class:"form-control" }}
+                                    <label for="ActionItems">Action Items</label>
+                                    {{ form.ActionItems|add_class:"form-control" }}
                                 </div>
                             </div>
                         </div>
@@ -386,18 +370,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a board Structure is selected
+                // Check if a board oversight is selected
                 if (!selectedRadio) {
-                    alert('Please select a Structure.');
+                    alert('Please select a board oversight.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected board Structure ID
+                const selectedId = selectedRadio.value; // Get the selected board oversight ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/erm/leadership/operating_structures/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Structure?')) {
+                    const deleteUrl = `/erm/leadership/board_oversights/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this board oversight?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

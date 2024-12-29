@@ -74,7 +74,7 @@
                         </div>
                         
                         <div class="col-2">
-                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                            <button type="submit" class="btn ml-2" style="background-color: #f01819; color: white;">Search</button>
                         </div>
                     </div>  
                 </form>
@@ -236,7 +236,7 @@
         </div>
         <hr>
         <!-- Pagination -->
-        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center ">
             <form method="get" class="form-inline">
                 <label for="rows-per-page" class="mr-2">Show:</label>
                 <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
@@ -257,17 +257,17 @@
             </div>
             
             <nav aria-label="Page navigation">
-                <ul class="pagination">
+                <ul class="pagination ">
                     {% if paginated_board_oversights.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_board_oversights.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link " href="?page={{ paginated_board_oversights.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
-                    <li class="page-item active">
-                        <span class="page-link">{{ paginated_board_oversights.number }}</span>
+                    <li class="page-item active ">
+                        <span class="page-link" style="background-color: #f01819 !important; border:#f01819">{{ paginated_board_oversights.number }}</span>
                     </li>
                     
                     {% if paginated_board_oversights.has_next %}

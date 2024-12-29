@@ -5,22 +5,44 @@
 {% endblock title %}
 
 {% block content %}
-<div class="container mt-4">
-    {% comment %} <a style="margin-left:20px" href="{% url 'list_risks' %}" class="btn btn-info">Risks</a> {% endcomment %}
-    <h1 class="text-center">Continuous Monitoring and Optimization</h1>
-    <div class="row mt-5">
-        {% for component in components %}
-        <div class="col-lg-6 col-md-6 mb-4">
-            <a href="{{ component.link }}" class="card shadow text-decoration-none" style="color: inherit;">
-                <div class="card-body d-flex align-items-center">
-                    <!-- Icon -->
-                    <i class="{{ component.icon }} fa-3x mr-3" style="color: #cc0000;"></i>
-                    <!-- Title -->
-                    <h5 class="card-title m-0 " style="font-size: 1.5rem;">{{ component.name }}</h5>
-                </div>
-            </a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Strategic</title>
+</head>
+<body>
+
+  <div class="flex justify-center items-center">
+    <div class="font-[sans-serif] z-50 relative py-12 px-4 w-full">
+      <div class="bg-transparent">
+        <h2
+        class=" bg-white !text-red-500 shadow-md shadow-red-500 w-fit mx-auto py-2 px-10 rounded-xl sm:text-4xl text-2xl font-bold text-center mb-16"
+        >
+        Monitoring and Optimization</h2>
+
+        <div
+          class="grid lg:grid-cols-3 md:grid-cols-2 gap-10 max-md:max-w-lg mx-auto"
+        >
+          {% for component in components %}
+          <a href="{{ component.link }}">
+            <div
+            class="rounded-xl group p-8 text-center h-[250px] bg-white hover:!bg-[#f01819] !text-[#f01819] hover:!text-white shadow-xl transition duration-300"
+            >
+            <i class="{{ component.icon }} text-5xl mt-3 mb-8"></i>
+              <h3 class="!text-2xl leading-none font-semibold mb-3">
+                {{ component.name }}
+              </h3>
+            </div>
+          </a>
+          {% endfor %}
         </div>
-        {% endfor %}
+      </div>
     </div>
-</div>
+  </div>
+
+</body>
+</html>
 {% endblock content %}
