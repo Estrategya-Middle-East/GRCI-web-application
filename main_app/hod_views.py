@@ -443,13 +443,25 @@ def edit_department(request, department_id):
             description = form.cleaned_data.get('description')
             org_chart_level = form.cleaned_data.get('org_chart_level')
             parent = form.cleaned_data.get('parent')
+            purpose = form.cleaned_data.get('purpose')
+            primary_responsibilities = form.cleaned_data.get('primary_responsibilities')
+            key_interfaces = form.cleaned_data.get('key_interfaces')
+            Key_external_relationships = form.cleaned_data.get('Key_external_relationships')
+            major_systems_and_data_used = form.cleaned_data.get('major_systems_and_data_used')
+            key_suppliers = form.cleaned_data.get('key_suppliers')
             try:
                 # Update the department instance
                 department = Department.objects.get(id=department_id)
                 department.name = name
                 department.description = description  
                 department.org_chart_level = org_chart_level  
-                department.parent = parent  
+                department.key_interfaces = key_interfaces  
+                department.purpose = purpose  
+                department.primary_responsibilities = primary_responsibilities  
+                department.key_interfaces = key_interfaces  
+                department.Key_external_relationships = Key_external_relationships  
+                department.major_systems_and_data_used = major_systems_and_data_used  
+                department.key_suppliers = key_suppliers  
                 department.save()
                 messages.success(request, "Successfully Updated")
             except Exception as e:

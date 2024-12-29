@@ -104,9 +104,16 @@ class DepartmentForm(FormSettings):
 
     class Meta:
         model = Department
-        fields = ['name', 'description', 'org_chart_level', 'parent']
+        fields = ['name', 'description', 'org_chart_level', 'parent', 'purpose', 'primary_responsibilities', "key_interfaces", "Key_external_relationships", "key_customer_relationships", "major_systems_and_data_used", "key_suppliers"]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
+            'purpose': forms.Textarea(attrs={'rows': 3}),
+            'primary_responsibilities': forms.Textarea(attrs={'rows': 3}),
+            'key_interfaces': forms.Textarea(attrs={'rows': 3}),
+            'Key_external_relationships': forms.Textarea(attrs={'rows': 3}),
+            'key_customer_relationships': forms.Textarea(attrs={'rows': 3}),
+            'major_systems_and_data_used': forms.Textarea(attrs={'rows': 3}),
+            'key_suppliers': forms.Textarea(attrs={'rows': 3}),
         }
 
 

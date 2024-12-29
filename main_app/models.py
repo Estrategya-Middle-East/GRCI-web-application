@@ -96,6 +96,13 @@ class Department(models.Model):
         related_name='children',
         help_text='Select the parent department with a higher org_chart_level.'
     )
+    primary_responsibilities = models.TextField(null=True, blank=True)
+    purpose = models.TextField(null=True, blank=True)
+    key_interfaces  = models.TextField(null=True, blank=True)
+    Key_external_relationships = models.TextField(null=True, blank=True)
+    key_customer_relationships = models.TextField(null=True, blank=True)
+    major_systems_and_data_used = models.TextField(null=True, blank=True)
+    key_suppliers = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
