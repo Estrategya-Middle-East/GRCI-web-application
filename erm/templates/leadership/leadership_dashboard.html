@@ -1,13 +1,14 @@
+{% extends 'erm/erm_base.html' %} {% load static %} {% block content %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ERM Dashboard</title>
+    <title>Leadership and Organizational</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <div class="flex justify-center items-center mt-4">
+    <!-- <div class="flex justify-center items-center mt-4">
       <div
         class="font-[sans-serif] bg-gradient-to-r z-50 relative max-w-[90%] lg:max-w-[85%] from-red-700 to-red-500 py-12 px-4 shadow-2xl shadow-red-800"
       >
@@ -15,14 +16,14 @@
           <h2
             class="text-white sm:text-4xl text-2xl font-bold text-center mb-16"
           >
-            Enterprise Risk Management
+            Leadership and Organizational Foundations
           </h2>
           <div
             class="grid lg:grid-cols-3 md:grid-cols-2 gap-12 max-md:max-w-lg mx-auto"
           >
-            <a href="">
+            <a href="{% url 'list_board_oversight' %}">
               <div
-                class="rounded-xl group p-12 text-center hover:bg-white text-white hover:text-[#f01819] hover:shadow-xl transition duration-300"
+                class="rounded-xl group !py-12 px-8 line text-center hover:bg-white !text-white hover:!text-[#f01819] hover:shadow-xl transition duration-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -40,14 +41,14 @@
                   />
                 </svg>
                 <h3 class="text-xl font-semibold mb-3">
-                  Leadership and Organizational Foundations
+                  Board Oversight Dashboards
                 </h3>
               </div>
             </a>
 
-            <a href="">
+            <a href="{% url 'list_operating_structure' %}">
               <div
-                class="rounded-xl group p-12 text-center hover:bg-white text-white hover:text-[#f01819] hover:shadow-xl transition duration-300"
+                class="rounded-xl group !py-12 px-8 line text-center hover:bg-white !text-white hover:!text-[#f01819] hover:shadow-xl transition duration-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -81,13 +82,13 @@
                   </g>
                 </svg>
                 <h3 class="text-xl font-semibold mb-3">
-                  Strategic Planning and Goal Alignment
+                  Operating Structures Manager
                 </h3>
               </div>
             </a>
-            <a href="">
+            <a href="{% url 'list_culture_survey' %}">
               <div
-                class="rounded-xl group p-12 text-center hover:bg-white text-white hover:text-[#f01819] hover:shadow-xl transition duration-300"
+                class="rounded-xl group !py-12 px-8 line text-center hover:bg-white !text-white hover:!text-[#f01819] hover:shadow-xl transition duration-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -101,14 +102,14 @@
                   />
                 </svg>
                 <h3 class="text-xl font-semibold mb-3">
-                  Risk Operations and Execution
+                  Culture and Values Module
                 </h3>
               </div>
             </a>
 
-            <a href="">
+            <a href="{% url 'list_corevalues_monitoring' %}">
               <div
-                class="rounded-xl group p-12 text-center hover:bg-white text-white hover:text-[#f01819] hover:shadow-xl transition duration-300"
+                class="rounded-xl group !py-12 px-8 line text-center hover:bg-white !text-white hover:!text-[#f01819] hover:shadow-xl transition duration-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -132,14 +133,14 @@
                   </g>
                 </svg>
                 <h3 class="text-xl font-semibold mb-3">
-                  Continuous Monitoring and Optimization
+                  Core Values Monitoring
                 </h3>
               </div>
             </a>
 
-            <a href="">
+            <a href="{% url 'list_talent_management' %}">
               <div
-                class="rounded-xl group p-12 text-center hover:bg-white text-white hover:text-[#f01819] hover:shadow-xl transition duration-300"
+                class="rounded-xl group !py-12 px-8 line text-center hover:bg-white !text-white hover:!text-[#f01819] hover:shadow-xl transition duration-300"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -177,13 +178,43 @@
                   />
                 </svg>
                 <h3 class="text-xl font-semibold mb-3">
-                  Risk Intelligence and Reporting Systems
+                  Talent Management for Risk
                 </h3>
               </div>
             </a>
           </div>
         </div>
       </div>
+    </div> -->
+    <div class="flex justify-center items-center ">
+      <div class="font-[sans-serif] z-50 relative py-12 px-4 w-full ">
+        <div class="bg-transparent">
+          <h2
+          class=" bg-white !text-red-500 shadow-md shadow-red-500 w-fit mx-auto py-2 px-10 rounded-xl sm:text-4xl text-2xl font-bold text-center mb-16"
+          >
+          Leadership and Organizational Foundations
+
+          </h2>
+  
+          <div
+            class="grid lg:grid-cols-3 md:grid-cols-2 gap-10 max-md:max-w-lg mx-auto"
+          >
+            {% for component in components %}
+            <a href="{{ component.link }}">
+              <div
+              class="rounded-xl group p-8 text-center h-[250px] bg-white hover:!bg-[#f01819] !text-[#f01819] hover:!text-white shadow-xl transition duration-300"
+              >
+              <i class="{{ component.icon }} text-5xl mt-3 mb-8"></i>
+                <h3 class="!text-2xl leading-none font-semibold mb-3">
+                  {{ component.name }}
+                </h3>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
+{% endblock content %}
