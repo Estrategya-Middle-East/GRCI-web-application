@@ -181,43 +181,25 @@ def risk_intelligence_dashboard(request):
     }
     
     # Organizational structure tree logic
-    levels = ['N1', 'N2', 'N3', 'N4']
-    org_chart_data = []
+    def build_department_tree(department):
+        return {
+            "name": department.name,
+            "staff_count": department.staff.count(),  # Include staff count
+            "children": [
+                build_department_tree(child) for child in department.children.all()
+            ]
+        }
 
-    # Add CEO as the root node
-    ceo_node = {
+    # Create the org chart data starting from the CEO
+    org_chart_data = {
         "name": "CEO",
-        "value": 0,
-        "children": []
+        "staff_count": 0,  # Assuming CEO is not part of a department
+        "children": [
+            build_department_tree(department)
+            for department in Department.objects.filter(parent=None)  # Start with top-level departments
+        ]
     }
 
-    # Build hierarchy for each level
-    current_level_nodes = [ceo_node]  # Start from CEO
-
-    for level in levels:
-        departments = Department.objects.filter(org_chart_level=level).annotate(staff_count=Count('staff'))
-        next_level_nodes = []
-
-        for department in departments:
-            department_node = {
-                "name": department.name,
-                "value": department.staff_count,
-                "tooltip": {
-                    "formatter": f"{department.name}: {department.staff_count} staff"
-                },
-                "children": []
-            }
-            # Add this node to the parent's children
-            for parent in current_level_nodes:
-                if parent["name"] == "CEO" or parent.get("children"):
-                    parent["children"].append(department_node)
-            next_level_nodes.append(department_node)
-
-        # Update the current level nodes for the next iteration
-        current_level_nodes = next_level_nodes
-
-    # Add CEO node to the data
-    org_chart_data.append(ceo_node)
     
     context = {
         'page_title': "Risk Management Dashboard",

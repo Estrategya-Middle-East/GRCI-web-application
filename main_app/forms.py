@@ -79,14 +79,32 @@ class AdminForm(CustomUserForm):
 
 
 class DepartmentForm(FormSettings):
-    
 
     def __init__(self, *args, **kwargs):
         super(DepartmentForm, self).__init__(*args, **kwargs)
+        if 'org_chart_level' in self.initial or 'org_chart_level' in self.data:
+            # Get the current org_chart_level from initial data or the form's submitted data
+            current_level = self.initial.get('org_chart_level', self.data.get('org_chart_level'))
+
+            # Define the hierarchy and determine the parent level
+            level_hierarchy = ['N1', 'N2', 'N3', 'N4']
+            if current_level in level_hierarchy:
+                # Determine the parent level based on the current level
+                current_index = level_hierarchy.index(current_level)
+                if current_index > 0:  # Ensure there's a parent level to select
+                    parent_level = level_hierarchy[current_index - 1]
+                    # Filter departments that match the parent level
+                    self.fields['parent'].queryset = Department.objects.filter(org_chart_level=parent_level)
+                else:
+                    self.fields['parent'].queryset = Department.objects.none()  # No parent for N1
+            else:
+                self.fields['parent'].queryset = Department.objects.none()
+        else:
+            self.fields['parent'].queryset = Department.objects.none()
 
     class Meta:
         model = Department
-        fields = ['name', 'description', 'org_chart_level']
+        fields = ['name', 'description', 'org_chart_level', 'parent']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }

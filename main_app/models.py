@@ -88,6 +88,14 @@ class Department(models.Model):
         default=None,
         null=True, blank=True
     )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='children',
+        help_text='Select the parent department with a higher org_chart_level.'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
