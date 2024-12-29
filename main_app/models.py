@@ -95,17 +95,6 @@ class Section(models.Model):
         return f"{self.name} (Department: {self.department.name})"
 
 
-class Group(models.Model):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="groups")
-    name = models.CharField(max_length=120)
-    description = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.name} (Section: {self.section.name})"
-
-
 class Staff(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="staff")
