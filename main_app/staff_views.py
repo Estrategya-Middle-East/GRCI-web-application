@@ -200,11 +200,10 @@ def delete_department(request, department_id):
 
 @csrf_exempt
 def get_users(request):
-    session_id = request.POST.get('session')
+    
     try:
-        session = get_object_or_404(Session, id=session_id)
-        users = User.objects.filter(
-            session=session)
+       
+        users = User.objects.all()
         user_data = []
         for user in users:
             data = {

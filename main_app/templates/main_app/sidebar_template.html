@@ -22,7 +22,7 @@
 </head>
 <body>
     
-    <aside class="main-sidebar sidebar-dark-info elevation-4 ">
+    <aside class="main-sidebar sidebar-dark-info elevation-4 "  style="background-color: #000000">
         {% if request.user.user_type == '1' %}
         <!-- Brand Logo -->
         <a href="{% url 'admin_nav' %}" class="brand-link">
@@ -136,7 +136,13 @@
                     </li>
                     {% endfor %}
                     
-                                    
+                             <!-- Apps Link -->
+                            <li class="nav-item">
+                                <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
+                                    <i class="nav-icon fas fa-store"></i>
+                                    <p>Apps</p>
+                                </a>
+                            </li>       
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-cog"></i>
@@ -146,13 +152,7 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <!-- Apps Link -->
-                            <li class="nav-item">
-                                <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
-                                    <i class="nav-icon fas fa-store"></i>
-                                    <p>Apps</p>
-                                </a>
-                            </li>
+                            
                             <!-- Departments -->
                             <li class="nav-item has-treeview">
                                 <a href="#" class="nav-link">
@@ -711,8 +711,6 @@
     
                                             {% endif %}
     
-                                            
-    
                                             <li class="nav-item">
                                                 <a href="{% url 'user_logout' %}"
                                                     onclick="return confirm('Your session would be terminated.\n\nProceed?')"
@@ -724,6 +722,13 @@
                                                 </a>
                                             </li>
                                         </ul>
+                                        
+                                        <div class="text-[38px] font-[500] text-red-500 mt-24 flex flex-col justify-center items-center cursor-pointer transition-all duration-500 ease-in ">
+                                            <p>G</p>
+                                            <!-- class="bg-white rounded-full !text-red-500 px-[9px]" -->
+                                            <p >R</p>
+                                            <p>C</p>
+                                        </div>
                                     </nav>
                                     <!-- /.sidebar-menu -->
                                 </div>

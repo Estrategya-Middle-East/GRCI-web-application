@@ -28,12 +28,7 @@ class CustomUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class Session(models.Model):
-    start_year = models.DateField()
-    end_year = models.DateField()
 
-    def __str__(self):
-        return f"From {self.start_year} to {self.end_year}"
 
 
 class CustomUser(AbstractUser):
@@ -132,8 +127,6 @@ class Staff(models.Model):
 
     def save(self, *args, **kwargs):
         # Ensure the hierarchy is consistent
-        if self.group and self.group.section != self.section:
-            raise ValueError("The group does not belong to the selected section.")
         if self.section and self.section.department != self.department:
             raise ValueError("The section does not belong to the selected department.")
 
@@ -141,9 +134,6 @@ class Staff(models.Model):
         if self.section and not self.department:
             self.department = self.section.department
 
-        # Assign the section if the group is assigned
-        if self.group and not self.section:
-            self.section = self.group.section
 
         super().save(*args, **kwargs)
 
@@ -151,7 +141,7 @@ class Staff(models.Model):
 class User(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
-    session = models.ForeignKey(Session, on_delete=models.DO_NOTHING, null=True)
+    
 
     def __str__(self):
         return f"{self.admin.first_name}, {self.admin.last_name}"

@@ -45,19 +45,22 @@
     </div>
     {% endif %}
     <div class="font-[sans-serif] bg-gray-900 md:h-screen">
-      <div class="grid md:grid-cols-2 items-center gap-8 h-full">
-        <div class="max-md:order-1 p-4">
-          <img
-            src="../../static/dist/img/secure_login.svg"
-            class="lg:max-w-[80%] w-full h-full object-contain block mx-auto"
+      <div class="flex h-full ">
+        <div class="w-[70%] flex justify-center items-center">
+          <div class="w-[50%]">
+            <img
+            src="../../static/dist/img/Tablet login-amico.svg"
+            class="w-full h-full object-contain block mx-auto"
             alt="login-image"
           />
+          </div>
         </div>
         
         <div
-          class="flex items-center md:p-8 p-6 bg-white md:rounded-tl-[55px] md:rounded-bl-[55px] h-full"
+          class="flex flex-col justify-center w-[30%] items-center md:p-8 p-6 bg-white  h-full"
         >
-          <form class="max-w-lg w-full mx-auto" action="doLogin/" method="post">
+        <img class="w-[110px] mb-5 " src="../../static/dist/img/AdminLTELogo.png" alt="logo">
+          <form class=" w-full mx-auto" action="doLogin/" method="post">
             {% csrf_token %}
             <div class="mb-12">
               <h3 class="text-gray-800 text-4xl font-extrabold text-center">
@@ -166,11 +169,11 @@
               </button>
             </div>
 
-            <div class="my-6 flex items-center gap-4">
+            <!-- <div class="my-6 flex items-center gap-4">
               <hr class="w-full border-gray-300" />
               <p class="text-sm text-gray-800 text-center"></p>
               <hr class="w-full border-gray-300" />
-            </div>
+            </div> -->
 
             {% comment %} <button
               type="button"

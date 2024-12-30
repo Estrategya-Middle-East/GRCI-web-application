@@ -38,7 +38,7 @@ urlpatterns = [
          name='send_staff_notification'),
     path("view/notification/", hod_views.admin_view_notification,
          name="admin_view_notification"),
-    path("add_session/", hod_views.add_session, name='add_session'),
+    
     path("admin_notify_user", hod_views.admin_notify_user,
          name='admin_notify_user'),
     path("admin_notify_staff", hod_views.admin_notify_staff,
@@ -47,9 +47,7 @@ urlpatterns = [
          name='admin_view_profile'),
     path("check_email_availability", hod_views.check_email_availability,
          name="check_email_availability"),
-    path("session/manage/", hod_views.manage_session, name='manage_session'),
-    path("session/edit/<int:session_id>",
-         hod_views.edit_session, name='edit_session'),
+    
 
     path("user/add/", hod_views.add_user, name='add_user'),
     # staff
@@ -77,8 +75,7 @@ urlpatterns = [
          staff_views.delete_department, name='staff_delete_department'),
 
 
-    path("session/delete/<int:session_id>",
-         hod_views.delete_session, name='delete_session'),
+    
 
     path("user/delete/<int:user_id>",
          hod_views.delete_user, name='delete_user'),

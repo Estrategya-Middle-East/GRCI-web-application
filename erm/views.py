@@ -75,7 +75,7 @@ def continuous_monitoring_dashboard(request):
         'page_title': "Continuous Monitoring and Optimization",
         'components': components,
     }
-    return render(request, 'continuous_monitoring/dashboard.html', context)
+    return render(request, 'erm/erm_base.html', context)
 
 
 def risk_intelligence_dashboard(request):

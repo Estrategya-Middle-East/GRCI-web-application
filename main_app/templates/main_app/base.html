@@ -66,7 +66,19 @@
         .nav-treeview {
             transition: all 0.3s ease-in-out;
         } {% endcomment %}
-        
+
+        .breadcrumb .dropdown-menu {
+            background-color: #343A40;
+        }
+        .breadcrumb .dropdown-item {
+            color: white !important;
+        }
+        .breadcrumb .dropdown-item:hover {
+            background-color: rgba(255, 0, 0, 0.422);
+        }
+        .breadcrumb .dropdown-item:focus, .breadcrumb .dropdown-item.active{
+            background-color: rgba(240, 24, 24, 0.638) !important;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -160,8 +172,8 @@
                             <ol class="breadcrumb float-sm-left" >
                                 <!-- Home dropdown with split button -->
                                 <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button" >
-                                        <a href="{% url 'admin_nav' %}">Home</a>
+                                    <button class="btn" type="button">
+                                        <a href="{% url 'admin_nav' %}" style="color: #343A40">Home</a>
                                     </button>
                                     <button type="button" class="btn  dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                                         <span class="visually-hidden"></span>
@@ -170,7 +182,7 @@
                                         <!-- Dynamic Dropdown Items -->
                                         {% for module in visible_modules %}
                                         <li>
-                                            <a class="dropdown-item {% if module.url == request.path %} active {% endif %}" href="{{ module.url }}">
+                                            <a class="dropdown-item {% if module.url == request.path %} breadcrumb-active active {% endif %}" href="{{ module.url }}">
                                                 {{ module.name }}
                                             </a>
                                         </li>
@@ -198,7 +210,7 @@
                                 {% if messages %}
                                 {% for message in messages %}
                                 {% if message.tags == 'success' %}
-                                <div class="alert alert-success">
+                                <div class="alert alert-light">
                                     {{ message }}
                                 </div>
                                 {% else %}

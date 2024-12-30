@@ -38,7 +38,17 @@
             font-family: 'Garamond', serif;
             font-size: 1 em;
         }
-        
+        .dropdown-item.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255);
+            background-color: #cc0000;
+        }
+        .btn.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255) !important;
+            background-color: #cc0000 !important;
+            border: None !important;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -72,18 +82,140 @@
                     <a class="nav-link" data-widget="pullmenu" href="#" id="toggle-sidebar"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            {% comment %} <div class="d-flex align-items-center" style="text-align: center" >
-                <!-- Dropdown Menu (Aligned to the right) -->
+            
+            
+            <!-- Dropdown Menus for Sections -->
+            <div class="d-flex align-items-center ml-3">
+                <!-- ERM Dashboard Section -->
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <b style="font-size: 16pt">ERM Pages</b>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="action-menu">
-                        <li><a href="{% url 'list_risks' %}" class="dropdown-item">Risk Operations and Execution</a></li>
+                    {% url 'risk_intelligence_dashboard' as url %}
+                    <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="erm-menu" data-bs-toggle="dropdown">
+                        ERM Dashboard
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="erm-menu" style="border-radius: 0;">
+                        {% comment %} {% url 'erm_dashboard' as url %}
+                        <li>
+                            <a href="{% url 'erm_dashboard' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Overview</a>
+                        </li> {% endcomment %}
+                        {% url 'risk_intelligence_dashboard' as url %}
+                        <li>
+                            <a href="{% url 'risk_intelligence_dashboard' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Dashboard</a>
+                        </li>
+                       {% comment %}  {% url 'list_risks' as url %}
+                        <li>
+                            <a href="{% url 'list_risks' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk Operations</a>
+                        </li> {% endcomment %}
                     </ul>
                 </div>
-            </div> {% endcomment %}
-             
+
+                <!-- Leadership Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_board_oversight' as url1 %}{% url 'list_operating_structure' as url2 %}{% url 'list_culture_survey' as url3 %}{% url 'list_corevalues_monitoring' as url4 %}{% url 'list_talent_management' as url5 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path or url3  == request.path or url4  == request.path or url5 == request.path %}active{% endif %}" id="leadership-menu" data-bs-toggle="dropdown">
+                        Leadership
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="leadership-menu" style="border-radius: 0;">
+                        {% url 'list_board_oversight' as url %}
+                        <li>
+                            <a href="{% url 'list_board_oversight' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Board Oversight</a>
+                        </li>
+                        {% url 'list_operating_structure' as url %}
+                        <li>
+                            <a href="{% url 'list_operating_structure' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Operating Structures</a>
+                        </li>
+                        {% url 'list_culture_survey' as url %}
+                        <li>
+                            <a href="{% url 'list_culture_survey' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Culture and Values</a>
+                        </li>
+                        {% url 'list_corevalues_monitoring' as url %}
+                        <li>
+                            <a href="{% url 'list_corevalues_monitoring' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Core Values Monitoring</a>
+                        </li>
+                        {% url 'list_talent_management' as url %}
+                        <li>
+                            <a href="{% url 'list_talent_management' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Talent Management</a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Strategic Planning Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_business_context' as url1 %}{% url 'list_risk_appetite' as url2 %}{% url 'list_strategic_evaluation' as url3 %}{% url 'list_objective' as url4 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path or url3  == request.path or url4  == request.path %}active{% endif %}" id="strategic-menu" data-bs-toggle="dropdown">
+                        Strategic Planning
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="strategic-menu" style="border-radius: 0;">
+                        {% url 'list_business_context' as url %}
+                        <li>
+                            <a href="{% url 'list_business_context' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Business Context</a>
+                        </li>
+                        {% url 'list_risk_appetite' as url %}
+                        <li>
+                            <a href="{% url 'list_risk_appetite' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk Appetite</a>
+                        </li>
+                        {% url 'list_strategic_evaluation' as url %}
+                        <li>
+                            <a href="{% url 'list_strategic_evaluation' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Strategic Evaluation</a>
+                        </li>
+                        {% url 'list_objective' as url %}
+                        <li>
+                            <a href="{% url 'list_objective' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Objectives</a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Continuous Monitoring Section -->
+                <div class="dropdown  {% if url1 == request.path or url2 == request.path or url3 == request.path %}active{% endif %} ml-3">
+                    {% url 'list_change_assessment' as url1 %}{% url 'list_performance_review' as url2 %}{% url 'list_improvement_action' as url3 %}
+                    <a href="#" class="btn btn-light {% if url1 == request.path or url2 == request.path or url3 == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Continuous Monitoring
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        {% url 'list_change_assessment' as url %}
+                        <li>
+                            <a href="{% url 'list_change_assessment' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Change Assessment</a>
+                        </li>
+                        {% url 'list_performance_review' as url %}
+                        <li>
+                            <a href="{% url 'list_performance_review' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Performance Review</a>
+                        </li>
+                        {% url 'list_improvement_action' as url %}
+                        <li>
+                            <a href="{% url 'list_improvement_action' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Continuous Improvement</a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Risk Operations -->
+                <div class="dropdown ml-3">
+                    {% url 'list_risks' as url %}
+                    <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Risk Operations
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        {% url 'list_risks' as url %}
+                        <li>
+                            <a href="{% url 'list_risks' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk Operations</a>
+                        </li>
+                        {% url 'risk_intelligence_dashboard' as url %}
+                        <li>
+                            <a href="{% url 'risk_intelligence_dashboard'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+                
+            </div>
+
+
             <!-- Right navbar links (User section) -->
             <div class="user-panel d-flex align-items-center ml-auto">
                 <div class="image">
@@ -117,7 +249,7 @@
             <!-- Content Header (Page header) -->
             <div class="content-header  bg-white " style="border-bottom: 1px solid #38383830;" >
                 <div class="container-xxl">
-                    <div class="row mb-2">
+                    {% comment %} <div class="row mb-2">
     
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-left" >
@@ -169,7 +301,7 @@
                         </div>
                         
                         
-                    </div><!-- /.row -->
+                    </div><!-- /.row --> {% endcomment %}
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1 class="m-0 text-dark"  style="padding-left: 20px">{% block page_title %}{% endblock page_title %}</h1>
@@ -179,7 +311,7 @@
                         
                 </div><!-- /.container-fluid -->
             </div>
-            {% if page_title == "Risks" %}
+            {% if page_title != "ERM" and page_title != "Risk Management Dashboard" %}
             <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
                 <!-- Dropdown Menu (Aligned to the right) -->
                 <div class="dropdown">
