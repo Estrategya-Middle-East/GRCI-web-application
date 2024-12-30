@@ -37,29 +37,22 @@
         .sidebar {
             font-family: 'Garamond', serif;
             font-size: 1 em;
-        }{% comment %} 
-        /* Default hidden state for submenus */
-        .nav-treeview {
-            display: none;
-            padding-left: 20px;
         }
-        
-        /* Show submenu on hover */
-        .nav-item.has-treeview:hover > .nav-treeview {
-            display: block;
+        .dropdown-item.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255);
+            background-color: #cc0000;
         }
-        
-        /* Prevent hover effect from affecting the main link */
-        .nav-item.has-treeview > .nav-link {
-            position: relative;
-            z-index: 10;
+        .btn.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255) !important;
+            background-color: #630010 !important;
+            border: None !important;
         }
-        
-        /* Optional: Smooth transition for hover effects */
-        .nav-treeview {
-            transition: all 0.3s ease-in-out;
-        } {% endcomment %}
-        
+        .dropdown-item:focus {
+            color: rgb(255, 255, 255) !important;
+            background-color: #f97d6d !important;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -109,8 +102,82 @@
                     <a class="nav-link" data-widget="pullmenu" href="#" id="toggle-sidebar"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            <div class="navbar-brand">
+            {% comment %} <div class="navbar-brand">
                 <h1 class="m-0 text-dark">{% block page_title %}{% endblock page_title %}</h1>
+            </div> {% endcomment %}
+
+            <!-- Dropdown Menus for Sections -->
+            <div class="d-flex align-items-center ml-3">
+                
+                
+                <!-- Ask PioNeer -->
+                <div class="dropdown ml-3">
+                    {% url 'chat' as url %}
+                    <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Ask PioNeer
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        
+                        {% url 'chat' as url %}
+                        <li>
+                            <a href="{% url 'chat'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Ask PioNeer</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Predictive risk assessment -->
+                <div class="dropdown ml-3">
+                    {% url 'predictive_risk_analysis' as url %}
+                    <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Predictive risk 
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        
+                        {% url 'predictive_risk_analysis' as url %}
+                        <li>
+                            <a href="{% url 'predictive_risk_analysis'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Predictive risk assessment</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Automate risk assessment -->
+                <div class="dropdown ml-3">
+                    
+                    <a href="#" class="btn btn-light" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Automate risk 
+                    </a>
+                    
+                </div>
+                
+                <!-- Decision risk assessment -->
+                <div class="dropdown ml-3">
+                    
+                    <a href="#" class="btn btn-light" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Decision risk 
+                    </a>
+                    
+                </div>
+
+                <!-- Trend Analysis -->
+                <div class="dropdown ml-3">
+                    
+                    <a href="#" class="btn btn-light" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Trend Analysis
+                    </a>
+                    
+                </div>
+
+                <!-- Root cause analysis -->
+                <div class="dropdown ml-3">
+                   
+                    <a href="#" class="btn btn-light" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Root cause analysis
+                    </a>
+                    
+                </div>
+
+                
+                
             </div>
             
             <!-- Right navbar links (User section) -->
@@ -148,50 +215,10 @@
             <div class="content-header  bg-white">
                 <div class="container-xxl">
                     <div class="row mb-2">
-    
                         <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-left" >
-                                <!-- Home dropdown with split button -->
-                                <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button" >
-                                        <a href="{% url 'admin_nav' %}">Home</a>
-                                    </button>
-                                    <button type="button" class="btn  dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <!-- Dynamic Dropdown Items -->
-                                        {% for module in visible_modules %}
-                                        <li>
-                                            <a class="dropdown-item {% if module.id == 8 %} active {% endif %}" href="{{ module.url }}">
-                                                {{ module.name }}
-                                            </a>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                                <!-- ERM Dashboard dropdown with split button -->
-                                <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button">
-                                        <a href="{% url 'chat_dashboard' %}">PioNeer+ Dashboard</a>
-                                    </button>
-                                    <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        {% url 'chat' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'chat' %}">Ask PioNeer</a></li>
-                                        {% url 'predictive_risk_analysis' as url %}
-                                        <li><a class="dropdown-item {% if url == request.path %} active {% endif %}" href="{% url 'predictive_risk_analysis' %}">Predictive Risk</a></li>
-                                        {% comment %} <li><a class="dropdown-item" href="#">Page 3</a></li> {% endcomment %}
-                                    </ul>
-                                </li>
-                        
-                                <!-- Active Page -->
-                                <li class="breadcrumb-item active">{{ page_title }}</li>
-                            </ol>
-                        </div>
-                    </div><!-- /.row -->
+                            <h1 class="m-0 text-dark"  style="padding-left: 20px">{% block page_title %}{% endblock page_title %}</h1>
+                        </div><!-- /.col -->
+                    </div>
                        
                 </div><!-- /.container-xxl -->
             
