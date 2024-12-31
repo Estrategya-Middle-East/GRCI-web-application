@@ -140,15 +140,22 @@ def risk_intelligence_dashboard(request):
     risk_tolerance_count = RiskAss.objects.filter(risk_tolerance_range).count()
     risk_appetite_count = RiskAss.objects.filter(risk_appetite_range).count()
 
-    # Total risks
+    # Total risks for inherent risks
     inherent_gauge_total_risks = high_risk_count + risk_tolerance_count + risk_appetite_count
 
-    # Calculate percentages
-    inherent_gauge_chart_data = [
-        {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
-        {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
-        {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
-    ]
+    # Avoid division by zero
+    if inherent_gauge_total_risks == 0:
+        inherent_gauge_chart_data = [
+            {"value": 0, "name": "High-Risk Range"},
+            {"value": 0, "name": "Risk Tolerance"},
+            {"value": 0, "name": "Risk Appetite"},
+        ]
+    else:
+        inherent_gauge_chart_data = [
+            {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
+            {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
+            {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
+        ]
 
     
     # Calculate counts for each risk range
@@ -156,15 +163,22 @@ def risk_intelligence_dashboard(request):
     residual_risk_tolerance_count = RiskResidualAss.objects.filter(risk_tolerance_range).count()
     residual_risk_appetite_count = RiskResidualAss.objects.filter(risk_appetite_range).count()
 
-    # Total risks
+    # Total risks for residual risks
     residual_gauge_risks = high_residual_risk_count + residual_risk_tolerance_count + residual_risk_appetite_count
 
-    # Calculate percentages
-    residual_gauge_chart_data = [
-        {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
-        {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
-        {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
-    ]
+    # Avoid division by zero
+    if residual_gauge_risks == 0:
+        residual_gauge_chart_data = [
+            {"value": 0, "name": "High-Risk Range"},
+            {"value": 0, "name": "Risk Tolerance"},
+            {"value": 0, "name": "Risk Appetite"},
+        ]
+    else:
+        residual_gauge_chart_data = [
+            {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
+            {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
+            {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
+        ]
     
     department_totals = RiskDefine.objects.values('department__name').annotate(
     total_impact=Sum('impact'),
@@ -715,7 +729,7 @@ def list_risks(request):
 
     risks = risk_filter.qs
     
-    inherent_risk_counts = (
+    """ inherent_risk_counts = (
         RiskDefine.objects.values("category")
         .annotate(count=Count("category"))
         .order_by("category")
@@ -776,15 +790,22 @@ def list_risks(request):
     risk_tolerance_count = RiskAss.objects.filter(risk_tolerance_range).count()
     risk_appetite_count = RiskAss.objects.filter(risk_appetite_range).count()
 
-    # Total risks
+    # Total risks for inherent risks
     inherent_gauge_total_risks = high_risk_count + risk_tolerance_count + risk_appetite_count
 
-    # Calculate percentages
-    inherent_gauge_chart_data = [
-        {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
-        {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
-        {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
-    ]
+    # Avoid division by zero
+    if inherent_gauge_total_risks == 0:
+        inherent_gauge_chart_data = [
+            {"value": 0, "name": "High-Risk Range"},
+            {"value": 0, "name": "Risk Tolerance"},
+            {"value": 0, "name": "Risk Appetite"},
+        ]
+    else:
+        inherent_gauge_chart_data = [
+            {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
+            {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
+            {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
+        ]
 
     
     # Calculate counts for each risk range
@@ -792,15 +813,22 @@ def list_risks(request):
     residual_risk_tolerance_count = RiskResidualAss.objects.filter(risk_tolerance_range).count()
     residual_risk_appetite_count = RiskResidualAss.objects.filter(risk_appetite_range).count()
 
-    # Total risks
+    # Total risks for residual risks
     residual_gauge_risks = high_residual_risk_count + residual_risk_tolerance_count + residual_risk_appetite_count
 
-    # Calculate percentages
-    residual_gauge_chart_data = [
-        {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
-        {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
-        {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
-    ]
+    # Avoid division by zero
+    if residual_gauge_risks == 0:
+        residual_gauge_chart_data = [
+            {"value": 0, "name": "High-Risk Range"},
+            {"value": 0, "name": "Risk Tolerance"},
+            {"value": 0, "name": "Risk Appetite"},
+        ]
+    else:
+        residual_gauge_chart_data = [
+            {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
+            {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
+            {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
+        ]
     
     department_totals = RiskDefine.objects.values('department__name').annotate(
     total_impact=Sum('impact'),
@@ -814,7 +842,7 @@ def list_risks(request):
         'impact_totals': [dept['total_impact'] or 0 for dept in department_totals],
         'likelihood_totals': [dept['total_likelihood'] or 0 for dept in department_totals],
         'risk_scores': [dept['total_risk_score'] or 0 for dept in department_totals],
-    }
+    } """
     
     # Pass necessary context to the template
     context = {
@@ -826,15 +854,15 @@ def list_risks(request):
         'rows_per_page': rows_per_page,
         'form': form,
         'risk_filter': risk_filter,
-        "chart_data_inherent": chart_data_inherent,
-        'total_inherent_risks': total_inherent_risks,
-        'heatmap_data': formatted_data,
-        'inherent_gauge_chart_data': inherent_gauge_chart_data,
-        'chart_data_residual': chart_data_residual,
-        'total_residual_risks':total_residual_risks,
-        'residual_heatmap_data': residual_formatted_data,
-        'residual_gauge_chart_data': residual_gauge_chart_data,
-        'department_chart_data': department_data,
+        #'chart_data_inherent': chart_data_inherent,
+        #'total_inherent_risks': total_inherent_risks,
+        #'heatmap_data': formatted_data,
+        #'inherent_gauge_chart_data': inherent_gauge_chart_data,
+        #'chart_data_residual': chart_data_residual,
+        #'total_residual_risks':total_residual_risks,
+        #'residual_heatmap_data': residual_formatted_data,
+        #'residual_gauge_chart_data': residual_gauge_chart_data,
+        #'department_chart_data': department_data,
     }
     return render(request, 'erm/list_risks.html', context)
 
