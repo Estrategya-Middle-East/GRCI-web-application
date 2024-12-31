@@ -1,6 +1,16 @@
 /* General Container Styles */
 
-
+.container-fluid{
+    min-height: 500px;
+    background-color: #ffffff !important;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-top: 25px solid #f01819;
+    margin: 0 auto; 
+    margin-top: 20px; 
+    margin-bottom: 20px;   
+}
 
 
 .container {
@@ -114,13 +124,13 @@ a {
 }
 
 .pagination .page-item .page-link {
-    color: #007bff;
+    color: #f01819;
     text-decoration: none;
 }
 
 .pagination .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #f01819;
+    border-color: #f01819;
     color: white;
 }
 

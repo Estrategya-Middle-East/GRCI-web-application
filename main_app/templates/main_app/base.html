@@ -210,11 +210,11 @@
                                 {% if messages %}
                                 {% for message in messages %}
                                 {% if message.tags == 'success' %}
-                                <div class="alert alert-light">
+                                <div class="alert alert-dark" role="alert">
                                     {{ message }}
                                 </div>
                                 {% else %}
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger" role="alert">
                                     {{ message }}
                                 </div>
                                 {% endif %}

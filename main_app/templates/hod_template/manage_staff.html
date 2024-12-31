@@ -3,6 +3,8 @@
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
 {% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://kit.fontawesome.com/178e567442.js" crossorigin="anonymous"></script>
 
 <section class="content">
     <div class="container-fluid">
@@ -11,18 +13,18 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row  d-flex justify-content-center align-items-center">
-                            <div class="col-11">
+                            <div class="col-10">
                                 <h3 class="card-title">{{page_title}}</h3>
                             </div>
-                            <div class="col">
-                                <a href="{% url 'add_staff' %}" class="btn" style="background-color: #f01819 !important; color: white !important;">Add</a>
+                            <div class="col-2">
+                                <a href="{% url 'add_staff' %}" class="btn w-[160px] text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out ">Add New</a>
                             </div>
                         </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
                         <table id="example2" class="table table-bordered table-hover">
-                            <thead class="thead-dark">
+                            <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
                                     <th>Full Name</th>
@@ -30,7 +32,7 @@
                                     <th>Gender</th>
                                     <th>Department</th>
                                     <th>Avatar</th>
-                                    <th>Actions</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,9 +51,9 @@
                                             src="{{staff.profile_pic}}" alt="">
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <a href="{% url 'edit_staff' staff.staff.id %}" class="btn btn-info">Edit</a> -
-                                        <a href="{% url 'delete_staff' staff.staff.id %}" class="btn btn-danger" onclick="return confirm('Are you sure about this ?')">Delete</a>
+                                    <td class="text-center text-[20px]">
+                                        <a href="{% url 'edit_staff' staff.staff.id %}" class="btn"style="color: #343A40; font-size: 20px;"><i class="fa-regular fa-pen-to-square"></i></a>
+                                        <a href="{% url 'delete_staff' staff.staff.id %}" class="btn" onclick="return confirm('Are you sure about this ?')" style="color: #f01819; font-size: 22px;"><i class="fa-regular fa-trash-can"></i></a> 
                                     
                                     </td>
                                 </tr>
