@@ -167,7 +167,7 @@
             <div class="content-header  bg-white">
                 <div class="container-fluid">
                     <div class="row mb-2">
-    
+                        {% if page_title != "Navigation" %}
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-left" >
                                 <!-- Home dropdown with split button -->
@@ -194,6 +194,7 @@
                                 <li class="breadcrumb-item active">{{ page_title }}</li>
                             </ol>
                         </div>
+                        {% endif %}
                     </div><!-- /.row -->
                        
                 </div><!-- /.container-fluid -->

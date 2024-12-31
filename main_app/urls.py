@@ -29,6 +29,9 @@ urlpatterns = [
     path("admin/home/", hod_views.admin_home, name='admin_home'),
     path("staff/add", hod_views.add_staff, name='add_staff'),
     path("department/add", hod_views.add_department, name='add_department'),
+    path('add-group/', hod_views.add_group, name='add_group'),
+    path('group_list/', hod_views.group_list, name='group_list'),
+    
     # staff
     path("staff/department/add", staff_views.add_department, name='add_department_staff'),
 

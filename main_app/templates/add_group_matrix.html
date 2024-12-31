@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+{% load custom_filters %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Group with Permissions Matrix</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .model-header {
+            font-weight: bold;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add Group with Permissions Matrix</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_name">Group Name:</label>
+        <input type="text" name="name" id="id_name" required value="{{ form.name.value }}">
+
+        <table id="permissions-matrix">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Add</th>
+                    <th>Change</th>
+                    <th>Delete</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- JavaScript will dynamically populate this -->
+            </tbody>
+        </table>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <script>
+        // Permission data from Django
+        const permissionsByModel = {{ permissions_by_model|safe }};
+        const actions = {{ actions|safe }};
+        
+        const tbody = document.querySelector("#permissions-matrix tbody");
+
+        // Populate the table dynamically
+        Object.keys(permissionsByModel).forEach((modelName) => {
+            const row = document.createElement("tr");
+
+            // Add model name
+            const modelCell = document.createElement("td");
+            modelCell.textContent = modelName;
+            modelCell.classList.add("model-header");
+            row.appendChild(modelCell);
+
+            // Add permission checkboxes for each action
+            actions.forEach((action) => {
+                const cell = document.createElement("td");
+                const permissions = permissionsByModel[modelName];
+
+                // Check if permission exists for this action
+                const permission = permissions.find((perm) =>
+                    perm.codename.includes(action)
+                );
+
+                if (permission) {
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.name = "permissions";
+                    checkbox.value = permission.id;
+                    cell.appendChild(checkbox);
+                }
+
+                row.appendChild(cell);
+            });
+
+            tbody.appendChild(row);
+        });
+    </script>
+</body>
+</html>

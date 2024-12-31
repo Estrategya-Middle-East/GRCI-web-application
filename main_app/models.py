@@ -32,7 +32,7 @@ class CustomUserManager(UserManager):
 
 
 class CustomUser(AbstractUser):
-    USER_TYPE = ((1, "HOD"), (2, "Staff"), (3, "User"))
+    USER_TYPE = ((1, "1"), (2, "2"), (3, "3")) # ((1, "HOD"), (2, "Staff"), (3, "User"))
     GENDER = [("M", "Male"), ("F", "Female")]
 
     username = None  # Remove username, using email instead
@@ -91,13 +91,23 @@ class Department(models.Model):
         related_name='children',
         help_text='Select the parent department with a higher org_chart_level.'
     )
-    primary_responsibilities = models.TextField(null=True, blank=True)
-    purpose = models.TextField(null=True, blank=True)
-    key_interfaces  = models.TextField(null=True, blank=True)
-    Key_external_relationships = models.TextField(null=True, blank=True)
-    key_customer_relationships = models.TextField(null=True, blank=True)
-    major_systems_and_data_used = models.TextField(null=True, blank=True)
-    key_suppliers = models.TextField(null=True, blank=True)
+    introduction_section = models.TextField(null=True, blank=True)
+    primary_responsibilities_section = models.TextField(null=True, blank=True)
+    team_section = models.TextField(null=True, blank=True)
+    governance_section  = models.TextField(null=True, blank=True)
+    policies_section = models.TextField(null=True, blank=True)
+    challenges_section = models.TextField(null=True, blank=True)
+    performance_section = models.TextField(null=True, blank=True)
+    technology_section = models.TextField(null=True, blank=True)
+    interaction_section = models.TextField(null=True, blank=True)
+    regulations_section = models.TextField(null=True, blank=True)
+    plans_section = models.TextField(null=True, blank=True)
+    raci_matrix_section = models.TextField(null=True, blank=True)
+    authority_delegation_section = models.TextField(null=True, blank=True)
+    mis_section = models.TextField(null=True, blank=True)
+    departmental_swot_section = models.TextField(null=True, blank=True)
+    annual_budget_section = models.TextField(null=True, blank=True)
+    other_information_section = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -117,10 +127,11 @@ class Section(models.Model):
 
 
 class Staff(models.Model):
+    ROLE_TYPE = (("Data Entry", "Data Entry"), ("Reviewer", "Reviewer"), ("Approver", "Approver"))
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name="staff")
     section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True, related_name="staff")
-    
+    role = models.CharField(max_length=50, choices=ROLE_TYPE, blank=True, null=True)
 
     def __str__(self):
         return f"{self.admin.first_name} {self.admin.last_name}"
@@ -165,6 +176,22 @@ class NotificationUser(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+class Action(models.Model):
+    ACTION_TYPE = (
+        ("Submit", "Submit"),
+        ("Review", "Review"),
+        ("Approve", "Approve"),
+        ("Reject", "Reject")
+        )
+    type = models.CharField (max_length=50, choices=ACTION_TYPE, null=True, blank=True)
+    owner = models.ForeignKey (Staff, on_delete=models.DO_NOTHING, null=True, blank=True)
+    comment = models.TextField (null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True) 
+    
+    def __str__(self):
+        return f"{self.owner} {self.type}"
 
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):

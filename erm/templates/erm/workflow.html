@@ -16,6 +16,29 @@
         margin-top: 20px; 
         margin-bottom: 20px;
     }
+    
+    .btn-primary {
+        width: 120px;
+        background-color: #343A40;
+        color: white !important;
+        border:None;
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: gray !important;
+    }
+
+    .btn-warning {
+        width: 120px;
+        background-color: #630010;
+        color: white !important;
+        border:None;
+    }
+    .btn-warning:hover,
+    .btn-warning:focus{
+        background-color: #f93d3d !important;
+    }
+
 </style>
 <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
 <div class="container-fluid mt-4">
@@ -80,7 +103,7 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label for="risk_cause">Risk Cause</label>
+                                <label for="risk_cause">Root Cause</label>
                                 {{ form_define.risk_cause|add_class:"form-control" }}
                             </div>
                         </div>

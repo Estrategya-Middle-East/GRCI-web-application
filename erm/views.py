@@ -387,6 +387,8 @@ class RiskWorkflowView(TemplateView):
         context = super().get_context_data(**kwargs)
         risk_id = kwargs['id']
         risk = get_object_or_404(Risk, id=risk_id)
+        action = Action.objects.all()
+        roles = Staff.objects.filter(role = True)
 
         # Ensure we always pass both forms, even if the step is approved or completed
         # new
@@ -450,13 +452,13 @@ class RiskWorkflowView(TemplateView):
         elif risk.workflow_status == 'close':
             context['current_step'] = 'close'
         
-        context['risk'] = risk
+        context['risk'] = risk 
         return context
 
 
     def post(self, request, *args, **kwargs):
         risk_id = kwargs['id']
-        risk = get_object_or_404(Risk, id=risk_id)
+        risk = get_object_or_404(Risk, id=risk_id)       
 
         # Handle different workflow steps
         if risk.workflow_status == 'define':
@@ -729,120 +731,6 @@ def list_risks(request):
 
     risks = risk_filter.qs
     
-    """ inherent_risk_counts = (
-        RiskDefine.objects.values("category")
-        .annotate(count=Count("category"))
-        .order_by("category")
-    )
-    
-     # Calculate total inherent risks
-    total_inherent_risks = sum(item["count"] for item in inherent_risk_counts)
-    
-    # Prepare the data for ECharts
-    chart_data_inherent = [{"name": item["category"], "value": item["count"]} for item in inherent_risk_counts]
-    
-    residual_risks = (
-        RiskResidualAss.objects.filter(risk_score__gt=0)
-        .values("risk__define_step__category")
-        .annotate(count=Count("risk__define_step__category"))
-    )
-   
-    # Calculate total residual risks
-    total_residual_risks = sum(item["count"] for item in residual_risks)
-    
-    chart_data_residual = [
-        {"name": item["risk__define_step__category"], "value": item["count"]} for item in residual_risks
-    ]
-    
-    # Aggregate data: Count risks by likelihood and impact
-    heatmap_data = (
-        RiskAss.objects
-        .values('likelihood_rating', 'impact_rating', 'risk_score')  # Group by likelihood and impact
-        .annotate(count=Count('id'))  # Count the number of risks
-    )
-
-    # Format data for ECharts: [impact-1, 5-likelihood, count]
-    formatted_data = [
-        [item['impact_rating'] - 1, 5 - item['likelihood_rating'], item['count'], item['risk_score']]
-        for item in heatmap_data
-    ]
-    
-    residual_heatmap_data = (
-        RiskResidualAss.objects
-        .values('likelihood_rating', 'impact_rating', 'risk_score')  # Group by likelihood and impact
-        .annotate(count=Count('id'))  # Count the number of risks
-    )
-
-    # Format data for ECharts: [impact-1, 5-likelihood, count]
-    residual_formatted_data = [
-        [item['impact_rating'] - 1, 5 - item['likelihood_rating'], item['count'], item['risk_score']]
-        for item in residual_heatmap_data
-    ]
-    
-    
-    # risk score ranges
-    high_risk_range = Q(risk_score__gte=20, risk_score__lte=25)
-    risk_tolerance_range = Q(risk_score__gte=10, risk_score__lt=20)
-    risk_appetite_range = Q(risk_score__lt=10)
-
-    # Calculate counts for each risk range
-    high_risk_count = RiskAss.objects.filter(high_risk_range).count()
-    risk_tolerance_count = RiskAss.objects.filter(risk_tolerance_range).count()
-    risk_appetite_count = RiskAss.objects.filter(risk_appetite_range).count()
-
-    # Total risks for inherent risks
-    inherent_gauge_total_risks = high_risk_count + risk_tolerance_count + risk_appetite_count
-
-    # Avoid division by zero
-    if inherent_gauge_total_risks == 0:
-        inherent_gauge_chart_data = [
-            {"value": 0, "name": "High-Risk Range"},
-            {"value": 0, "name": "Risk Tolerance"},
-            {"value": 0, "name": "Risk Appetite"},
-        ]
-    else:
-        inherent_gauge_chart_data = [
-            {"value": round((high_risk_count / inherent_gauge_total_risks) * 100, 2), "name": "High-Risk Range"},
-            {"value": round((risk_tolerance_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Tolerance"},
-            {"value": round((risk_appetite_count / inherent_gauge_total_risks) * 100, 2), "name": "Risk Appetite"},
-        ]
-
-    
-    # Calculate counts for each risk range
-    high_residual_risk_count = RiskResidualAss.objects.filter(high_risk_range).count()
-    residual_risk_tolerance_count = RiskResidualAss.objects.filter(risk_tolerance_range).count()
-    residual_risk_appetite_count = RiskResidualAss.objects.filter(risk_appetite_range).count()
-
-    # Total risks for residual risks
-    residual_gauge_risks = high_residual_risk_count + residual_risk_tolerance_count + residual_risk_appetite_count
-
-    # Avoid division by zero
-    if residual_gauge_risks == 0:
-        residual_gauge_chart_data = [
-            {"value": 0, "name": "High-Risk Range"},
-            {"value": 0, "name": "Risk Tolerance"},
-            {"value": 0, "name": "Risk Appetite"},
-        ]
-    else:
-        residual_gauge_chart_data = [
-            {"value": round((high_residual_risk_count / residual_gauge_risks) * 100, 2), "name": "High-Risk Range"},
-            {"value": round((residual_risk_tolerance_count / residual_gauge_risks) * 100, 2), "name": "Risk Tolerance"},
-            {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
-        ]
-    
-    department_totals = RiskDefine.objects.values('department__name').annotate(
-    total_impact=Sum('impact'),
-    total_likelihood=Sum('likelihood'),
-    total_risk_score=Sum('risk_score')
-    )
-
-    # Format data for the chart
-    department_data = {
-        'departments': [dept['department__name'] or 'Unknown' for dept in department_totals],
-        'impact_totals': [dept['total_impact'] or 0 for dept in department_totals],
-        'likelihood_totals': [dept['total_likelihood'] or 0 for dept in department_totals],
-        'risk_scores': [dept['total_risk_score'] or 0 for dept in department_totals],
-    } """
     
     # Pass necessary context to the template
     context = {
@@ -854,15 +742,6 @@ def list_risks(request):
         'rows_per_page': rows_per_page,
         'form': form,
         'risk_filter': risk_filter,
-        #'chart_data_inherent': chart_data_inherent,
-        #'total_inherent_risks': total_inherent_risks,
-        #'heatmap_data': formatted_data,
-        #'inherent_gauge_chart_data': inherent_gauge_chart_data,
-        #'chart_data_residual': chart_data_residual,
-        #'total_residual_risks':total_residual_risks,
-        #'residual_heatmap_data': residual_formatted_data,
-        #'residual_gauge_chart_data': residual_gauge_chart_data,
-        #'department_chart_data': department_data,
     }
     return render(request, 'erm/list_risks.html', context)
 

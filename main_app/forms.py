@@ -2,6 +2,8 @@ from django import forms
 from django.forms.models import inlineformset_factory
 from django.forms.widgets import DateInput, TextInput
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Group, Permission
+from collections import defaultdict
 
 from .models import *
 
@@ -25,6 +27,7 @@ class CustomUserForm(FormSettings):
         'password': forms.PasswordInput(),
     }
     profile_pic = forms.ImageField()
+    user_type = forms.ChoiceField(choices=((1, "1"), (2, "2"), (3, "3")))
 
     def __init__(self, *args, **kwargs):
         super(CustomUserForm, self).__init__(*args, **kwargs)
@@ -54,7 +57,7 @@ class CustomUserForm(FormSettings):
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'gender',  'password','profile_pic', 'address' ]
+        fields = ['first_name', 'last_name', 'email', 'gender',  'password','profile_pic', 'address', 'user_type' ]
 
 
 class UserForm(CustomUserForm):
@@ -77,6 +80,17 @@ class AdminForm(CustomUserForm):
         model = Admin
         fields = CustomUserForm.Meta.fields
 
+class GroupForm(forms.ModelForm):
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    class Meta:
+        model = Group
+        fields = ['name', 'permissions']
+   
 
 class DepartmentForm(FormSettings):
 
@@ -104,18 +118,45 @@ class DepartmentForm(FormSettings):
 
     class Meta:
         model = Department
-        fields = ['name', 'description', 'org_chart_level', 'parent', 'purpose', 'primary_responsibilities', "key_interfaces", "Key_external_relationships", "key_customer_relationships", "major_systems_and_data_used", "key_suppliers"]
+        fields = ['name', 'description', 'org_chart_level', 'parent', 'introduction_section',
+            'primary_responsibilities_section',
+            'team_section',
+            'governance_section' ,
+            'policies_section',
+            'challenges_section',
+            'performance_section',
+            'technology_section',
+            'interaction_section',
+            'regulations_section',
+            'plans_section',
+            'raci_matrix_section',
+            'authority_delegation_section',
+            'mis_section',
+            'departmental_swot_section',
+            'annual_budget_section',
+            'other_information_section',]
+        
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
-            'purpose': forms.Textarea(attrs={'rows': 3}),
-            'primary_responsibilities': forms.Textarea(attrs={'rows': 3}),
-            'key_interfaces': forms.Textarea(attrs={'rows': 3}),
-            'Key_external_relationships': forms.Textarea(attrs={'rows': 3}),
-            'key_customer_relationships': forms.Textarea(attrs={'rows': 3}),
-            'major_systems_and_data_used': forms.Textarea(attrs={'rows': 3}),
-            'key_suppliers': forms.Textarea(attrs={'rows': 3}),
-        }
+            'introduction_section': forms.Textarea(attrs={'rows': 3}),
+            'primary_responsibilities_section': forms.Textarea(attrs={'rows': 3}),
+            'team_section': forms.Textarea(attrs={'rows': 3}),
+            'governance_section' : forms.Textarea(attrs={'rows': 3}),
+            'policies_section': forms.Textarea(attrs={'rows': 3}),
+            'challenges_section': forms.Textarea(attrs={'rows': 3}),
+            'performance_section': forms.Textarea(attrs={'rows': 3}),
+            'technology_section': forms.Textarea(attrs={'rows': 3}),
+            'interaction_section': forms.Textarea(attrs={'rows': 3}),
+            'regulations_section': forms.Textarea(attrs={'rows': 3}),
+            'plans_section': forms.Textarea(attrs={'rows': 3}),
+            'raci_matrix_section': forms.Textarea(attrs={'rows': 3}),
+            'authority_delegation_section': forms.Textarea(attrs={'rows': 3}),
+            'mis_section': forms.Textarea(attrs={'rows': 3}),
+            'departmental_swot_section': forms.Textarea(attrs={'rows': 3}),
+            'annual_budget_section': forms.Textarea(attrs={'rows': 3}),
+            'other_information_section': forms.Textarea(attrs={'rows': 3}),
 
+        }
 
 class SectionForm(FormSettings):
     staff = forms.ModelMultipleChoiceField(
@@ -139,39 +180,14 @@ class StaffForm(CustomUserForm):
         queryset=Department.objects.all(),
         required=False
     )
-    """ section = forms.ModelChoiceField(
-        queryset=Section.objects.none(),
-        required=False
-    )
-    group = forms.ModelChoiceField(
-        queryset=Group.objects.none(),
-        required=False
-    ) """
-
-    """ def __init__(self, *args, **kwargs):
-        super(StaffForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs and kwargs['instance']:
-            instance = kwargs['instance']
-            # Filter sections by selected department
-            self.fields['section'].queryset = Section.objects.filter(department=instance.department)
-            # Filter groups by selected section
-            self.fields['group'].queryset = Group.objects.filter(section=instance.section)
- """
+    
     def clean(self):
         cleaned_data = super().clean()
-        """ department = cleaned_data.get('department')
-        section = cleaned_data.get('section')
-        group = cleaned_data.get('group')
-
-        if group and group.section != section:
-            self.add_error('group', "Selected group does not belong to the selected section.")
-        if section and section.department != department:
-            self.add_error('section', "Selected section does not belong to the selected department.") """
         return cleaned_data
 
     class Meta(CustomUserForm.Meta):
         model = Staff
-        fields = CustomUserForm.Meta.fields + ['department']
+        fields = CustomUserForm.Meta.fields + ['department', 'role']
 
 
 

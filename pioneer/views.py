@@ -52,7 +52,7 @@ def generate_response(prompt):
         # Make the API request to the model
         response = requests.post(
             "http://127.0.0.1:11434/api/generate",
-            json={"model": "llama3.2:1b", "prompt": full_prompt},
+            json={"model": "llama3.2:1b", "prompt": full_prompt}, # llama3.1:8b
             headers={"Content-Type": "application/json"},
             stream=True,
         )
@@ -96,6 +96,7 @@ def chat_view(request):
 
             # Generate the assistant's response
             response = generate_response(prompt)
+            response = format_response(response)
             if response:
                 ChatMessage.objects.create(role="assistant", content=response)
             else:
@@ -235,7 +236,7 @@ class PredictiveRiskAnalysisView(View):
                 'sales_ledger_choices': RiskAnalysisForm.suboptions_sales_ledger,})
 
     def generate_duplicate_invoices_graph(self):
-        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
+        pickle_path = r"./uploads/sales_data.pkl"
         # Load the pickle file
         try:
             sales_data = pd.read_pickle(pickle_path)
@@ -356,7 +357,7 @@ class PredictiveRiskAnalysisView(View):
     def generate_net_amount_graphs(self):
         # Load the pickle file
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
+        pickle_path = r"./uploads/sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -454,7 +455,7 @@ class PredictiveRiskAnalysisView(View):
 
     def generate_invalid_invoices_garphs(self):
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
+        pickle_path = r"./uploads/sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -527,7 +528,7 @@ class PredictiveRiskAnalysisView(View):
        
     def generate_mismatched_subtotals_garphs(self):
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
+        pickle_path = r"./uploads/sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -593,7 +594,7 @@ class PredictiveRiskAnalysisView(View):
     
     def generate_high_cash_transactions_garphs(self):
         # Load the pickle file
-        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
+        pickle_path = r"./uploads/sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency
@@ -668,7 +669,7 @@ class PredictiveRiskAnalysisView(View):
     
     def generate_unusual_prices_garphs(self):
         # Load the sales data
-        pickle_path = r"C:\Users\Mostafa\IAM-App\GRCI-web-application\uploads\sales_data.pkl"
+        pickle_path = r"./uploads/sales_data.pkl"
         sales_data = pd.read_pickle(pickle_path)
 
         # Rename columns for consistency (adjust the column names as needed)
