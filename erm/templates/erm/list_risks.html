@@ -4,102 +4,9 @@
 {% block page_title %}Risk Operations and Execution{% endblock page_title %}
 
 {% block content %}
-<style>
-    .container-fluid{
-        min-height: 500px;
-        background-color: #ffffff !important;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        border-top: 25px solid #f01819;
-        margin: 0 auto; 
-        margin-top: 20px; 
-        margin-bottom: 20px;   
-    }
-    .chart-container {
-        padding: 20px;
-        border-radius: 8px;
-        //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        margin: 10px auto;
-        height: 300px; /* Adjust height */
-        width: 60%; /* Adjust width to make room for other charts */
-        display: inline-block; /* Allow charts to sit next to each other */
-        vertical-align: top; /* Align the charts at the top */
-    }
-
-    #chart_data_inherent {
-        width: 100%;
-        height: 100%;
-    }
-    #chart_data_residual {
-        width: 100%;
-        height: 100%;
-    }
-    #heatmap {
-        width: 100%;
-        height: 100%;
-    }
-    #residual_heatmap {
-        width: 100%;
-        height: 100%;
-    }
-    #inherent_gauge_chart_data {
-        width: 100%;
-        height: 100%;
-    }
-    #residual_gauge_chart {
-        width: 100%;
-        height: 100%;
-    }
-    #department_chart {
-        width: 100%;
-        height: 100%;
-    }
-
-</style>
-
-
-
-<!-- Chart Container 
-<div class="row text-center justify-content-center"> 
-    <div class="col"> 
-        <div class="chart-container">
-            <div id="chart_data_inherent"></div>
-        </div>
-        <div style="text-align: center; margin-top: -20px;">
-            <div style="font-size: 16px; color: #888;">Total Risks</div>
-            <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_inherent_risks }}</div>
-        </div>
-    </div>
-    <div class="col"> 
-        <div class="chart-container">
-            <div id="chart_data_residual"></div>
-        </div>
-        <div style="text-align: center; margin-top: -20px;">
-            <div style="font-size: 16px; color: #888;">Total Risks</div>
-            <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_residual_risks }}</div>
-        </div>
-    </div>
-    {% comment %} <div id="heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
-    <div id="inherent_gauge_chart_data" style="width: 400px; height: 400px;"></div> {% endcomment %}
-</div>
-{% comment %} <div class="row text-center justify-content-center" style="margin-top: 20px;"> 
-    <div class="col"> 
-        <div class="chart-container">
-            <div id="chart_data_residual"></div>
-        </div>
-        <div style="text-align: center; margin-top: -20px;">
-            <div style="font-size: 16px; color: #888;">Total Risks</div>
-            <div style="font-size: 36px; font-weight: bold; color: #000;">{{ total_residual_risks }}</div>
-        </div>
-    </div>
-    <div id="residual_heatmap" style="width: 540px; height: 400px; margin: 0 auto;"></div>
-    <div id="residual_gauge_chart" style="width: 400px; height: 400px;"></div>
-</div>
-<div class="row text-center justify-content-center" style="margin-top: 20px;"> 
-    <div id="department_chart" style="width: 100%; height: 600px;"></div>
-</div> {% endcomment %}-->
 <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<script src="https://cdn.tailwindcss.com"></script>
+
 <div class="container-fluid mt-4">
     
     <form method="POST" id="action-form">
@@ -162,7 +69,7 @@
                         </div>
                         
                         <div class="col-2">
-                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                            <button type="submit" class="btn btn ml-2" style="background-color: #f01819; color: white;">Search</button>
                         </div>
                         
                     </div>  
@@ -174,9 +81,9 @@
         
         <!-- Table -->
         <div class="table-responsive">
-            <table class="table table-sm ">
+            <table class="table table-hover">
                 <thead>
-                    <tr>
+                    <tr >
                         <th>Select</th>
                         <th>
                             <a href="?sort_by=id&order={% if current_sort == 'id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
@@ -221,8 +128,8 @@
                 </thead>
                 <tbody>
                     {% for risk in paginated_risks %}
-                    <tr >
-                        <td><input type="radio" name="selected" value="{{ risk.id }}"></td>
+                    <tr>
+                        <td><input type="radio" class= "radio" name="selected" value="{{ risk.id }}"></td>
                         <td>{{ forloop.counter|add:paginated_risks.start_index|add:-1 }}</td>
                         <td>{{ risk.name }}</td>
                         <td>{{ risk.description }}</td>
@@ -260,7 +167,7 @@
                         </td>
                         <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' risk.id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' risk.id %}" class="btn  btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td>
@@ -300,7 +207,7 @@
                                         </div>    
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </div>
                                 </form>
@@ -377,7 +284,7 @@
                     <!-- Tabs -->
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
+                            <a class="nav-link active " id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
                         </li>
                         
                     </ul>
@@ -397,8 +304,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Add Risk</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn text-white bg-[#343a40c5] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out ">Add Risk</button>
                 </div>
             </form>
         </div>

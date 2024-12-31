@@ -316,10 +316,10 @@
                 </div><!-- /.container-fluid -->
             </div>
             {% if page_title != "ERM" and page_title != "Risk Management Dashboard" %}
-            <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
+            <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white">
                 <!-- Dropdown Menu (Aligned to the right) -->
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="dropdown z-50 !text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out mr-2">
+                    <button class="btn dropdown-toggle !text-white px-4" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
                         Actions
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="action-menu">
@@ -341,7 +341,7 @@
                                 {% if messages %}
                                 {% for message in messages %}
                                 {% if message.tags == 'success' %}
-                                <div class="alert alert-success">
+                                <div class="alert alert-dark">
                                     {{ message }}
                                 </div>
                                 {% else %}
