@@ -9,7 +9,10 @@ PioNeer+
 
 
 {% block custom_css %}
+
 <link rel="stylesheet" href="{% static 'chat/styles.css' %}">
+<script src="https://cdn.tailwindcss.com"></script>
+
 <style>
     .user-message {
         background-color: #e9ecef;
@@ -103,12 +106,12 @@ PioNeer+
                 </div>
             </div>
             {% csrf_token %}
-            <textarea id="prompt" name="prompt" class="form-control me-2" rows="2" placeholder="Type your message..."></textarea>
-            <button style="margin-left: 20px" type="submit" class="btn btn-primary">Send</button>
+            <textarea id="prompt" name="prompt" class="form-control focus:border-[#000000c2]" rows="2" placeholder="Type your message..."></textarea>
+            <button style="margin-left: 20px" type="submit" class="btn text-white bg-[#000000c2] hover:bg-[#000000e4] w-[100px] hover:scale-105 transition-all ease-in-out duration-200">Send</button>
         </form>
-        <form id="clear-chat-form" method="post" action="{% url 'clear_chat' %}" class="mt-2">
+        <form id="clear-chat-form" method="post" action="{% url 'clear_chat' %}" class="mt-0">
             {% csrf_token %}
-            <button style="margin-bottom: 20px; margin-top: 20px" type="submit" class="btn btn-danger">Clear Chat</button>
+            <button style="margin-bottom: 20px; margin-top: 20px" type="submit" class="btn  text-white bg-red-500 hover:bg-red-600 w-[140px] hover:scale-105 transition-all ease-in-out duration-200">Clear Chat</button>
         </form>
     </div>
         
