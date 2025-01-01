@@ -18,12 +18,12 @@ from django.views.generic import TemplateView
 # IAM Dashboard View
 def dashboard(request):
     components = [
-        {"name": "Audit Governance and Oversight", "icon": "fas fa-gavel", "link": "audit_oversight"},
+        {"name": "Audit Governance and Oversight", "icon": "fas fa-gavel", "link": "audit_oversight/audit_plannings/"},
         {"name": "Risk and Process Analysis", "icon": "fas fa-chart-pie", "link": "risk_mappings"},
-        {"name": "Audit Engagement Management", "icon": "fas fa-tasks", "link": "audit_engagement"},
+        {"name": "Audit Engagement Management", "icon": "fas fa-tasks", "link": "audit_engagement/engagement_plannings/"},
         {"name": "Audit Execution", "icon": "fas fa-check-circle", "link": "audit_executions"},
         {"name": "Audit Follow-Up and Monitoring", "icon": "fas fa-sync-alt", "link": "follow_ups"},
-        {"name": "Audit Reporting", "icon": "fas fa-file-alt", "link": "audit_reporting"},
+        {"name": "Audit Reporting", "icon": "fas fa-file-alt", "link": "audit_reporting/audit_reports/"},
         {"name": "Audit Quality Assurance", "icon": "fas fa-thumbs-up", "link": "quality_assurances"},
         {"name": "Fraud Detection and Investigation", "icon": "fas fa-search-dollar", "link": "fraud_investigations"},
         #{"name": "Document Management", "icon": "fas fa-folder-open", "link": "#"},

@@ -206,6 +206,14 @@
                                             <p>Manage Staff</p>
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        {% url 'group_list' as group_list %}
+                                        {% url 'edit_group' group_id as edit_group %}
+                                        <a href="{{group_list}}" class="nav-link {% if group_list == request.path or request.path == edit_staff %} active {% endif %}">
+                                            <i class="nav-icon fas fa-cogs"></i>
+                                            <p>Roles</p>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                     
@@ -549,6 +557,14 @@
                                                     <a href="{{manage_staff}}" class="nav-link {% if manage_staff == request.path or request.path == edit_staff %} active {% endif %}">
                                                         <i class="nav-icon fas fa-th"></i>
                                                         <p>Manage Staff</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    {% url 'group_list' as group_list %}
+                                                    {% url 'edit_group' group_id as edit_group %}
+                                                    <a href="{{group_list}}" class="nav-link {% if group_list == request.path or request.path == edit_staff %} active {% endif %}">
+                                                        <i class="nav-icon fas fa-cogs"></i>
+                                                        <p>Roles</p>
                                                     </a>
                                                 </li>
                                             </ul>

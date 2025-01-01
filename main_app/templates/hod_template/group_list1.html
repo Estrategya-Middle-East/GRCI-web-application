@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role List</title>
+</head>
+<body>
+    <h1>Role List</h1>
+    <a href="{% url 'add_group' %}">Add New Role</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+                <tr>
+                    <td>{{ group.name }}</td>
+                    <td>
+                        <a href="{% url 'edit_group' group.id %}">Edit</a> |
+                        <a href="{% url 'delete_group' group.id %}" style="color: red;">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

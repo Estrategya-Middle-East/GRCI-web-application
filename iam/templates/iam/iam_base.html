@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    
+ 
     <style>
        
         /* Optional: Customize specific elements */
@@ -37,6 +37,21 @@
         .sidebar {
             font-family: 'Garamond', serif;
             font-size: 1 em;
+        }
+        .dropdown-item.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255);
+            background-color: #cc0000;
+        }
+        .btn.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255) !important;
+            background-color: #630010 !important;
+            border: None !important;
+        }
+        .dropdown-item:focus {
+            color: rgb(255, 255, 255) !important;
+            background-color: #f97d6d !important;
         }
         
     </style>
@@ -72,18 +87,159 @@
                     <a class="nav-link" data-widget="pullmenu" href="#" id="toggle-sidebar"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            {% comment %} <div class="d-flex align-items-center" style="text-align: center" >
-                <!-- Dropdown Menu (Aligned to the right) -->
+            
+            <!-- Dropdown Menus for Sections -->
+            <div class="d-flex align-items-center ml-3">
+                <!-- IAM Dashboard Section -->
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <b style="font-size: 16pt">ERM Pages</b>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="action-menu">
-                        <li><a href="{% url 'list_risks' %}" class="dropdown-item">Risk Operations and Execution</a></li>
+                    {% url 'iam_dashboard' as url %}
+                    <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="erm-menu" data-bs-toggle="dropdown">
+                        IAM Dashboard
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="erm-menu" style="border-radius: 0;">
+                        
+                        {% url 'iam_dashboard' as url %}
+                        <li>
+                            <a href="{% url 'iam_dashboard' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Dashboard</a>
+                        </li>
+                       
                     </ul>
                 </div>
-            </div> {% endcomment %}
-             
+
+                <!-- Audit Governance and Oversight Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_audit_planning' as url1 %}{% url 'list_audit_register' as url2 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path %}active{% endif %}" id="leadership-menu" data-bs-toggle="dropdown">
+                        Audit Governance and Oversight
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="leadership-menu" style="border-radius: 0;">
+                        {% url 'list_audit_planning' as url %}
+                        <li>
+                            <a href="{% url 'list_audit_planning' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Planning</a>
+                        </li>
+                        {% url 'list_audit_register' as url %}
+                        <li>
+                            <a href="{% url 'list_audit_register' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Universe Register</a>
+                        </li>
+                        
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Audit Engagement Management Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_engagement_planning' as url1 %}{% url 'list_audit_resource' as url2 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path %}active{% endif %}" id="strategic-menu" data-bs-toggle="dropdown">
+                        Audit Engagement Management
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="strategic-menu" style="border-radius: 0;">
+                        {% url 'list_engagement_planning' as url %}
+                        <li>
+                            <a href="{% url 'list_engagement_planning' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Engagement Planning</a>
+                        </li>
+                        {% url 'list_audit_resource' as url %}
+                        <li>
+                            <a href="{% url 'list_audit_resource' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Resource Planner</a>
+                        </li>
+                        
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Audits Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_risk_mapping' as url1 %}{% url 'list_audit_execution' as url2 %}{% url 'list_follow_up' as url3 %}{% url 'list_quality_assurance' as url4 %}{% url 'list_fraud_investigation' as url5 %}{% url 'list_compliance_tracker' as url6 %}
+                    <a href="#" class="btn btn-light {% if url1 == request.path or url2 == request.path or url3 == request.path or url4 == request.path or url5 == request.path or url6 == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Audits
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        {% url 'list_risk_mapping' as url %}
+                        <li>
+                            <a href="{% url 'list_risk_mapping' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk and Process Analysis</a>
+                        </li>
+                        {% url 'list_audit_execution' as url %}
+                        <li>
+                            <a href="{% url 'list_audit_execution' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Execution</a>
+                        </li>
+                        {% url 'list_follow_up' as url %}
+                        <li>
+                            <a href="{% url 'list_follow_up' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Follow-Up and Monitoring</a>
+                        </li>
+                        {% url 'list_quality_assurance' as url %}
+                        <li>
+                            <a href="{% url 'list_quality_assurance' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Quality Assurance</a>
+                        </li>
+                        {% url 'list_fraud_investigation' as url %}
+                        <li>
+                            <a href="{% url 'list_fraud_investigation' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Fraud Detection and Investigation</a>
+                        </li>
+                        {% url 'list_compliance_tracker' as url %}
+                        <li>
+                            <a href="{% url 'list_compliance_tracker' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Compliance Monitoring</a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Audit Reporting -->
+                <div class="dropdown ml-3">
+                    {% url 'list_audit_report' as url1 %}{% url 'list_risktrends_report' as url2 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        Audit Reporting
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        {% url 'list_audit_report' as url %}
+                        <li>
+                            <a href="{% url 'list_audit_report' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Report</a>
+                        </li>
+                        {% url 'list_risktrends_report' as url %}
+                        <li>
+                            <a href="{% url 'list_risktrends_report'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Risk Trends Report</a>
+                        </li>
+                    </ul>
+                </div>
+                
+            </div>
+            
+            <div class="dropdown d-flex align-items-center ml-auto">
+                <button class="btn btn-link position-relative" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell" style="color: #343A40;"></i> {% comment %} bi bi-bell {% endcomment %}
+                    {% if messages %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ messages|length }}
+                        <span class="visually-hidden"></span>
+                    </span>
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                    <li>
+                        <div class="form-group px-3 py-2">
+                            {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                <div class="alert alert-success">
+                                    {{ message }}
+                                </div>
+                                {% else %}
+                                <div class="alert alert-danger">
+                                    {{ message }}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% else %}
+                            <p class="text-muted">No messages</p>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
             <!-- Right navbar links (User section) -->
             <div class="user-panel d-flex align-items-center ml-auto">
                 <div class="image">
@@ -111,75 +267,13 @@
 
         <!-- Main Sidebar Container -->
         {% include "main_app/sidebar_template.html" with user=user %}
-
         <div class="content-wrapper">
             <!-- Content Wrapper. Contains page content -->
+            {% if page_title != "IAM Dashboard" %}
             <!-- Content Header (Page header) -->
             <div class="content-header  bg-white " style="border-bottom: 1px solid #38383830;" >
                 <div class="container-xxl">
-                    <div class="row mb-2">
-    
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-left" >
-                                <!-- Home dropdown with split button -->
-                                <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button" >
-                                        <a href="{% url 'admin_nav' %}">Home</a>
-                                    </button>
-                                    <button type="button" class="btn  dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <!-- Dynamic Dropdown Items -->
-                                        {% for module in visible_modules %}
-                                        <li>
-                                            <a class="dropdown-item {% if module.id == 2 %} active {% endif %}" href="{{ module.url }}">
-                                                {{ module.name }}
-                                            </a>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                        
-                                <!-- ERM Dashboard dropdown with split button -->
-                                <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button">
-                                        <a href="{% url 'iam_dashboard' %}">IAM Dashboard</a>
-                                    </button>
-                                    <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        {% url 'audit_oversight_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'audit_oversight_dashboard' %}">Audit Governance and Oversight</a></li>
-                                        {% url 'list_risk_mapping' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_risk_mapping' as url %}">Risk and Process Analysis</a></li>
-                                        {% url 'audit_engagement_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'audit_engagement_dashboard' %}">Audit Engagement Management</a></li>
-                                        {% url 'list_audit_execution' as url %}
-                                        <li><a class="dropdown-item  {% if request.path == url %}active{% endif %}" href="{% url 'list_audit_execution' %}">Audit Execution</a></li>
-                                        {% url 'list_follow_up' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_follow_up'%}">Audit Follow-Up and Monitoring</a></li>
-                                        {% url 'audit_reporting_dashboard' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'audit_reporting_dashboard' %}">Audit Reporting</a></li>
-                                        {% url 'list_quality_assurance' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_quality_assurance' as url %}">Audit Quality Assurance</a></li>
-                                        {% url 'list_fraud_investigation' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_fraud_investigation'%}">Audit Follow-Up and Monitoring</a></li>
-                                        
-                                        {% comment %} <li><a class="dropdown-item" href="#">Document Management</a></li> {% endcomment %}
-                                        {% url 'list_compliance_tracker' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_compliance_tracker'%}">Compliance Monitoring</a></li>
-                                    </ul>
-                                </li>
-                        
-                                <!-- Active Page -->
-                                <li class="breadcrumb-item active">{{ page_title }}</li>
-                            </ol>
-                        </div>
-                        
-                        
-                    </div><!-- /.row -->
+                
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1 class="m-0 text-dark"  style="padding-left: 20px">{% block page_title %}{% endblock page_title %}</h1>
@@ -189,10 +283,11 @@
                         
                 </div><!-- /.container-fluid -->
             </div>
+            <script src="https://cdn.tailwindcss.com"></script>
             <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
                 <!-- Dropdown Menu (Aligned to the right) -->
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="dropdown-toggle  btn btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
                         Actions
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="action-menu">
@@ -202,7 +297,7 @@
                     </ul>
                 </div>
             </div>
-            
+            {% endif %}
             <!-- /.content-header -->
 
             <!-- Main content -->

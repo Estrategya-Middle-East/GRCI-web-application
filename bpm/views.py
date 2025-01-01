@@ -9,7 +9,7 @@ def dashboard(request):
         {"name": "Approval", "icon": "fas fa-thumbs-up", "link": "#"},  # Thumbs-up for approval
         {"name": "Implementation", "icon": "fas fa-play-circle", "link": "#"},  # Play circle for implementation
         {"name": "Reporting and Monitoring", "icon": "fas fa-sync-alt", "link": "#"},  # Sync-alt for reporting and monitoring
-        {"name": "Maintenance", "icon": "fas fa-wrench", "link": "audit_reporting"},  # Wrench for maintenance
+        {"name": "Maintenance", "icon": "fas fa-wrench", "link": "#"},  # Wrench for maintenance
         {"name": "Dashboard and Monitoring", "icon": "fas fa-tachometer-alt", "link": "#"},  # Tachometer-alt for dashboard and monitoring
     ]
     context = {

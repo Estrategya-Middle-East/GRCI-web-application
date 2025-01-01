@@ -48,7 +48,43 @@ def add_group(request):
 
     return render(request, 'hod_template/add_group.html', {
         'form': form,
-        'permissions_by_model': permissions_by_model
+        'permissions_by_model': permissions_by_model,
+        'page_title': "Add Role",
+    })
+
+def edit_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+
+    if request.method == 'POST':
+        form = GroupForm(request.POST, instance=group)
+        if form.is_valid():
+            group = form.save()
+            group.permissions.set(request.POST.getlist('permissions'))
+            return redirect('group_list')  # Redirect to a page that lists groups
+    else:
+        form = GroupForm(instance=group)
+
+    # Group permissions by model
+    permissions_by_model = {}
+    for perm in Permission.objects.all():
+        model_name = f"{perm.content_type.app_label} | {perm.content_type.model}"
+        if model_name not in permissions_by_model:
+            permissions_by_model[model_name] = []
+        permissions_by_model[model_name].append(perm)
+
+    # Pad permissions to ensure 4 columns
+    for model_name, perms in permissions_by_model.items():
+        padding_needed = (4 - len(perms) % 4) % 4
+        permissions_by_model[model_name].extend([None] * padding_needed)
+
+    # Pass current permissions of the group for pre-checking
+    current_permissions = group.permissions.all()
+
+    return render(request, 'hod_template/edit_group.html', {
+        'form': form,
+        'permissions_by_model': permissions_by_model,
+        'current_permissions': current_permissions,
+        'page_title': "Edit Role",
     })
 
 
@@ -57,9 +93,11 @@ def delete_group(request, group_id):
     group.delete()
     return redirect('group_list')
 
+
 def group_list(request):
     groups = Group.objects.all()
-    return render(request, 'hod_template/group_list.html', {'groups': groups})
+    return render(request, 'hod_template/group_list.html', 
+    {'groups': groups,'page_title': "Roles",})
 
 
 def admin_home(request):
@@ -163,7 +201,7 @@ MODULES = [
         "id": 7,
         "name": "BPM",
         "description": "Business Process Management",
-        "icon": "nav-icon fas fa-cogs",
+        "icon": "nav-icon fas fa-cog",
         "url": "/bpm/",
         "action_text": "Streamline and Improve Business Processes",
         "code": "SUBSCRIBE2024",

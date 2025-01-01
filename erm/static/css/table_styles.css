@@ -124,6 +124,18 @@ tbody tr {
     padding: 5px 10px;
 }
 
+.btn-info {
+    background-color: #f01819;
+    color: white;
+    border:none,
+
+}
+
+.btn-info:hover,
+.btn-info:focus{
+    background-color: #f93d3d !important;
+}
+
 /* Pagination Styles */
 .pagination_wrap {
     margin-top: 20px;

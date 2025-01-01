@@ -71,7 +71,8 @@
                                                 {% for perm in perms %}
                                                     <td>
                                                         {% if perm %}
-                                                            <input type="checkbox" name="permissions" value="{{ perm.id }}">
+                                                            <input type="checkbox" name="permissions" value="{{ perm.id }}"
+                                                                {% if perm in current_permissions %}checked{% endif %}>
                                                         {% endif %}
                                                     </td>
                                                 {% endfor %}

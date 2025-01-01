@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Group</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: start;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="checkbox"] {
+            margin: 0 auto;
+            display: block; /* Center the checkbox in the cell */
+        }
+    </style>
+</head>
+<body>
+    <h1>Add Role</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_name">Role Name:</label>
+        {{ form.name }}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Model Name</th>
+                    <th>Can Add</th>
+                    <th>Can Change</th>
+                    <th>Can Delete</th>
+                    <th>Can View</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model_name, perms in permissions_by_model.items %}
+                    <tr>
+                        <td>{{ model_name }}</td>
+                        {% for perm in perms %}
+                            <td>
+                                {% if perm %}
+                                    <input type="checkbox" name="permissions" value="{{ perm.id }}">
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>

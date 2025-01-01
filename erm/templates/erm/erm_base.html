@@ -175,7 +175,7 @@
                 </div>
                 
                 <!-- Continuous Monitoring Section -->
-                <div class="dropdown  {% if url1 == request.path or url2 == request.path or url3 == request.path %}active{% endif %} ml-3">
+                <div class="dropdown ml-3">
                     {% url 'list_change_assessment' as url1 %}{% url 'list_performance_review' as url2 %}{% url 'list_improvement_action' as url3 %}
                     <a href="#" class="btn btn-light {% if url1 == request.path or url2 == request.path or url3 == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
                         Continuous Monitoring
@@ -219,6 +219,38 @@
                 
             </div>
 
+            <div class="dropdown d-flex align-items-center ml-auto">
+                <button class="btn btn-link position-relative" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell" style="color: #343A40;"></i> {% comment %} bi bi-bell {% endcomment %}
+                    {% if messages %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ messages|length }}
+                        <span class="visually-hidden"></span>
+                    </span>
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                    <li>
+                        <div class="form-group px-3 py-2">
+                            {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                <div class="alert alert-success">
+                                    {{ message }}
+                                </div>
+                                {% else %}
+                                <div class="alert alert-danger">
+                                    {{ message }}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% else %}
+                            <p class="text-muted">No messages</p>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
 
             <!-- Right navbar links (User section) -->
             <div class="user-panel d-flex align-items-center ml-auto">
@@ -319,7 +351,7 @@
             <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white">
                 <!-- Dropdown Menu (Aligned to the right) -->
                 <div class="dropdown z-50 !text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out mr-2">
-                    <button class="btn dropdown-toggle !text-white px-4" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="dropdown-toggle btn  btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
                         Actions
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="action-menu">

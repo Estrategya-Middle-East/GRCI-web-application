@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
     
     <style>
        
@@ -38,7 +39,21 @@
             font-family: 'Garamond', serif;
             font-size: 1 em;
         }
-        
+        .dropdown-item.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255);
+            background-color: #cc0000;
+        }
+        .btn.active {
+            font-weight: bold;
+            color:rgb(255, 255, 255) !important;
+            background-color: #630010 !important;
+            border: None !important;
+        }
+        .dropdown-item:focus {
+            color: rgb(255, 255, 255) !important;
+            background-color: #f97d6d !important;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -72,17 +87,171 @@
                     <a class="nav-link" data-widget="pullmenu" href="#" id="toggle-sidebar"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            {% comment %} <div class="d-flex align-items-center" style="text-align: center" >
-                <!-- Dropdown Menu (Aligned to the right) -->
+            
+            {% comment %} def dashboard(request):
+            components = [
+                {"name": "Governance Framework", "icon": "fas fa-cogs", "link": "governance_structures"},  # Cogs for framework and structure
+                {"name": "Leadership and Accountability", "icon": "fas fa-users-cog", "link": "leadership_accountabilitys"},  # Users cog for leadership and accountability
+                {"name": "Organizational Purpose", "icon": "fas fa-bullseye", "link": "purpose_and_valuess"},  # Bullseye for purpose
+                {"name": "Strategy and Direction", "icon": "fas fa-route", "link": "strategic_directions"},  # Route for strategy and direction
+                {"name": "Stewardship and Resources", "icon": "fas fa-hand-holding-usd", "link": "resource_managements"},  # Hand holding resources
+                {"name": "Risk and Compliance Management", "icon": "fas fa-shield-alt", "link": "risk_and_compliances"},  # Shield for risk and compliance
+                {"name": "Performance and Reporting", "icon": "fas fa-chart-line", "link": "performance_reportings"},  # Chart line for performance
+                {"name": "Stakeholder Engagement", "icon": "fas fa-users", "link": "stakeholder_engagements"},  # Users for engagement
+                {"name": "Ethical Oversight", "icon": "fas fa-balance-scale", "link": "ethical_governances"},  # Balance scale for ethics
+                {"name": "Continuous Improvement", "icon": "fas fa-arrow-circle-up", "link": "governance_improvements"},  # Arrow for continuous improvement
+                #{"name": "Documentation Management", "icon": "fas fa-folder-open", "link": "#"},  # Folder open for document management
+            ]
+            context = {
+                'page_title': "GM Dashboard",
+                'components': components,
+            }
+            return render(request, 'gm/dashboard.html', context) {% endcomment %}
+        
+            
+            <!-- Dropdown Menus for Sections -->
+            <div class="d-flex align-items-center ml-3">
+                <!-- GM Dashboard Section -->
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <b style="font-size: 16pt">ERM Pages</b>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="action-menu">
-                        <li><a href="{% url 'list_risks' %}" class="dropdown-item">Risk Operations and Execution</a></li>
+                    {% url 'gm_dashboard' as url %}
+                    <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="erm-menu" data-bs-toggle="dropdown">
+                        GM Dashboard
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="erm-menu" style="border-radius: 0;">
+                        
+                        {% url 'gm_dashboard' as url %}
+                        <li>
+                            <a href="{% url 'gm_dashboard' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Dashboard</a>
+                        </li>
+                       
                     </ul>
                 </div>
-            </div> {% endcomment %}
+
+                <!-- Governance Framework Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_governance_structure' as url1 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path  %}active{% endif %}" id="leadership-menu" data-bs-toggle="dropdown">
+                        Governance Framework
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="leadership-menu" style="border-radius: 0;">
+                        {% url 'list_governance_structure' as url %}
+                        <li>
+                            <a href="{% url 'list_governance_structure' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Governance and Leadership</a>
+                        </li>
+                        {% comment %} <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li> {% endcomment %}
+                    </ul>
+                </div>
+
+                <!-- Leadership and Accountability Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_leadership_accountability' as url1 %}{% url 'list_audit_resource' as url2 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path %}active{% endif %}" id="strategic-menu" data-bs-toggle="dropdown">
+                        Leadership and Accountability
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="strategic-menu" style="border-radius: 0;">
+                        {% url 'list_leadership_accountability' as url %}
+                        <li>
+                            <a href="{% url 'list_leadership_accountability' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Business Impact Analysis</a>
+                        </li>
+                        {% comment %} <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li> {% endcomment %}
+                    </ul>
+                </div>
+                
+                <!-- Organizational Purpose Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_purpose_and_values' as url1 %}{% url 'list_audit_resource' as url2 %}
+                    <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path %}active{% endif %}" id="strategic-menu" data-bs-toggle="dropdown">
+                        Organizational Purpose
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="strategic-menu" style="border-radius: 0;">
+                        {% url 'list_purpose_and_values' as url %}
+                        <li>
+                            <a href="{% url 'list_purpose_and_values' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk Assessment and Management</a>
+                        </li>
+                        {% comment %} <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li> {% endcomment %}
+                    </ul>
+                </div>
+
+                <!-- Pages Section -->
+                <div class="dropdown ml-3">
+                    {% url 'list_strategic_direction' as url1 %}{% url 'list_resource_management' as url2 %}{% url 'list_risk_and_compliance' as url3 %}{% url 'list_performance_reporting' as url4 %}{% url 'list_stakeholder_engagement' as url5 %}{% url 'list_ethical_governance' as url6 %}{% url 'list_governance_improvement' as url7 %}
+                    <a href="#" class="btn btn-light {% if url1 == request.path or url2 == request.path or url3 == request.path or url4 == request.path or url5 == request.path or url6 == request.path or url7 == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
+                        <strong>...</strong>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        {% url 'list_strategic_direction' as url %}
+                        <li>
+                            <a href="{% url 'list_strategic_direction' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Strategy and Direction</a>
+                        </li>
+                        {% url 'list_resource_management' as url %}
+                        <li>
+                            <a href="{% url 'list_resource_management' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Stewardship and Resources</a>
+                        </li>
+                        {% url 'list_risk_and_compliance' as url %}
+                        <li>
+                            <a href="{% url 'list_risk_and_compliance' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk and Compliance Management</a>
+                        </li>
+                        {% url 'list_performance_reporting' as url %}
+                        <li>
+                            <a href="{% url 'list_performance_reporting' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Performance and Reporting</a>
+                        </li>
+                        {% url 'list_stakeholder_engagement' as url %}
+                        <li>
+                            <a href="{% url 'list_stakeholder_engagement' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Stakeholder Engagement</a>
+                        </li>
+                        {% url 'list_ethical_governance' as url %}
+                        <li>
+                            <a href="{% url 'list_ethical_governance' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Ethical Oversight</a>
+                        </li>
+                        {% url 'list_governance_improvement' as url %}
+                        <li>
+                            <a href="{% url 'list_governance_improvement' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Continuous Improvement</a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item ">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+                
+            </div>
+            <div class="dropdown d-flex align-items-center ml-auto">
+                <button class="btn btn-link position-relative" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell" style="color: #343A40;"></i> {% comment %} bi bi-bell {% endcomment %}
+                    {% if messages %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ messages|length }}
+                        <span class="visually-hidden"></span>
+                    </span>
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                    <li>
+                        <div class="form-group px-3 py-2">
+                            {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'success' %}
+                                <div class="alert alert-success">
+                                    {{ message }}
+                                </div>
+                                {% else %}
+                                <div class="alert alert-danger">
+                                    {{ message }}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% else %}
+                            <p class="text-muted">No messages</p>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
              
             <!-- Right navbar links (User section) -->
             <div class="user-panel d-flex align-items-center ml-auto">
@@ -115,71 +284,10 @@
         <div class="content-wrapper">
             <!-- Content Wrapper. Contains page content -->
             <!-- Content Header (Page header) -->
+            {% if page_title != "GM Dashboard" %}
             <div class="content-header  bg-white " style="border-bottom: 1px solid #38383830;" >
                 <div class="container-xxl">
-                    <div class="row mb-2">
-    
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-left" >
-                                <!-- Home dropdown with split button -->
-                                <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button" >
-                                        <a href="{% url 'admin_nav' %}">Home</a>
-                                    </button>
-                                    <button type="button" class="btn  dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <!-- Dynamic Dropdown Items -->
-                                        {% for module in visible_modules %}
-                                        <li>
-                                            <a class="dropdown-item {% if module.id == 4 %} active {% endif %}" href="{{ module.url }}">
-                                                {{ module.name }}
-                                            </a>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                        
-                                <!-- ERM Dashboard dropdown with split button -->
-                                <li class="breadcrumb-item btn-group">
-                                    <button class="btn" type="button">
-                                        <a href="{% url 'gm_dashboard' %}">GM Dashboard</a>
-                                    </button>
-                                    <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        {% url 'list_governance_structure' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_governance_structure' %}">Governance Framework</a></li>
-                                        {% url 'list_leadership_accountability' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_leadership_accountability'%}">Leadership Accountability</a></li>
-                                        {% url 'list_purpose_and_values' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_purpose_and_values' %}">Organizational Purpose</a></li>
-                                        {% url 'list_strategic_direction' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_strategic_direction'%}">Strategy and Direction</a></li>
-                                        {% url 'list_resource_management' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_resource_management'%}">Stewardship and Resources</a></li>
-                                        {% url 'list_risk_and_compliance' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_risk_and_compliance' %}">Risk and Compliance Management</a></li>
-                                        {% url 'list_performance_reporting' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_performance_reporting' %}">Performance and Reporting</a></li>
-                                        {% url 'list_stakeholder_engagement' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_stakeholder_engagement' %}">Stakeholder Engagement</a></li>
-                                        {% url 'list_ethical_governance' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_ethical_governance' %}">Ethical Oversight</a></li>
-                                        {% url 'list_governance_improvement' as url %}
-                                        <li><a class="dropdown-item {% if request.path == url %}active{% endif %}" href="{% url 'list_governance_improvement' %}">Continuous Improvement</a></li>
-                                    </ul>
-                                </li>
-                        
-                                <!-- Active Page -->
-                                <li class="breadcrumb-item active">{{ page_title }}</li>
-                            </ol>
-                        </div>
-                        
-                        
-                    </div><!-- /.row -->
+                    
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1 class="m-0 text-dark"  style="padding-left: 20px">{% block page_title %}{% endblock page_title %}</h1>
@@ -189,10 +297,11 @@
                         
                 </div><!-- /.container-fluid -->
             </div>
+            <script src="https://cdn.tailwindcss.com"></script>
             <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
                 <!-- Dropdown Menu (Aligned to the right) -->
                 <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="dropdown-toggle btn btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
                         Actions
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="action-menu">
@@ -202,7 +311,7 @@
                     </ul>
                 </div>
             </div>
-            
+            {% endif %}
             <!-- /.content-header -->
 
             <!-- Main content -->
