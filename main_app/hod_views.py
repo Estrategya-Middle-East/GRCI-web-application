@@ -51,6 +51,12 @@ def add_group(request):
         'permissions_by_model': permissions_by_model
     })
 
+
+def delete_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    group.delete()
+    return redirect('group_list')
+
 def group_list(request):
     groups = Group.objects.all()
     return render(request, 'hod_template/group_list.html', {'groups': groups})
