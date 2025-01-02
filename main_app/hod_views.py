@@ -552,6 +552,60 @@ def edit_department(request, department_id):
 
     return render(request, 'hod_template/edit_department_template.html', context)
 
+def org_dashboard(request):
+    
+    
+    # Organizational structure tree logic
+
+    def build_department_tree(parent_department=None):
+        # Query departments with the specified parent
+        departments = Department.objects.filter(parent=parent_department)
+
+        # Build tree data recursively
+        department_data = []
+        for department in departments:
+            # Calculate the total staff, including children
+            child_departments = build_department_tree(department)
+            total_staff = department.staff.count() + sum(child["total_staff"] for child in child_departments)
+
+            # Build the current department's data
+            department_data.append({
+                "name": department.name,
+                "id": department.id,
+                "url": reverse('edit_department', args=[department.id]),
+                "staff_count": department.staff.count(),
+                "total_staff": total_staff,
+                "children": child_departments,
+                "tooltip": {
+                    "formatter": f"Total Staff: {total_staff}"  # Only show total staff
+                },
+            })
+        return department_data
+
+    # Create the org chart data starting from top-level departments (those without a parent)
+    org_chart_data = {
+        "name": "CEO",
+        "id": None,
+        "url": "",
+        "staff_count": 0,
+        "total_staff": sum(
+            department.staff.count() +
+            sum(child["total_staff"] for child in build_department_tree(department))
+            for department in Department.objects.filter(parent=None)
+        ),
+        "children": build_department_tree(),
+        "tooltip": {
+            "formatter": f"Total Staff: {sum(department.staff.count() + sum(child['total_staff'] for child in build_department_tree(department)) for department in Department.objects.filter(parent=None))}"
+        }
+    }
+
+    # Pass to the template
+    context = {
+        'page_title': "Organizational Structure",
+        'org_chart_data': json.dumps(org_chart_data),  # Ensure data is JSON-serializable
+    }
+
+    return render(request, 'hod_template/org_dashboard.html', context)
 
 @csrf_exempt
 def check_email_availability(request):

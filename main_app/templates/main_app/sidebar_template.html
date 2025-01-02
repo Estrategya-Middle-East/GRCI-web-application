@@ -163,13 +163,13 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    {% comment %} <li class="nav-item">
-                                        {% url 'add_department' as add_department %}
-                                        <a href="{{add_department}}" class="nav-link {% if add_department == request.path %} active {% endif %}">
+                                    <li class="nav-item">
+                                        {% url 'org_dashboard' as org_dashboard %}
+                                        <a href="{{org_dashboard}}" class="nav-link {% if org_dashboard == request.path %} active {% endif %}">
                                             <i class="far fa-circle nav-icon"></i>
-                                            <p>Add Department</p>
+                                            <p>Department Dashboard</p>
                                         </a>
-                                    </li> {% endcomment %}
+                                    </li>
                                     <li class="nav-item">
                                         {% url 'manage_department' as manage_department %}
                                         {% url 'edit_department' department_id as edit_department %}
@@ -516,13 +516,13 @@
                                                 </p>
                                             </a>
                                             <ul class="nav nav-treeview">
-                                                {% comment %} <li class="nav-item">
-                                                    {% url 'add_department' as add_department %}
-                                                    <a href="{{add_department}}" class="nav-link {% if add_department == request.path %} active {% endif %}">
+                                                <li class="nav-item">
+                                                    {% url 'org_dashboard' as org_dashboard %}
+                                                    <a href="{{org_dashboard}}" class="nav-link {% if org_dashboard == request.path %} active {% endif %}">
                                                         <i class="far fa-circle nav-icon"></i>
-                                                        <p>Add Department</p>
+                                                        <p>Department Dashboard</p>
                                                     </a>
-                                                </li> {% endcomment %}
+                                                </li>
                                                 <li class="nav-item">
                                                     {% url 'manage_department' as manage_department %}
                                                     {% url 'edit_department' department_id as edit_department %}

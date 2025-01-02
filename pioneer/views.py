@@ -214,9 +214,9 @@ class PredictiveRiskAnalysisView(View):
                 elif subcategory_sales_ledger == 'mismatched_subtotals':
                     chart, name, response = self.generate_mismatched_subtotals_garphs()
                 elif subcategory_sales_ledger == 'high_cash_transactions':
-                    chart, name, response = self.generate_vendor_performance_risk()
+                    chart, name, response = self.generate_high_cash_transactions_garphs()
                 elif subcategory_sales_ledger == 'unusual_prices':
-                    chart, name, response = self.generate_vendor_status()
+                    chart, name, response = self.generate_unusual_prices_garphs()
             
             if main_category == 'purchase_order': 
                 if subcategory_purchase_order == 'delayed_po_approvals':

@@ -29,6 +29,7 @@ urlpatterns = [
     path("admin/home/", hod_views.admin_home, name='admin_home'),
     path("staff/add", hod_views.add_staff, name='add_staff'),
     path("department/add", hod_views.add_department, name='add_department'),
+    path("org_dashboard/", hod_views.org_dashboard, name="org_dashboard"),
     path('groups/', hod_views.group_list, name='group_list'),
     path('group/add/', hod_views.add_group, name='add_group'),
     path('group/<int:group_id>/edit/', hod_views.edit_group, name='edit_group'),

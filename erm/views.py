@@ -198,6 +198,7 @@ def risk_intelligence_dashboard(request):
     def build_department_tree(department):
         return {
             "name": department.name,
+            "id": department.id,  # Include the department ID
             "staff_count": department.staff.count(),  # Include staff count
             "children": [
                 build_department_tree(child) for child in department.children.all()
