@@ -74,11 +74,40 @@ def generate_response(prompt):
 
 def format_response(response):
     """
-    Converts **bold** text markers to <strong> for HTML rendering.
+    Formats a response to handle numbering, bulleted lists, and sentence breaks correctly.
+    - Converts numbered lists (1., 2., etc.) into proper line formatting.
+    - Converts `*` into sub-bullets.
+    - Adds a new line after each full stop (.) or question mark (?) for better readability.
+    - Adds a <br> before numbered lists (1., 2., etc.).
+    - Converts **text** markers to <strong> for HTML rendering.
     """
     # Replace **text** with <strong>text</strong>
-    formatted_response = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', response)
-    return formatted_response
+    response = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', response)
+
+    # Add a new line after full stops and question marks
+    response = re.sub(r'(\:|\?)\s+', r'\1<br>', response)
+
+    # Add a <br> before lines starting with numbers followed by a period
+    response = re.sub(r'(\d+\.)', r'<br>\1', response)
+    
+    response = re.sub(r'(\* )', r'<br>\1', response)
+
+    lines = response.split('<br>')  # Split response into lines
+    formatted_lines = []
+
+    for line in lines:
+        # Match lines starting with numbers followed by a period (e.g., 1., 2., etc.)
+        if re.match(r'^\d+\.', line):
+            formatted_lines.append(line)  # Add numbered line as-is
+        # Match lines starting with * (sub-bullets)
+        elif line.strip().startswith('*'):
+            bullet = line.strip().lstrip('*').strip()
+            formatted_lines.append(f"    * {bullet}")  # Indent and add bullet
+        else:
+            formatted_lines.append(line.strip())  # Add other lines as-is, stripping extra spaces
+
+    return '<br>'.join(formatted_lines)
+
 
 
 def chat_view(request):
@@ -142,6 +171,7 @@ def ajax_chat(request):
             # Generate AI response
             try:
                 response = generate_response(prompt)
+                response = format_response(response)
 
                 # Save assistant response
                 assistant_message = ChatMessage(role="assistant", content=response)
