@@ -42,8 +42,8 @@
         height: 100%;
     }
     #department_chart {
-        width: 100%;
-        height: 100%;
+        width: 80%;
+        height: 80%;
     }
     #org_chart {
         width: 100%;
@@ -114,7 +114,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart">
-                            <div id="department_chart" style="width: 100%; height: 600px;"></div>
+                            <div id="department_chart" style="width: 50%; height: 500px; margin: auto;"></div>
                             {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
                         </div>
                     </div>
@@ -126,8 +126,8 @@
         <div class="row">
             <div class="col-md-6">
                 <!-- Total inherent risks -->
-                <div class="col">
-                    <div class="small-box">
+                <div class="col hover:scale-[1.025] transition-all duration-150 ease-in-out">
+                    <div class="small-box hover:bg-[#f8f8f8]">
                         <div class="inner text-left">
                             <h3>{{ total_inherent_risks }}</h3>
                             <p>Total Inherent Risks</p>
@@ -162,8 +162,8 @@
             </div>
             <div class="col-md-6">
                 <!-- Total residual risks -->
-                <div class="col">
-                    <div class="small-box">
+                <div class="col hover:scale-[1.025] transition-all duration-150 ease-in-out">
+                    <div class="small-box hover:bg-[#f8f8f8]">
                         <div class="inner text-left">
                             <h3>{{ total_residual_risks }}</h3>
                             <p>Total Residual Risks</p>

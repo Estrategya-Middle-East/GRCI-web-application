@@ -4,633 +4,647 @@
 {% block page_title %}ERM Workflow{% endblock %}
 
 {% block content %}
-<style>
-    .container-fluid{
-        min-height: 500px;
-        background-color: #ffffff !important;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        border-bottom: 25px solid gray;
-        margin: 0 auto; 
-        margin-top: 20px; 
-        margin-bottom: 20px;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container-fluid{
+            min-height: 500px;
+            background-color: #ffffff !important;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 25px solid gray;
+            margin: 0 auto; 
+            margin-top: 20px; 
+            margin-bottom: 20px;
+        }
+        
+        .btn-primary {
+            width: 120px;
+            background-color: #343A40;
+            color: white !important;
+            border:None;
+        }
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: gray !important;
+        }
     
-    .btn-primary {
-        width: 120px;
-        background-color: #343A40;
-        color: white !important;
-        border:None;
-    }
-    .btn-primary:hover,
-    .btn-primary:focus {
-        background-color: gray !important;
-    }
-
-    .btn-warning {
-        width: 120px;
-        background-color: #630010;
-        color: white !important;
-        border:None;
-    }
-    .btn-warning:hover,
-    .btn-warning:focus{
-        background-color: #f93d3d !important;
-    }
-
-</style>
-<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
-<div class="container-fluid mt-4">
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link {% if current_step == 'define' %}active{% endif %}" href="#define" data-toggle="tab">Risk Identification</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if current_step == 'assessment' %}active{% endif %}" href="#assessment" data-toggle="tab">Risk Assessment</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if current_step == 'prioritization' %}active{% endif %}" href="#prioritization" data-toggle="tab">Risk Prioritization</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if current_step == 'response' %}active{% endif %}" href="#response" data-toggle="tab">Risk Response</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if current_step == 'residual' %}active{% endif %}" href="#residual" data-toggle="tab">Residual Risk</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if current_step == 'close' %}active{% endif %}" href="#close" data-toggle="tab">Risk Close</a>
-        </li>
-    </ul>
-
-    <div class="tab-content mt-4">
-        <!-- Define Step Tab -->
-        <div class="tab-pane {% if current_step == 'define' %}active{% endif %}" id="define">
-            <h3>Risk Identification</h3>
-            <h6>Centralizes the identification and documentation of risks <br>that could impact objectives. Provides a unified platform to categorize risks <br>by type, source, and impact, ensuring a comprehensive understanding of the organization's risk landscape.</h6>
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <b>Risk: {{risk.name}}</b>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="category">Category</label>
-                                {{ form_define.category|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">                        
-                            <div class="form-group">
-                                <label for="subcategory">Subcategory</label>
-                                {{ form_define.subcategory|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">                        
-                            <div class="form-group">
-                                <label for="department">Department</label>
-                                {{ form_define.department|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="objective">Objective</label>
-                                {{ form_define.objective|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_cause">Root Cause</label>
-                                {{ form_define.risk_cause|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">  
-                            <div class="form-group">
-                                <label for="risk_event">Risk Event</label>
-                                {{ form_define.risk_event|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_impact">Risk Impact</label>
-                                {{ form_define.risk_impact|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="likelihood">Likelihood</label>
-                                {{ form_define.likelihood|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">  
-                            <div class="form-group">
-                                <label for="impact">Impact</label>
-                                {{ form_define.impact|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_score">Risk Score</label>
-                                {{ form_define.risk_score|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="source">Source</label>
-                                {{ form_define.source|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="identified_by">Identified By</label>
-                                {{ form_define.identified_by|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="identification_date">Identification Date</label>
-                                {{ form_define.identification_date|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if current_step == 'define' %}
-                <!-- Save Button -->
-                <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'define' %}disabled{% endif %}>
-                    Save
-                </button>
-
-                <!-- Submit to Manager Button -->
-                {% if risk.define_approval_status != 'under_review' %}
-                <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'define' %}disabled{% endif %}>
-                    Submit to Manager
-                </button>
-                {% endif %}
-                {% endif %}
-
-                <!-- Approve Button -->
-                {% if risk.define_approval_status == 'under_review' %}
-                <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'define' %}disabled{% endif %}>
-                    Approve
-                </button>
-                <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'define' %}disabled{% endif %}>
-                    Reject
-                </button>
-                {% endif %}
-            </form>
-        </div>
-
-        <!-- Assessment Step Tab -->
-        <div class="tab-pane {% if current_step == 'assessment' %}active{% endif %}" id="assessment">
-            <h3>Risk Assessment</h3>
-            <h6>Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <b>Risk: {{risk.name}}</b>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="assessment_date">Assessment Date</label>
-                                {{ form_assessment.assessment_date|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="assessed_by">Assessed By</label>
-                                {{ form_assessment.assessed_by|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="likelihood_rating">Likelihood Rating</label>
-                                {{ form_assessment.likelihood_rating|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="impact_rating">Impact Rating</label>
-                                {{ form_assessment.impact_rating|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_score">Risk Score</label>
-                                {{ form_assessment.risk_score|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_heatmap_position">Risk Heatmap Position</label>
-                                {{ form_assessment.risk_heatmap_position|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="residual_risk">Residual Risk</label>
-                                {{ form_assessment.residual_risk|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="mitigation_actions">Mitigation Actions</label>
-                                {{ form_assessment.mitigation_actions|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="reviewer_comments">Reviewer Comments</label>
-                        {{ form_assessment.reviewer_comments|add_class:"form-control" }}
-                    </div>
-                </div>
-
-                {% if current_step == 'assessment' %}
-                <!-- Save Button -->
-                <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'assessment' %}disabled{% endif %}>
-                    Save
-                </button>
-
-                <!-- Submit to Manager Button -->
-                {% if risk.assessment_approval_status != 'under_review' %}
-                <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'assessment' %}disabled{% endif %}>
-                    Submit to Manager
-                </button>
-                {% endif %}
-                {% endif %}
-
-                <!-- Approve Button -->
-                {% if risk.assessment_approval_status == 'under_review' %}
-                <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'assessment' %}disabled{% endif %}>
-                    Approve
-                </button>
-                <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'assessment' %}disabled{% endif %}>
-                    Reject
-                </button>
-                {% endif %}
-            </form>
-        </div>
-
-        <!-- Prioritization Step Tab -->
-        <div class="tab-pane {% if current_step == 'prioritization' %}active{% endif %}" id="prioritization">
-            <h3>Risk Prioritization</h3>
-            <h6>Ranks identified risks based on their severity, impact, and strategic importance. <br>Enables organizations to focus on high-priority risks and allocate resources effectively, <br>ensuring that mitigation efforts align with overall business goals.</h6>
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <b>Risk: {{risk.name}}</b>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_score">Risk Score</label>
-                                {{ form_prioritization.risk_score|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="is_manual_edit"></label>
-                                {{ form_prioritization.is_manual_edit}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="priority_level">Priority Level</label>
-                                {{ form_prioritization.priority_level|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="justification">Justification</label>
-                                {{ form_prioritization.justification|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="assigned_to">Assigned To</label>
-                                {{ form_prioritization.assigned_to|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="review_frequency">Review Frequency</label>
-                                {{ form_prioritization.review_frequency|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="next_reviewdate">Next Review Date</label>
-                                {{ form_prioritization.next_reviewdate|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                {{ form_prioritization.status|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="comments">Comments</label>
-                        {{ form_prioritization.comments|add_class:"form-control" }}
-                    </div>
-                </div>
-                {% if current_step == 'prioritization' %}
-                <!-- Save Button -->
-                <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'prioritization' %}disabled{% endif %}>
-                    Save
-                </button>
-
-                <!-- Submit to Manager Button -->
-                {% if risk.prioritization_approval_status != 'under_review' %}
-                <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'prioritization' %}disabled{% endif %}>
-                    Submit to Manager
-                </button>
-                {% endif %}
-                {% endif %}
-
-                <!-- Approve Button -->
-                {% if risk.prioritization_approval_status == 'under_review'%}
-                <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'prioritization' %}disabled{% endif %}>
-                    Approve
-                </button>
-                <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'prioritization' %}disabled{% endif %}>
-                    Reject
-                </button>
-                {% endif %}
-            </form>
-        </div>
-
-        <!-- Response Step Tab -->
-        <div class="tab-pane {% if current_step == 'response' %}active{% endif %}" id="response">
-            <h3>Risk Response</h3>
-            <h6>Develops actionable plans to mitigate, avoid, transfer, or accept risks. <br>Provides detailed workflows for implementing responses, assigns responsibilities, <br>and tracks progress to ensure timely and effective risk management actions.</h6>
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <b>Risk: {{risk.name}}</b>
-                    
-                    <div class="row">
-                        <div class="col-3">
-                            <div class="form-group">
-                                <label for="response_strategy">Response Strategy</label>
-                                {{ form_response.response_strategy|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="ActionPlan">Action Plan</label>
-                                {{ form_response.ActionPlan|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>        
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="responsible_party">Responsible Party</label>
-                                {{ form_response.responsible_party|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="progress_status">Progress Status</label>
-                                {{ form_response.progress_status|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="start_date">Start Date</label>
-                                {{ form_response.start_date|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="end_date">End Date</label>
-                                {{ form_response.end_date|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="resources_required">Resources Required</label>
-                                {{ form_response.resources_required|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="effectiveness_review">Effectiveness Review</label>
-                                {{ form_response.effectiveness_review|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% if current_step == 'response' %}
-                <!-- Save Button -->
-                <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'response' %}disabled{% endif %}>
-                    Save
-                </button>
-                <!-- Submit to Manager Button -->
-                {% if risk.response_approval_status != 'under_review' %}
-                <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'response' %}disabled{% endif %}>
-                    Submit to Manager
-                </button>
-                {% endif %}
-                {% endif %}
-
-                <!-- Approve Button -->
-                {% if risk.response_approval_status == 'under_review'%}
-                <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'response' %}disabled{% endif %}>
-                    Approve
-                </button>
-                <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'response' %}disabled{% endif %}>
-                    Reject
-                </button>
-                {% endif %}
-            </form>
-        </div>
-
-        <!-- Residual Step Tab -->
-        <div class="tab-pane {% if current_step == 'residual' %}active{% endif %}" id="residual">
-            <h3>Residual Risk</h3>
-            <h6>Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <b>Risk: {{risk.name}}</b>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="assessment_date">Assessment Date</label>
-                                {{ form_residual.assessment_date|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="assessed_by">Assessed By</label>
-                                {{ form_residual.assessed_by|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="likelihood_rating">Likelihood Rating</label>
-                                {{ form_residual.likelihood_rating|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="impact_rating">Impact Rating</label>
-                                {{ form_residual.impact_rating|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_score">Risk Score</label>
-                                {{ form_residual.risk_score|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_heatmap_position">Risk Heatmap Position</label>
-                                {{ form_residual.risk_heatmap_position|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="risk_appetite">Risk Appetite</label>
-                                {{ form_residual.risk_appetite|add_class:"form-control" }}
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="mitigation_actions">Mitigation Actions</label>
-                                {{ form_residual.mitigation_actions|add_class:"form-control" }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="reviewer_comments">Reviewer Comments</label>
-                        {{ form_residual.reviewer_comments|add_class:"form-control" }}
-                    </div>
-                </div>
-
-                {% if current_step == 'residual' %}
-                <!-- Save Button -->
-                <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'residual' %}disabled{% endif %}>
-                    Save
-                </button>
-
-                <!-- Submit to Manager Button -->
-                {% if risk.residual_approval_status != 'under_review' %}
-                <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'residual' %}disabled{% endif %}>
-                    Submit to Manager
-                </button>
-                {% endif %}
-                {% endif %}
-
-                <!-- Approve Button -->
-                {% if risk.residual_approval_status == 'under_review' %}
-                <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'residual' %}disabled{% endif %}>
-                    Approve
-                </button>
-                <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'residual' %}disabled{% endif %}>
-                    Reject
-                </button>
-                {% endif %}
-            </form>
-        </div>
+        .btn-warning {
+            width: 120px;
+            background-color: #630010;
+            color: white !important;
+            border:None;
+        }
+        .btn-warning:hover,
+        .btn-warning:focus{
+            background-color: #f93d3d !important;
+        }
     
-        <!-- close Step Tab -->
-        <div class="tab-pane {% if current_step == 'close' %}active{% endif %}" id="close">
-            <h3>Risk close</h3>
-            <h6>Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <b>Risk: {{risk.name}}</b>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="close_date">Close Date</label>
-                                {{ form_close.close_date|add_class:"form-control" }}
+    </style>
+    <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div class="container-fluid mt-4">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link {% if current_step == 'define' %}active{% endif %}" href="#define" data-toggle="tab">Risk Identification</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_step == 'assessment' %}active{% endif %}" href="#assessment" data-toggle="tab">Risk Assessment</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_step == 'prioritization' %}active{% endif %}" href="#prioritization" data-toggle="tab">Risk Prioritization</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_step == 'response' %}active{% endif %}" href="#response" data-toggle="tab">Risk Response</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_step == 'residual' %}active{% endif %}" href="#residual" data-toggle="tab">Residual Risk</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if current_step == 'close' %}active{% endif %}" href="#close" data-toggle="tab">Risk Close</a>
+            </li>
+        </ul>
+    
+        <div class="tab-content mt-4">
+            <!-- Define Step Tab -->
+            <div class="tab-pane {% if current_step == 'define' %}active{% endif %}" id="define">
+                <!-- <h3 class="m-auto w-[500px]">Risk Identification</h3> -->
+                <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Centralizes the identification and documentation of risks <br>that could impact objectives. Provides a unified platform to categorize risks <br>by type, source, and impact, ensuring a comprehensive understanding of the organization's risk landscape.</h6>
+                <form method="post" class="w-[60%]">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <b>Risk: {{risk.name}}</b>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="category">Category</label>
+                                    {{ form_define.category|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">                        
+                                <div class="form-group">
+                                    <label for="subcategory">Subcategory</label>
+                                    {{ form_define.subcategory|add_class:"form-control" }}
+                                </div>
                             </div>
                         </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="closed_by">Closed By</label>
-                                {{ form_close.closed_by|add_class:"form-control" }}
+                        <div class="row">
+                            <div class="col">                        
+                                <div class="form-group">
+                                    <label for="department">Department</label>
+                                    {{ form_define.department|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="objective">Objective</label>
+                                    {{ form_define.objective|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_cause">Root Cause</label>
+                                    {{ form_define.risk_cause|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">  
+                                <div class="form-group">
+                                    <label for="risk_event">Risk Event</label>
+                                    {{ form_define.risk_event|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_impact">Risk Impact</label>
+                                    {{ form_define.risk_impact|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="likelihood">Likelihood</label>
+                                    {{ form_define.likelihood|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">  
+                                <div class="form-group">
+                                    <label for="impact">Impact</label>
+                                    {{ form_define.impact|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_score">Risk Score</label>
+                                    {{ form_define.risk_score|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="source">Source</label>
+                                    {{ form_define.source|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="identified_by">Identified By</label>
+                                    {{ form_define.identified_by|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="identification_date">Identification Date</label>
+                                    {{ form_define.identification_date|add_class:"form-control" }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="comment">Comments</label>
-                                {{ form_close.comment|add_class:"form-control" }}
-                            </div>    
+                    {% if current_step == 'define' %}
+                    <!-- Save Button -->
+                    <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'define' %}disabled{% endif %}>
+                        Save
+                    </button>
+    
+                    <!-- Submit to Manager Button -->
+                    {% if risk.define_approval_status != 'under_review' %}
+                    <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'define' %}disabled{% endif %}>
+                        Submit to Manager
+                    </button>
+                    {% endif %}
+                    {% endif %}
+    
+                    <!-- Approve Button -->
+                    {% if risk.define_approval_status == 'under_review' %}
+                    <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'define' %}disabled{% endif %}>
+                        Approve
+                    </button>
+                    <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'define' %}disabled{% endif %}>
+                        Reject
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+    
+            <!-- Assessment Step Tab -->
+            <div class="tab-pane {% if current_step == 'assessment' %}active{% endif %}" id="assessment">
+                <!-- <h3>Risk Assessment</h3> -->
+                <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
+                <form method="post" class="w-[60%]">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <b>Risk: {{risk.name}}</b>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="assessment_date">Assessment Date</label>
+                                    {{ form_assessment.assessment_date|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="assessed_by">Assessed By</label>
+                                    {{ form_assessment.assessed_by|add_class:"form-control" }}
+                                </div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <div class="form-group">
-                                <label for="reviewer_comments">Reviewer Comments</label>
-                                {{ form_close.reviewer_comments|add_class:"form-control" }}
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="likelihood_rating">Likelihood Rating</label>
+                                    {{ form_assessment.likelihood_rating|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="impact_rating">Impact Rating</label>
+                                    {{ form_assessment.impact_rating|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_score">Risk Score</label>
+                                    {{ form_assessment.risk_score|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_heatmap_position">Risk Heatmap Position</label>
+                                    {{ form_assessment.risk_heatmap_position|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="residual_risk">Residual Risk</label>
+                                    {{ form_assessment.residual_risk|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="mitigation_actions">Mitigation Actions</label>
+                                    {{ form_assessment.mitigation_actions|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewer_comments">Reviewer Comments</label>
+                            {{ form_assessment.reviewer_comments|add_class:"form-control" }}
+                        </div>
+                    </div>
+    
+                    {% if current_step == 'assessment' %}
+                    <!-- Save Button -->
+                    <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'assessment' %}disabled{% endif %}>
+                        Save
+                    </button>
+    
+                    <!-- Submit to Manager Button -->
+                    {% if risk.assessment_approval_status != 'under_review' %}
+                    <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'assessment' %}disabled{% endif %}>
+                        Submit to Manager
+                    </button>
+                    {% endif %}
+                    {% endif %}
+    
+                    <!-- Approve Button -->
+                    {% if risk.assessment_approval_status == 'under_review' %}
+                    <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'assessment' %}disabled{% endif %}>
+                        Approve
+                    </button>
+                    <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'assessment' %}disabled{% endif %}>
+                        Reject
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+    
+            <!-- Prioritization Step Tab -->
+            <div class="tab-pane {% if current_step == 'prioritization' %}active{% endif %}" id="prioritization">
+                <!-- <h3>Risk Prioritization</h3> -->
+                <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Ranks identified risks based on their severity, impact, and strategic importance. <br>Enables organizations to focus on high-priority risks and allocate resources effectively, <br>ensuring that mitigation efforts align with overall business goals.</h6>
+                <form method="post" class="w-[60%]">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <b>Risk: {{risk.name}}</b>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_score">Risk Score</label>
+                                    {{ form_prioritization.risk_score|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="is_manual_edit"></label>
+                                    {{ form_prioritization.is_manual_edit}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="priority_level">Priority Level</label>
+                                    {{ form_prioritization.priority_level|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="justification">Justification</label>
+                                    {{ form_prioritization.justification|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="assigned_to">Assigned To</label>
+                                    {{ form_prioritization.assigned_to|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="review_frequency">Review Frequency</label>
+                                    {{ form_prioritization.review_frequency|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="next_reviewdate">Next Review Date</label>
+                                    {{ form_prioritization.next_reviewdate|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    {{ form_prioritization.status|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="comments">Comments</label>
+                            {{ form_prioritization.comments|add_class:"form-control" }}
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center gap-2 mb-2">
+                        {% if current_step == 'prioritization' %}
+                    <!-- Save Button -->
+                    <button type="submit" class="btn btn-primary !w-[100px]" name="save" {% if current_step != 'prioritization' %}disabled{% endif %}>
+                        Save
+                    </button>
+    
+                    <!-- Submit to Manager Button -->
+                    {% if risk.prioritization_approval_status != 'under_review' %}
+                    <button type="submit" class="btn btn-warning !w-[160px]" name="submit_to_manager" {% if current_step != 'prioritization' %}disabled{% endif %}>
+                        Submit to Manager
+                    </button>
+                    {% endif %}
+                    {% endif %}
+    
+                    <!-- Approve Button -->
+                    {% if risk.prioritization_approval_status == 'under_review'%}
+                    <button type="submit" class="btn btn-success !w-[160px]" name="approve" {% if current_step != 'prioritization' %}disabled{% endif %}>
+                        Approve
+                    </button>
+                    <button type="submit" class="btn btn-danger !w-[100px]" name="reject" {% if current_step != 'prioritization' %}disabled{% endif %}>
+                        Reject
+                    </button>
+                    {% endif %}
+                    </div>
+                </form>
+            </div>
+    
+            <!-- Response Step Tab -->
+            <div class="tab-pane {% if current_step == 'response' %}active{% endif %}" id="response">
+                <!-- <h3>Risk Response</h3> -->
+                <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Develops actionable plans to mitigate, avoid, transfer, or accept risks. <br>Provides detailed workflows for implementing responses, assigns responsibilities, <br>and tracks progress to ensure timely and effective risk management actions.</h6>
+                <form method="post" class="w-[60%]">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <b>Risk: {{risk.name}}</b>
+                        
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="response_strategy">Response Strategy</label>
+                                    {{ form_response.response_strategy|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="ActionPlan">Action Plan</label>
+                                    {{ form_response.ActionPlan|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="responsible_party">Responsible Party</label>
+                                    {{ form_response.responsible_party|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="progress_status">Progress Status</label>
+                                    {{ form_response.progress_status|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="start_date">Start Date</label>
+                                    {{ form_response.start_date|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="end_date">End Date</label>
+                                    {{ form_response.end_date|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="resources_required">Resources Required</label>
+                                    {{ form_response.resources_required|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="effectiveness_review">Effectiveness Review</label>
+                                    {{ form_response.effectiveness_review|add_class:"form-control" }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                </div>
-
-                {% if current_step == 'close' %}
-                <!-- Save Button -->
-                <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'close' %}disabled{% endif %}>
-                    Save
-                </button>
-
-                <!-- Submit to Manager Button -->
-                {% if risk.close_approval_status != 'under_review' %}
-                <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'close' %}disabled{% endif %}>
-                    Submit to Manager
-                </button>
-                {% endif %}
-                {% endif %}
-
-                <!-- Approve Button -->
-                {% if risk.close_approval_status == 'under_review' %}
-                <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'close' %}disabled{% endif %}>
-                    Approve
-                </button>
-                <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'close' %}disabled{% endif %}>
-                    Reject
-                </button>
-                {% endif %}
-            </form>
+                    {% if current_step == 'response' %}
+                    <!-- Save Button -->
+                    <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'response' %}disabled{% endif %}>
+                        Save
+                    </button>
+                    <!-- Submit to Manager Button -->
+                    {% if risk.response_approval_status != 'under_review' %}
+                    <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'response' %}disabled{% endif %}>
+                        Submit to Manager
+                    </button>
+                    {% endif %}
+                    {% endif %}
+    
+                    <!-- Approve Button -->
+                    {% if risk.response_approval_status == 'under_review'%}
+                    <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'response' %}disabled{% endif %}>
+                        Approve
+                    </button>
+                    <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'response' %}disabled{% endif %}>
+                        Reject
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+    
+            <!-- Residual Step Tab -->
+            <div class="tab-pane {% if current_step == 'residual' %}active{% endif %}" id="residual">
+                <!-- <h3>Residual Risk</h3> -->
+                <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
+                <form method="post" class="w-[60%]">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <b>Risk: {{risk.name}}</b>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="assessment_date">Assessment Date</label>
+                                    {{ form_residual.assessment_date|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="assessed_by">Assessed By</label>
+                                    {{ form_residual.assessed_by|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="likelihood_rating">Likelihood Rating</label>
+                                    {{ form_residual.likelihood_rating|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="impact_rating">Impact Rating</label>
+                                    {{ form_residual.impact_rating|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_score">Risk Score</label>
+                                    {{ form_residual.risk_score|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_heatmap_position">Risk Heatmap Position</label>
+                                    {{ form_residual.risk_heatmap_position|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="risk_appetite">Risk Appetite</label>
+                                    {{ form_residual.risk_appetite|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="mitigation_actions">Mitigation Actions</label>
+                                    {{ form_residual.mitigation_actions|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewer_comments">Reviewer Comments</label>
+                            {{ form_residual.reviewer_comments|add_class:"form-control" }}
+                        </div>
+                    </div>
+    
+                    {% if current_step == 'residual' %}
+                    <!-- Save Button -->
+                    <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'residual' %}disabled{% endif %}>
+                        Save
+                    </button>
+    
+                    <!-- Submit to Manager Button -->
+                    {% if risk.residual_approval_status != 'under_review' %}
+                    <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'residual' %}disabled{% endif %}>
+                        Submit to Manager
+                    </button>
+                    {% endif %}
+                    {% endif %}
+    
+                    <!-- Approve Button -->
+                    {% if risk.residual_approval_status == 'under_review' %}
+                    <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'residual' %}disabled{% endif %}>
+                        Approve
+                    </button>
+                    <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'residual' %}disabled{% endif %}>
+                        Reject
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+        
+            <!-- close Step Tab -->
+            <div class="tab-pane {% if current_step == 'close' %}active{% endif %}" id="close">
+                <!-- <h3>Risk close</h3> -->
+                <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
+                <form method="post" class="w-[60%]">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <b>Risk: {{risk.name}}</b>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="close_date">Close Date</label>
+                                    {{ form_close.close_date|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="closed_by">Closed By</label>
+                                    {{ form_close.closed_by|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="comment">Comments</label>
+                                    {{ form_close.comment|add_class:"form-control" }}
+                                </div>    
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="reviewer_comments">Reviewer Comments</label>
+                                    {{ form_close.reviewer_comments|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+    
+                    {% if current_step == 'close' %}
+                    <!-- Save Button -->
+                    <button type="submit" class="btn btn-primary" name="save" {% if current_step != 'close' %}disabled{% endif %}>
+                        Save
+                    </button>
+    
+                    <!-- Submit to Manager Button -->
+                    {% if risk.close_approval_status != 'under_review' %}
+                    <button type="submit" class="btn btn-warning" name="submit_to_manager" {% if current_step != 'close' %}disabled{% endif %}>
+                        Submit to Manager
+                    </button>
+                    {% endif %}
+                    {% endif %}
+    
+                    <!-- Approve Button -->
+                    {% if risk.close_approval_status == 'under_review' %}
+                    <button type="submit" class="btn btn-success" name="approve" {% if current_step != 'close' %}disabled{% endif %}>
+                        Approve
+                    </button>
+                    <button type="submit" class="btn btn-danger" name="reject" {% if current_step != 'close' %}disabled{% endif %}>
+                        Reject
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
         </div>
     </div>
-</div>
+</body>
+</html>
 {% endblock %}

@@ -9,7 +9,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Navigation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- <link rel="stylesheet" href="../main_app/static/dist/css/navigation_img.css"> -->
+    <style>
+      .flip-card {
+        background-color: transparent;
+        width: 400px;
+        height: 250px;
+        perspective: 1000px;
+        font-family: sans-serif;
+      }
+
+      .title {
+        font-size: 1.5em;
+        font-weight: 900;
+        text-align: center;
+        margin: 0;
+      }
+
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+
+      .flip-card:hover .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .flip-card-front, .flip-card-back {
+        box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
+        position: absolute;
+        display: flex;
+        gap: 15px;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border: 0.1px solid #f01819;
+        border-radius: 1rem;
+      }
+
+      .flip-card-front {
+        background: white;
+        color: red;
+      }
+
+      .flip-card-back {
+        background: white;
+        color: red;
+        transform: rotateY(180deg);
+      }
+     </style>
   </head>
   <body>
     <div class="font-sans px-16 mx-auto mt-[-80px]">
@@ -25,11 +79,11 @@
             Empower your organization with seamless enterprise risk management, compliance, and cyber resilience through AI-driven insights and real-time dashboards.
           </p>
 
-          <a href="#modules"><button
+          <a href="{% url 'chat' %}"><button
             type="button"
             class="mt-6 !bg-[#f01819] hover:!bg-transparent hover:!text-[#f01819] border-2 !border-[#f01819] transition-all text-white font-semibold text-sm tracking-wide rounded-md px-6 py-2.5"
           >
-            Get Started
+            Chat with AI
           </button></a>
 
           <div class="mt-12">
@@ -68,7 +122,7 @@
         <div class="row">
           {% for module in group %}
           <div class="col-lg-4 col-12" style="margin-bottom: 10px;">
-            <div class="max-w-6xl mx-auto font-[sans-serif] relative z-50">
+            <!-- <div class="max-w-6xl mx-auto font-[sans-serif] relative z-50">
               <div
                 class="max-md:max-w-lg mx-auto gap-12"
               >
@@ -90,8 +144,24 @@
                   </a>
                 </div>
               </div>
-            </div>
+            </div> -->
             
+            
+            <a href="{{ module.url }}" class="items-center text-center flex flex-col gap-6">
+              <div class="flip-card">
+                <div class="flip-card-inner">
+                  <div class="flip-card-front">
+                    <i class="{{ module.icon }} text-xl"></i>
+                    <h3 class="text-gray-800 text-xl font-semibold">{{ module.name }}</h3>
+                    <p class="text-gray-600 text-sm">{{ module.description }}</p>
+  
+                  </div>
+                  <div class="flip-card-back">
+                    <p class="text-gray-600 text-sm">{{ module.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
           {% endfor %}
         </div>

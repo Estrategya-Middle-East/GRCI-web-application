@@ -73,6 +73,7 @@
             });
         });
     </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     {% block custom_css %}
     {% endblock custom_css %}
 </head>
@@ -192,58 +193,60 @@
                 </div>
                 
             </div>
-            <div class="dropdown d-flex align-items-center ml-auto">
-                <button class="btn btn-link position-relative" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell" style="color: #343A40;"></i> {% comment %} bi bi-bell {% endcomment %}
-                    {% if messages %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {{ messages|length }}
-                        <span class="visually-hidden"></span>
-                    </span>
-                    {% endif %}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li>
-                        <div class="form-group px-3 py-2">
-                            {% if messages %}
-                            {% for message in messages %}
-                                {% if message.tags == 'success' %}
-                                <div class="alert alert-success">
-                                    {{ message }}
-                                </div>
-                                {% else %}
-                                <div class="alert alert-danger">
-                                    {{ message }}
-                                </div>
-                                {% endif %}
-                            {% endfor %}
-                            {% else %}
-                            <p class="text-muted">No messages</p>
-                            {% endif %}
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <!-- Right navbar links (User section) -->
-            <div class="user-panel d-flex align-items-center ml-auto">
-                <div class="image">
-                    <img src="{{ request.user.profile_pic }}" class="img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
-                </div>
-            </div>
-            <div>
-                <!-- Dropdown Menu (Aligned to the right) -->
-                <div class="dropdown">
-                    <button class="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <a class="d-block">{{ user.first_name }} {{ user.last_name }}</a>
+              <!-- Right navbar links (User section) -->
+            <div class="flex justify-center items-center ml-auto ">
+                <div class="dropdown d-flex align-items-center pr-2">
+                    <button class="btn btn-link position-relative" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell " style="color: #343A40;"></i> {% comment %} bi bi-bell {% endcomment %}
+                        {% if messages %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ">
+                            {{ messages|length }}
+                            <span class="visually-hidden"></span>
+                        </span>
+                        {% endif %}
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="action-menu">
-                        <li><a href="{% url 'user_logout' %}"
-                            onclick="return confirm('Your session would be terminated.\n\nProceed?')"
-                            class="dropdown-item">
-                            <i class="nav-icon fas fa-power-off"></i>
-                            Logout
-                        </a></li>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <div class="form-group px-3 py-2">
+                                {% if messages %}
+                                {% for message in messages %}
+                                    {% if message.tags == 'success' %}
+                                    <div class="alert alert-success">
+                                        {{ message }}
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-danger">
+                                        {{ message }}
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% else %}
+                                <p class="text-muted">No messages</p>
+                                {% endif %}
+                            </div>
+                        </li>
                     </ul>
+                </div>
+                <div class="user-panel d-flex align-items-center">
+                    <div class="image">
+                        <img src="{{ request.user.profile_pic }}" class="img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
+                    </div>
+                </div>
+                <div>
+                    <!-- Dropdown Menu (Aligned to the right) -->
+                    <div class="dropdown">
+                        <button class="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="d-block">{{ user.first_name }} {{ user.last_name }}</a>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="action-menu">
+                            <li><a href="{% url 'user_logout' %}"
+                                onclick="return confirm('Your session would be terminated.\n\nProceed?')"
+                                class="dropdown-item">
+                                <i class="nav-icon fas fa-power-off"></i>
+                                Logout
+                            </a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
