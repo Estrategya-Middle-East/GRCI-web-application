@@ -194,26 +194,7 @@ def risk_intelligence_dashboard(request):
         'risk_scores': [dept['total_risk_score'] or 0 for dept in department_totals],
     }
     
-    # Organizational structure tree logic
-    def build_department_tree(department):
-        return {
-            "name": department.name,
-            "id": department.id,  # Include the department ID
-            "staff_count": department.staff.count(),  # Include staff count
-            "children": [
-                build_department_tree(child) for child in department.children.all()
-            ]
-        }
-
-    # Create the org chart data starting from the CEO
-    org_chart_data = {
-        "name": "CEO",
-        "staff_count": 0,  # Assuming CEO is not part of a department
-        "children": [
-            build_department_tree(department)
-            for department in Department.objects.filter(parent=None)  # Start with top-level departments
-        ]
-    }
+ 
 
     
     context = {
@@ -227,7 +208,6 @@ def risk_intelligence_dashboard(request):
         'residual_heatmap_data': residual_formatted_data,
         'residual_gauge_chart_data': residual_gauge_chart_data,
         'department_chart_data': department_data,
-        'org_chart_data': org_chart_data,  # Pass organizational structure data
     }
     return render(request, 'risk_intelligence/dashboard.html', context)
 

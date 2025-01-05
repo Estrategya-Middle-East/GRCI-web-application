@@ -146,6 +146,7 @@ MODULES = [
         "action_text": "Access and Manage Enterprise Risks Now",
         "code": "SUBSCRIBE2024",
         "visible": True,
+        "info": "ERM helps organizations identify, assess, and manage risks to achieve strategic objectives.",
     },
     {
         "id": 2,
@@ -156,6 +157,7 @@ MODULES = [
         "action_text": "Initiate and Oversee Your Audits Today",
         "code": "SUBSCRIBE2024",
         "visible": False,
+        "info": "IAM streamlines internal audit processes, ensuring efficient tracking and reporting of audits.",
     },
     {
         "id": 3,
@@ -166,6 +168,7 @@ MODULES = [
         "action_text": "Plan and Safeguard Business Continuity Measures",
         "code": "SUBSCRIBE2024",
         "visible": False,
+        "info": "BCM ensures that organizations can maintain operations during disruptions.",
     },
     {
         "id": 4,
@@ -176,6 +179,7 @@ MODULES = [
         "action_text": "Strengthen and Implement Governance Best Practices",
         "code": "SUBSCRIBE2024",
         "visible": False,
+        "info": "GM supports establishing and monitoring governance frameworks and policies.",
     },
     {
         "id": 5,
@@ -186,6 +190,7 @@ MODULES = [
         "action_text": "Secure and Enhance Information Security Controls",
         "code": "SUBSCRIBE2024",
         "visible": False,
+        "info": "ISM focuses on protecting sensitive data and information systems against threats.",
     },
     {
         "id": 6,
@@ -196,6 +201,7 @@ MODULES = [
         "action_text": "Verify and Maintain Compliance Standards Easily",
         "code": "SUBSCRIBE2024",
         "visible": False,
+        "info": "CM simplifies the process of adhering to regulatory and compliance standards.",
     },
     {
         "id": 7,
@@ -206,6 +212,7 @@ MODULES = [
         "action_text": "Streamline and Improve Business Processes",
         "code": "SUBSCRIBE2024",
         "visible": False,
+        "info": "BPM enables organizations to optimize workflows and improve operational efficiency.",
     },
     {
         "id": 8,
@@ -216,6 +223,7 @@ MODULES = [
         "action_text": "Leverage Advanced AI for Smarter Solutions",
         "code": "SUBSCRIBE2024",
         "visible": True,
+        "info": "PioNeer+ offers AI-driven tools for enhanced decision-making and insights.",
     },
 ]
 

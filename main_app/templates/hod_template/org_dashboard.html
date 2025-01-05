@@ -53,7 +53,7 @@
     // Use org_chart_data passed from the backend
     var orgChartData = JSON.parse('{{ org_chart_data|escapejs }}');
     
-    // Updated configuration for the tree chart
+    // Updated configuration for the tree chart with box styling
     var option = {
         tooltip: {
             trigger: 'item',
@@ -72,17 +72,41 @@
                 right: '20%',
                 symbolSize: 10, // Adjust node size
                 label: {
-                    position: 'left',
+                    position: 'inside',
                     verticalAlign: 'middle',
-                    align: 'right',
-                    fontSize: 12
+                    align: 'center',
+                    fontSize: 12,
+                    backgroundColor: '#E0E0E0',  // Box background color
+                    borderColor: '#333333',      // Box border color
+                    borderWidth: 2,              // Box border thickness
+                    borderRadius: 5,             // Rounded corners for box
+                    padding: [10, 15],           // Padding inside the box
+                    rich: {
+                        a: {
+                            color: '#007bff',
+                            textDecoration: 'underline',
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            align: 'center'
+                        }
+                    }
+                },
+                itemStyle: {
+                    borderWidth: 2,
+                    borderColor: '#888888',
+                    borderRadius: 5
                 },
                 leaves: {
                     label: {
-                        position: 'right',
+                        position: 'inside',
                         verticalAlign: 'middle',
-                        align: 'left',
-                        fontSize: 12
+                        align: 'center',
+                        fontSize: 12,
+                        backgroundColor: '#F0F0F0', // Light background for leaves
+                        borderColor: '#444444',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        padding: [10, 15]
                     }
                 },
                 emphasis: {
@@ -101,10 +125,10 @@
     // Add an event listener for click events on links
     myChart.on('click', function (params) {
         if (params.data.url) {
-            window.location.href = params.data.url; // Navigate to the department URL
+            window.location.href = params.data.url; // Redirect to the department URL on click
         }
     });
-    
+        
 </script>
 
 {% endblock content %}
