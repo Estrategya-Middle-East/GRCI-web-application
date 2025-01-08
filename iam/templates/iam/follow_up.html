@@ -129,7 +129,7 @@
                         <td>{{ follow_up.corrective_actions }}</td>
                         <td>{{ follow_up.follow_up_by }}</td>
                         <td>{{ follow_up.follow_up_date }}</td>
-                        <td>{{ follow_up.reviewer_comments }}</td>
+                        <td>{{ follow_up.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
                             <a href="{% url 'workflow_view' follow_up.follow_up_id %}" class="btn btn-info btn-sm">
@@ -168,17 +168,17 @@
                                                         <label for="id_entity_name-{{ follow_up.follow_up_id }}">Entity Name</label>
                                                         <textarea name="entity_name" id="id_entity_name-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.entity_name }}</textarea>
                                                     </div>
-                                                </div>
-                                                <!-- FollowUp By -->
-                                                <div class="col">
-                                                    <label for="id_follow_up_by-{{ follow_up.follow_up_id }}">FollowUp By</label>
-                                                    <select name="follow_up_by" id="id_follow_up_by-{{ follow_up.follow_up_id }}" class="form-control">
-                                                        {% for value in follow_up_by_choices %}
-                                                            <option value="{{ value.id }}" {% if follow_up.follow_up_by.id == value.id %}selected{% endif %}>
-                                                                {{ value }}
-                                                            </option>
-                                                        {% endfor %}
-                                                    </select>
+                                                
+                                                    <div class="col">
+                                                        <label for="id_follow_up_by-{{ follow_up.follow_up_id }}">FollowUp By</label>
+                                                        <select name="follow_up_by" id="id_follow_up_by-{{ follow_up.follow_up_id }}" class="form-control">
+                                                            {% for value in follow_up_by_choices %}
+                                                                <option value="{{ value.id }}" {% if follow_up.follow_up_by.id == value.id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
                                                 </div>
                                                 <div class="row">
                                                     <!-- Review Date -->
@@ -207,8 +207,8 @@
                                                     </div>
                                                     <!-- Comments -->
                                                     <div class="col">
-                                                        <label for="id_reviewer_comments-{{ follow_up.follow_up_id }}">Comments</label>
-                                                        <textarea name="reviewer_comments" id="id_reviewer_comments-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.reviewer_comments }}</textarea>
+                                                        <label for="id_comments-{{ follow_up.follow_up_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.comments }}</textarea>
                                                     </div>
                                                 </div>
                             
@@ -344,8 +344,8 @@
                                 </div>
                                 <!-- Comments -->
                                 <div class="col">
-                                    <label for="id_reviewer_comments">Comments</label>
-                                    {{ form.reviewer_comments|add_class:"form-control" }}
+                                    <label for="id_comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
                                 </div>
                             </div>
         
