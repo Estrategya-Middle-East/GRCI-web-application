@@ -1,7 +1,7 @@
-{% extends "iam/iam_base.html" %}
+{% extends 'iam/iam_base.html' %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Audit Execution{% endblock page_title %}
+{% block page_title %}Draft Report{% endblock page_title %}
 
 {% block content %}
 
@@ -25,11 +25,11 @@
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
-                        {% if current_sort == 'process_name' %}
-                        SORT BY Audit Criteria
-                        {% elif current_sort == 'mapped_risks' %}
-                        SORT BY Collected Evidence
-                        {% elif current_sort == 'execution_id' %}
+                        {% if current_sort == 'report_title' %}
+                        SORT BY Report Title
+                        {% elif current_sort == 'findings_summary' %}
+                        SORT BY Findings Summary
+                        {% elif current_sort == 'report_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -65,6 +65,8 @@
                         </div>
                     </div>  
                 </form>
+            
+                
             </div>
         </div>
         
@@ -75,9 +77,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=execution_id&order={% if current_sort == 'execution_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=report_id&order={% if current_sort == 'report_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'execution_id' %}
+                                {% if current_sort == 'report_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -86,11 +88,11 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Engagement</th>
+                        <th>Audit</th>
                         <th>
-                            <a href="?sort_by=audit_criteria&order={% if current_sort == 'audit_criteria' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Audit Criteria
-                                {% if current_sort == 'audit_criteria' %}
+                            <a href="?sort_by=report_title&order={% if current_sort == 'report_title' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Report Title
+                                {% if current_sort == 'report_title' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -101,7 +103,7 @@
                         </th>
                         <th>
                             <a href="?sort_by=findings_summary&order={% if current_sort == 'findings_summary' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Collected Evidence
+                                Findings Summary
                                 {% if current_sort == 'findings_summary' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
@@ -111,141 +113,119 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Findings Summary</th>
-                        <th>Exceptions</th>
-                        <th>Root Cause Analysis</th>
-                        <th>Completion Date</th>
-                        <th>Follow Up Required</th>
                         <th>Recommendations</th>
+                        <th>Stakeholder Distribution</th>
+                        <th>Report Date</th>
+                        <th>Created By</th>
+                        <th>Key Metrics</th>
+                        <th>Follow-Up Plan</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
-
                 <tbody>
-                    {% for audit_execution in paginated_audit_executions %}
+                    {% for audit_report in paginated_audit_reports %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ audit_execution.execution_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_audit_executions.start_index|add:-1 }}</td>
-                        <td>{{ audit_execution.engagement_id }}</td>
-                        <td>{{ audit_execution.audit_criteria }}</td>
-                        <td>{{ audit_execution.findings_summary }}</td>
-                        <td>{{ audit_execution.exceptions }}</td>
-                        <td>{{ audit_execution.root_cause_analysis }}</td>
-                        <td>{{ audit_execution.status }}</td>
-                        <td>{{ audit_execution.completion_date }}</td>
-                        <td>{{ audit_execution.follow_up_required }}</td>
-                        <td>{{ audit_execution.recommendations }}</td>
+                        <td><input type="radio" name="selected" value="{{ audit_report.report_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_audit_reports.start_index|add:-1 }}</td>
+                        <td>{{ audit_report.audit_id }}</td>
+                        <td>{{ audit_report.report_title }}</td>
+                        <td>{{ audit_report.findings_summary }}</td>
+                        <td>{{ audit_report.recommendations }}</td>
+                        <td>{{ audit_report.stakeholder_distribution }}</td>
+                        <td>{{ audit_report.report_date }}</td>
+                        <td>{{ audit_report.created_by }}</td>
+                        <td>{{ audit_report.key_metrics }}</td>
+                        <td>{{ audit_report.follow_up_plan }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' audit_execution.execution_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' audit_report.report_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if audit_execution.execution_id %}
-                    <div class="modal fade" id="editModal-{{ audit_execution.execution_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_execution.execution_id }}" aria-hidden="true">
+                    {% if audit_report.report_id %}
+                    <div class="modal fade" id="editModal-{{ audit_report.report_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_report.report_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ audit_execution.execution_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ audit_report.report_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_audit_execution' audit_execution.execution_id %}">
+                                <form method="POST" action="{% url 'edit_audit_report' audit_report.report_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ audit_execution.execution_id }}" data-toggle="tab" href="#general-{{ audit_execution.execution_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ audit_report.report_id }}" data-toggle="tab" href="#general-{{ audit_report.report_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ audit_execution.execution_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ audit_report.report_id }}" role="tabpanel">
                                                 <div class="row">
-                                                    <!-- Engagement ID -->
                                                     <div class="col">
-                                                        <label for="id_engagement_id-{{ audit_execution.engagement_id }}">Engagement</label>
-                                                        <select name="engagement_id" id="id_engagement_id-{{ audit_execution.engagement_id }}" class="form-control">
-                                                            {% for value in engagements %}
-                                                                <option value="{{ value.id }}" {% if audit_execution.engagement_id == value.engagement_id %}selected{% endif %}>{{ value }}</option>
+                                                        <label for="id_audit_id-{{ audit_report.report_id }}">Audit</label>
+                                                        <select name="audit_id" id="id_audit_id-{{ audit_report.report_id }}" class="form-control">
+                                                            {% for value in audit_choices %}
+                                                                <option value="{{ value.entity_id }}" {% if audit_report.audit_id == value.entity_id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                            
-                                                    <!-- Audit Criteria -->
                                                     <div class="col">
-                                                        <label for="id_audit_criteria-{{ audit_execution.engagement_id }}">Audit Criteria</label>
-                                                        <textarea name="audit_criteria" id="id_audit_criteria-{{ audit_execution.engagement_id }}" class="form-control">{{ audit_execution.audit_criteria }}</textarea>
+                                                        <label for="id_report_title-{{ audit_report.report_id }}">Report Title</label>
+                                                        <input type="text" name="report_title" id="id_report_title-{{ audit_report.report_id }}" class="form-control" value="{{ audit_report.report_title }}">
                                                     </div>
                                                 </div>
                             
-                                                <div class="row">
-                                                    <!-- Collected Evidence -->
+                                                <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_collected_evidence-{{ audit_execution.engagement_id }}">Collected Evidence</label>
-                                                        <textarea name="collected_evidence" id="id_collected_evidence-{{ audit_execution.engagement_id }}" class="form-control">{{ audit_execution.collected_evidence }}</textarea>
+                                                        <label for="id_findings_summary-{{ audit_report.report_id }}">Findings Summary</label>
+                                                        <textarea name="findings_summary" id="id_findings_summary-{{ audit_report.report_id }}" class="form-control">{{ audit_report.findings_summary }}</textarea>
                                                     </div>
-                            
-                                                    <!-- Findings Summary -->
                                                     <div class="col">
-                                                        <label for="id_findings_summary-{{ audit_execution.engagement_id }}">Findings Summary</label>
-                                                        <textarea name="findings_summary" id="id_findings_summary-{{ audit_execution.engagement_id }}" class="form-control">{{ audit_execution.findings_summary }}</textarea>
+                                                        <label for="id_recommendations-{{ audit_report.report_id }}">Recommendations</label>
+                                                        <textarea name="recommendations" id="id_recommendations-{{ audit_report.report_id }}" class="form-control">{{ audit_report.recommendations }}</textarea>
                                                     </div>
                                                 </div>
                             
-                                                <div class="row">
-                                                    <!-- Exceptions -->
+                                                <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_exceptions-{{ audit_execution.engagement_id }}">Exceptions</label>
-                                                        <textarea name="exceptions" id="id_exceptions-{{ audit_execution.engagement_id }}" class="form-control">{{ audit_execution.exceptions }}</textarea>
+                                                        <label for="id_stakeholder_distribution-{{ audit_report.report_id }}">Stakeholder Distribution</label>
+                                                        <textarea name="stakeholder_distribution" id="id_stakeholder_distribution-{{ audit_report.report_id }}" class="form-control">{{ audit_report.stakeholder_distribution }}</textarea>
                                                     </div>
-                            
-                                                    <!-- Root Cause Analysis -->
                                                     <div class="col">
-                                                        <label for="id_root_cause_analysis-{{ audit_execution.engagement_id }}">Root Cause Analysis</label>
-                                                        <textarea name="root_cause_analysis" id="id_root_cause_analysis-{{ audit_execution.engagement_id }}" class="form-control">{{ audit_execution.root_cause_analysis }}</textarea>
+                                                        <label for="id_report_date-{{ audit_report.report_id }}">Report Date</label>
+                                                        <input type="date" name="report_date" id="id_report_date-{{ audit_report.report_id }}" class="form-control" value="{{ audit_report.report_date|date:'Y-m-d' }}">
                                                     </div>
                                                 </div>
                             
-                                                <div class="row">
-                                                    <!-- Status -->
+                                                <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_status-{{ audit_execution.engagement_id }}">Status</label>
-                                                        <select name="status" id="id_status-{{ audit_execution.engagement_id }}" class="form-control">
-                                                            {% for value, label in status_choices %}
-                                                                <option value="{{ value }}" {% if audit_execution.status == value %}selected{% endif %}>{{ label }}</option>
+                                                        <label for="id_created_by-{{ audit_report.report_id }}">Created By</label>
+                                                        <select name="created_by" id="id_created_by-{{ audit_report.report_id }}" class="form-control">
+                                                            {% for value in created_by_choices %}
+                                                                <option value="{{ value.id }}" {% if audit_report.created_by.id == value.id %}selected{% endif %}>{{ value }}</option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                            
-                                                    <!-- Completion Date -->
                                                     <div class="col">
-                                                        <label for="id_completion_date-{{ audit_execution.engagement_id }}">Completion Date</label>
-                                                        <input type="date" name="completion_date" id="id_completion_date-{{ audit_execution.engagement_id }}" class="form-control" value="{{ audit_execution.completion_date|date:'Y-m-d' }}">
+                                                        <label for="id_key_metrics-{{ audit_report.report_id }}">Key Metrics</label>
+                                                        <textarea name="key_metrics" id="id_key_metrics-{{ audit_report.report_id }}" class="form-control">{{ audit_report.key_metrics }}</textarea>
                                                     </div>
                                                 </div>
                             
-                                                <div class="row">
-                                                    <!-- Follow-up Required -->
+                                                <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_follow_up_required-{{ audit_execution.engagement_id }}">Follow Up Required</label>
-                                                        <select name="follow_up_required" id="id_follow_up_required-{{ audit_execution.engagement_id }}" class="form-control">
-                                                            <option value="None" {% if audit_execution.follow_up_required == None %}selected{% endif %}>Unknown</option>
-                                                            <option value="True" {% if audit_execution.follow_up_required == True %}selected{% endif %}>True</option>
-                                                            <option value="False" {% if audit_execution.follow_up_required == False %}selected{% endif %}>False</option>
-                                                        </select>
-                                                    </div>
-                            
-                                                    <!-- Recommendations -->
-                                                    <div class="col">
-                                                        <label for="id_recommendations-{{ audit_execution.engagement_id }}">Recommendations</label>
-                                                        <textarea name="recommendations" id="id_recommendations-{{ audit_execution.engagement_id }}" class="form-control">{{ audit_execution.recommendations }}</textarea>
+                                                        <label for="id_follow_up_plan-{{ audit_report.report_id }}">Follow-Up Plan</label>
+                                                        <textarea name="follow_up_plan" id="id_follow_up_plan-{{ audit_report.report_id }}" class="form-control">{{ audit_report.follow_up_plan }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -283,26 +263,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_audit_executions.start_index }} - {{ paginated_audit_executions.end_index }} of {{ paginated_audit_executions.paginator.count }} Audit Execution
+                Showing {{ paginated_audit_reports.start_index }} - {{ paginated_audit_reports.end_index }} of {{ paginated_audit_reports.paginator.count }} Audit Reports
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_audit_executions.has_previous %}
+                    {% if paginated_audit_reports.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_executions.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_audit_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_audit_executions.number }}</span>
+                        <span class="page-link">{{ paginated_audit_reports.number }}</span>
                     </li>
                     
-                    {% if paginated_audit_executions.has_next %}
+                    {% if paginated_audit_reports.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_executions.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_audit_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -323,7 +303,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_audit_execution' %}">
+            <form method="POST" action="{% url 'add_audit_report' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -338,72 +318,53 @@
                         <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             <div class="row">
-                                <!-- Engagement ID -->
                                 <div class="col">
-                                    <label for="id_engagement_id">Engagement</label>
-                                    {{ form.engagement_id|add_class:"form-control" }}
+                                    <label for="id_audit_id">Audit</label>
+                                    {{ form.audit_id|add_class:"form-control" }}
                                 </div>
-        
-                                <!-- Audit Criteria -->
                                 <div class="col">
-                                    <label for="id_audit_criteria">Audit Criteria</label>
-                                    {{ form.audit_criteria|add_class:"form-control" }}
+                                    <label for="id_report_title">Report Title</label>
+                                    {{ form.report_title|add_class:"form-control" }}
                                 </div>
                             </div>
         
-                            <div class="row">
-                                <!-- Collected Evidence -->
-                                <div class="col">
-                                    <label for="id_collected_evidence">Collected Evidence</label>
-                                    {{ form.collected_evidence|add_class:"form-control" }}
-                                </div>
-        
-                                <!-- Findings Summary -->
+                            <div class="row mt-3">
                                 <div class="col">
                                     <label for="id_findings_summary">Findings Summary</label>
                                     {{ form.findings_summary|add_class:"form-control" }}
                                 </div>
-                            </div>
-        
-                            <div class="row">
-                                <!-- Exceptions -->
-                                <div class="col">
-                                    <label for="id_exceptions">Exceptions</label>
-                                    {{ form.exceptions|add_class:"form-control" }}
-                                </div>
-        
-                                <!-- Root Cause Analysis -->
-                                <div class="col">
-                                    <label for="id_root_cause_analysis">Root Cause Analysis</label>
-                                    {{ form.root_cause_analysis|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row">
-                                <!-- Status -->
-                                <div class="col">
-                                    <label for="id_status">Status</label>
-                                    {{ form.status|add_class:"form-control" }}
-                                </div>
-        
-                                <!-- Completion Date -->
-                                <div class="col">
-                                    <label for="id_completion_date">Completion Date</label>
-                                    {{ form.completion_date|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row">
-                                <!-- Follow-up Required -->
-                                <div class="col">
-                                    <label for="id_follow_up_required">Follow Up Required</label>
-                                    {{ form.follow_up_required|add_class:"form-control" }}
-                                </div>
-        
-                                <!-- Recommendations -->
                                 <div class="col">
                                     <label for="id_recommendations">Recommendations</label>
                                     {{ form.recommendations|add_class:"form-control" }}
+                                </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="id_stakeholder_distribution">Stakeholder Distribution</label>
+                                    {{ form.stakeholder_distribution|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_report_date">Report Date</label>
+                                    {{ form.report_date|add_class:"form-control" }}
+                                </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="id_created_by">Created By</label>
+                                    {{ form.created_by|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_key_metrics">Key Metrics</label>
+                                    {{ form.key_metrics|add_class:"form-control" }}
+                                </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="id_follow_up_plan">Follow-Up Plan</label>
+                                    {{ form.follow_up_plan|add_class:"form-control" }}
                                 </div>
                             </div>
                         </div>
@@ -428,18 +389,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Audit Execution is selected
+                // Check if a Audit Report is selected
                 if (!selectedRadio) {
-                    alert('Please select a Audit Execution.');
+                    alert('Please select a Audit Report.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Audit Execution ID
+                const selectedId = selectedRadio.value; // Get the selected Audit Report ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_executions/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Audit Execution?')) {
+                    const deleteUrl = `/iam/audit_reporting/audit_reports/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Audit Report?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

@@ -4,320 +4,339 @@ from .models import *
 import json
 from django.forms.widgets import DateInput
 
-# 1. Audit Planning Form
-class AuditPlanningForm(forms.ModelForm):
-    class Meta:
-        model = AuditPlanning
-        fields = [
-            'audit_year',
-            'risk_assessment_summary',
-            'planned_audits',
-            'allocated_resources',
-            'approval_status',
-            'approval_date',
-            'reviewer_id',
-            'key_risks',
-            'audit_frequency',
-            'comments'
-        ]
-        widgets = {
-            'risk_assessment_summary': forms.Textarea(attrs={'rows': 3}),
-            'planned_audits': forms.Textarea(attrs={'rows': 3}),
-            'allocated_resources': forms.Textarea(attrs={'rows': 3}),
-            'comments': forms.Textarea(attrs={'rows': 3}),
-            'key_risks': forms.Textarea(attrs={'rows': 3}),
-            'approval_date': forms.DateInput(attrs={'type': 'date'}),
-        }
 
-# 2. Audit Universe Register Form
-class AuditUniverseRegisterForm(forms.ModelForm):
+ 
+# Macro Planning (Annual) #
+
+# 1. Audit Universe
+class AuditUniverseForm(forms.ModelForm):
     class Meta:
-        model = AuditUniverseRegister
-        fields = [
+        model = AuditUniverse
+        fields = [    
             'entity_name',
-            'risk_score',
-            'control_effectiveness',
-            'audit_frequency',
+            'risk_category',
+            'priority_level',
             'last_audit_date',
             'next_audit_date',
-            'risk_owner',
-            'audit_cycle_status',
-            'comments'
-        ]
+            'assigned_auditor', 
+            'comments',]
+            
         widgets = {
-            'control_effectiveness': forms.Textarea(attrs={'rows': 3}),
             'comments': forms.Textarea(attrs={'rows': 3}),
             'last_audit_date': forms.DateInput(attrs={'type': 'date'}),
             'next_audit_date': forms.DateInput(attrs={'type': 'date'}),
         }
-
-# 3. Risk Mapping Form
-class RiskMappingForm(forms.ModelForm):
+        
+# 2. Risk Assessment
+class RiskAssessmentForm(forms.ModelForm):
     class Meta:
-        model = RiskMapping
+        model = RiskAssessment
         fields = [
-            'process_name',
-            'mapped_risks',
-            'linked_controls',
-            'owner_id',
-            'reviewed_date',
-            'update_frequency',
-            'risk_severity',
+            'entity_name',
+            'risk_type',
+            'inherent_risk',
+            'residual_risk',
             'control_effectiveness',
-            'documentation_links',
+            'assessed_by',
+            'assessed_date',
+            'risk_severity',
             'comments'
-        ]
+            ]
+        
         widgets = {
-            'mapped_risks': forms.Textarea(attrs={'rows': 3}),
-            'linked_controls': forms.Textarea(attrs={'rows': 3}),
-            'control_effectiveness': forms.Textarea(attrs={'rows': 3}),
-            'documentation_links': forms.Textarea(attrs={'rows': 3}),
-            'comments': forms.Textarea(attrs={'rows': 3}),
-            'reviewed_date': forms.DateInput(attrs={'type': 'date'}),
-        }
+        'comments': forms.Textarea(attrs={'rows': 3}),
+        'control_effectiveness': forms.Textarea(attrs={'rows': 3}),
+        'assessed_date': forms.DateInput(attrs={'type': 'date'}),
+        }  
 
-# 4. Engagement Planning Form
-class EngagementPlanningForm(forms.ModelForm):
+    
+
+# 3. Annual Audit Plan (AAP)
+class AuditPlanForm(forms.ModelForm):
     class Meta:
-        model = EngagementPlanning
+        model = AuditPlan
         fields = [
+
+            'audit_year',
+            'entity_name',
+            'audit_frequency',
+            'priority_level',
+            'allocated_resources',
+            'audit_schedule',
+            'assigned_team',
+            'comments']
+
+        widgets = {
+            'allocated_resources': forms.Textarea(attrs={'rows': 3}),
+            'audit_schedule': forms.Textarea(attrs={'rows': 3}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+            }
+
+# Macro Planning (Annual) #
+
+# 4. Audit Assessment
+class AuditAssessmentForm(forms.ModelForm):
+    class Meta:
+        model = AuditAssessment
+        fields = [
+            'entity_name',
+            'assigned_team', 
             'scope',
             'objectives',
-            'planned_start_date',
-            'planned_end_date',
-            'assigned_auditors',
-            'risk_focus_areas',
-            'approval_status',
-            'budget_allocated',
-            'milestones',
-            'notes'
-        ]
+            'start_date',
+            'end_date',
+            'comments',]
+    
         widgets = {
             'scope': forms.Textarea(attrs={'rows': 3}),
             'objectives': forms.Textarea(attrs={'rows': 3}),
-            'risk_focus_areas': forms.Textarea(attrs={'rows': 3}),
-            'milestones': forms.Textarea(attrs={'rows': 3}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
-            'planned_start_date': forms.DateInput(attrs={'type': 'date'}),
-            'planned_end_date': forms.DateInput(attrs={'type': 'date'}),
-        }
-
-# 5. Audit Resource Planner Form
-class AuditResourcePlannerForm(forms.ModelForm):
-    class Meta:
-        model = AuditResourcePlanner
-        fields = [
-            'team_member',
-            'assigned_tasks',
-            'availability_status',
-            'skillset',
-            'allocation_date',
-            'engagement_id',
-            'hours_allocated',
-            'remaining_capacity',
-            'comments'
-        ]
-        widgets = {
-            'assigned_tasks': forms.Textarea(attrs={'rows': 3}),
-            'skillset': forms.Textarea(attrs={'rows': 3}),
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
             'comments': forms.Textarea(attrs={'rows': 3}),
-            'allocation_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-# 6. Execution Log Form
-class ExecutionLogForm(forms.ModelForm):
+
+# 5. Audit Notification
+class AuditNotificationForm(forms.ModelForm):
     class Meta:
-        model = ExecutionLog
+        model = AuditNotification
         fields = [
-            'engagement_id',
-            'audit_criteria',
-            'collected_evidence',
-            'findings_summary',
-            'exceptions',
-            'root_cause_analysis',
-            'status',
-            'completion_date',
-            'follow_up_required',
-            'recommendations'
-        ]
+            'entity_name',
+            'auditee_name',
+            'audit_scope',
+            'objectives',
+            'audit_timeline',
+            'notification_date',
+            'comments',]
+
         widgets = {
-            'audit_criteria': forms.Textarea(attrs={'rows': 3}),
-            'collected_evidence': forms.Textarea(attrs={'rows': 3}),
-            'findings_summary': forms.Textarea(attrs={'rows': 3}),
-            'exceptions': forms.Textarea(attrs={'rows': 3}),
-            'root_cause_analysis': forms.Textarea(attrs={'rows': 3}),
-            'recommendations': forms.Textarea(attrs={'rows': 3}),
-            'completion_date': forms.DateInput(attrs={'type': 'date'}),
+            'audit_scope': forms.Textarea(attrs={'rows': 3}),
+            'objectives': forms.Textarea(attrs={'rows': 3}),
+            'audit_timeline': forms.Textarea(attrs={'rows': 3}),
+            'notification_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
         }
-
-# 7. Follow-Up Form
-class FollowUpForm(forms.ModelForm):
+    
+# 6. Entrance Meeting
+class EntranceMeetingForm(forms.ModelForm):
     class Meta:
-        model = FollowUp
+        model = EntranceMeeting
         fields = [
-            'audit_id',
-            'recommendation',
-            'action_plan',
-            'assigned_to',
-            'due_date',
-            'completion_status',
-            'review_date',
-            'effectiveness_rating',
-            'reviewer_comments',
-            #'supporting_documents'
-        ]
+            'entity_name',
+            'participants',
+            'discussion_points',
+            'meeting_date',
+            'comments']
+
         widgets = {
-            'recommendation': forms.Textarea(attrs={'rows': 3}),
-            'action_plan': forms.Textarea(attrs={'rows': 3}),
-            'reviewer_comments': forms.Textarea(attrs={'rows': 3}),
-            'due_date': forms.DateInput(attrs={'type': 'date'}),
-            'review_date': forms.DateInput(attrs={'type': 'date'}),
+            'discussion_points': forms.Textarea(attrs={'rows': 3}),
+            'meeting_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
         }
 
-# 8. Audit Report Form
-class AuditReportForm(forms.ModelForm):
+
+# 7. Sub-Process Risk Assessment (ORC)	
+class SubRiskAssessmentForm(forms.ModelForm):
     class Meta:
-        model = AuditReport
+        model = SubRiskAssessment
         fields = [
-            'audit_id',
-            'report_title',
-            'findings_summary',
-            'recommendations',
-            'stakeholder_distribution',
-            'report_date',
-            'created_by',
-            'key_metrics',
-            'follow_up_plan',
-            #'attached_files'
-        ]
+                    'sub_process_name',
+                    'entity_name',
+                    'risk_category',
+                    'inherent_risk',
+                    'residual_risk',
+                    'control_effectiveness',
+                    'assessed_by',
+                    'assessed_date',
+                    'risk_severity',
+                    'comments',]
+            
         widgets = {
-            'findings_summary': forms.Textarea(attrs={'rows': 3}),
-            'recommendations': forms.Textarea(attrs={'rows': 3}),
-            'stakeholder_distribution': forms.Textarea(attrs={'rows': 3}),
-            'key_metrics': forms.Textarea(attrs={'rows': 3}),
-            'follow_up_plan': forms.Textarea(attrs={'rows': 3}),
-            'report_date': forms.DateInput(attrs={'type': 'date'}),
+            'control_effectiveness': forms.Textarea(attrs={'rows': 3}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+            'assessed_date': forms.DateInput(attrs={'type': 'date'}),
         }
+   
 
-# 9. Risk Trends Report Form
-class RiskTrendsReportForm(forms.ModelForm):
+# 8. Audit Program
+class AuditProgramForm(forms.ModelForm):
     class Meta:
-        model = RiskTrendsReport
+        model = AuditProgram
         fields = [
-            'recurring_issues',
-            'root_causes',
-            'impact_level',
-            'recommendations',
-            'metrics',
-            'associated_audits',
-            'trend_analysis_date',
-            'improvement_plan',
-            'owner'
-        ]
+            'entity_name',
+            'sub_process_name',
+            'procedures',
+            'tests',
+            'assigned_auditors',
+            'program_date',
+            'comments']
+    
         widgets = {
-            'recurring_issues': forms.Textarea(attrs={'rows': 3}),
-            'root_causes': forms.Textarea(attrs={'rows': 3}),
-            'recommendations': forms.Textarea(attrs={'rows': 3}),
-            'metrics': forms.Textarea(attrs={'rows': 3}),
-            'associated_audits': forms.Textarea(attrs={'rows': 3}),
-            'improvement_plan': forms.Textarea(attrs={'rows': 3}),
-            'trend_analysis_date': forms.DateInput(attrs={'type': 'date'}),
+        'comments': forms.Textarea(attrs={'rows': 3}),
+        'procedures': forms.Textarea(attrs={'rows': 3}),
+        'tests': forms.Textarea(attrs={'rows': 3}),
+        'program_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-# 10. Quality Assurance Form
-class QualityAssuranceForm(forms.ModelForm):
-    class Meta:
-        model = QualityAssurance
-        fields = [
-            'assessment_type',
-            'audit_id',
-            'compliance_status',
-            'improvement_opportunities',
-            'reviewer_id',
-            'assessment_date',
-            'action_plan',
-            'implementation_status',
-            'follow_up_date',
-            'review_summary'
-        ]
-        widgets = {
-            'improvement_opportunities': forms.Textarea(attrs={'rows': 3}),
-            'action_plan': forms.Textarea(attrs={'rows': 3}),
-            'review_summary': forms.Textarea(attrs={'rows': 3}),
-            'assessment_date': forms.DateInput(attrs={'type': 'date'}),
-            'follow_up_date': forms.DateInput(attrs={'type': 'date'}),
-        }
 
-# 11. Fraud Investigation Log Form
-class FraudInvestigationLogForm(forms.ModelForm):
+# Fieldwork (Per Audit) #
+
+# 9. Working Paper
+class WorkingPaperForm(forms.ModelForm):
     class Meta:
-        model = FraudInvestigationLog
-        fields = [
-            'suspected_fraud_type',
-            'details',
-            'reported_by',
+        model = WorkingPaper
+        fields = [  
+            'entity_name',
+            'audit_task',
             'evidence_collected',
-            'root_cause',
-            'corrective_actions',
-            'status',
-            'resolution_date',
-            'comments',
-            #'supporting_files'
-        ]
+            'performed_by',
+            'task_completion_date',
+            'comments',]
+    
         widgets = {
-            'details': forms.Textarea(attrs={'rows': 3}),
             'evidence_collected': forms.Textarea(attrs={'rows': 3}),
-            'root_cause': forms.Textarea(attrs={'rows': 3}),
-            'corrective_actions': forms.Textarea(attrs={'rows': 3}),
+            'task_completion_date': forms.DateInput(attrs={'type': 'date'}),
             'comments': forms.Textarea(attrs={'rows': 3}),
-            'resolution_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-# 12. Document Management Form
-class DocumentManagementForm(forms.ModelForm):
+# 10. Observation Sheet
+class ObservationSheetForm(forms.ModelForm):
     class Meta:
-        model = DocumentManagement
+        model = ObservationSheet
         fields = [
-            'audit_id',
-            'document_title',
-            'uploaded_by',
-            'upload_date',
-            'version',
-            'access_permissions',
-            'associated_risks',
-            'tags',
-            'last_updated',
-            'file_link'
-        ]
+            'entity_name',
+            'observation_details',
+            'impact',
+            'recommendation',
+            'assigned_to',
+            'deadline',
+            'comments']
+
         widgets = {
-            'access_permissions': forms.Textarea(attrs={'rows': 3}),
-            'associated_risks': forms.Textarea(attrs={'rows': 3}),
-            'tags': forms.Textarea(attrs={'rows': 3}),
-            'upload_date': forms.DateInput(attrs={'type': 'date'}),
-            'last_updated': forms.DateInput(attrs={'type': 'date'}),
+            'observation_details': forms.Textarea(attrs={'rows': 3}),
+            'impact': forms.Textarea(attrs={'rows': 3}),
+            'recommendation': forms.Textarea(attrs={'rows': 3}),
+            'deadline': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+# 11. Other Notes
+class OtherNotesForm(forms.ModelForm):
+    class Meta:
+        model = OtherNotes
+        fields = [  
+            'entity_name',
+            'note_details',
+            'added_by',
+            'note_date',
+            'comments']
+
+        widgets = {
+            'note_details': forms.Textarea(attrs={'rows': 3}),
+            'note_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
         }
 
-# 13. Compliance Tracker Form
-class ComplianceTrackerForm(forms.ModelForm):
+
+# Reporting (Per Audit) #
+
+# 12. Draft Report
+class DraftReportForm(forms.ModelForm):
     class Meta:
-        model = ComplianceTracker
+        model = DraftReport
         fields = [
-            'audit_finding',
-            'regulation_reference',
-            'compliance_status',
+            'entity_name',
+            'findings',
+            'recommendations',
+            'drafted_by',
+            'draft_date',
+            'comments']
+
+        widgets = {
+            'findings': forms.Textarea(attrs={'rows': 3}),
+            'recommendations': forms.Textarea(attrs={'rows': 3}),
+            'draft_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+        }
+
+# 13. Exit Meeting
+class ExitMeetingForm(forms.ModelForm):
+    class Meta:
+        model = ExitMeeting
+        fields = [
+            'entity_name',
+            'participants', 
+            'discussion_points',
+            'agreed_actions',
+            'meeting_date',
+            'comments',]
+
+        widgets = {
+            'comments': forms.Textarea(attrs={'rows': 3}),
+            'discussion_points': forms.Textarea(attrs={'rows': 3}),
+            'agreed_actions': forms.Textarea(attrs={'rows': 3}),
+            'meeting_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+        }
+
+# 14. Final Report
+class FinalReportForm(forms.ModelForm):
+    class Meta:
+        model = FinalReport
+        fields = [
+            'entity_name',
+            'findings_summary',
+            'recommendations',
+            'approved_by',
+            'submission_date',
+            'comments',]
+    
+        widgets = {
+            'findings_summary': forms.Textarea(attrs={'rows': 3}),
+            'recommendations': forms.Textarea(attrs={'rows': 3}),
+            'submission_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+# Feedback (Per Audit) #
+
+# 15. Feedback
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = [
+            'entity_name',
+            'auditee_name',
+            'feedback_details',
+            'survey_date',
+            'comments',]
+
+        widgets = {
+            'feedback_details': forms.Textarea(attrs={'rows': 3}),
+            'survey_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+# Follow-Up (Per Audit) #
+
+# 16. Audit Follow-Up
+class AuditFollowUpForm(forms.ModelForm):
+    class Meta:
+        model = AuditFollowUp
+        fields = [
+            'entity_name',
+            'issues_resolved',
             'corrective_actions',
+            'follow_up_by',
             'follow_up_date',
-            'assigned_owner',
-            'review_frequency',
-            'last_review_date',
-            'compliance_rating',
-            'comments'
-        ]
+            'comments',]
+
         widgets = {
-            'audit_finding': forms.Textarea(attrs={'rows': 3}),
-            'regulation_reference': forms.Textarea(attrs={'rows': 3}),
+            'issues_resolved': forms.Textarea(attrs={'rows': 3}),
             'corrective_actions': forms.Textarea(attrs={'rows': 3}),
-            'comments': forms.Textarea(attrs={'rows': 3}),
             'follow_up_date': forms.DateInput(attrs={'type': 'date'}),
-            'last_review_date': forms.DateInput(attrs={'type': 'date'}),
+            'comments': forms.Textarea(attrs={'rows': 3}),
         }
+    

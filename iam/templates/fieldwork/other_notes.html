@@ -1,7 +1,7 @@
 {% extends "iam/iam_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Fraud Investigation{% endblock page_title %}
+{% block page_title %}Other Notes{% endblock page_title %}
 
 {% block content %}
 
@@ -25,11 +25,11 @@
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
-                        {% if current_sort == 'suspected_fraud_type' %}
-                        SORT BY Suspected Fraud Type
-                        {% elif current_sort == 'details' %}
-                        SORT BY Details
-                        {% elif current_sort == 'investigation_id' %}
+                        {% if current_sort == 'entity_name' %}
+                        SORT BY Entity Name
+                        {% elif current_sort == 'note_details' %}
+                        SORT BY Note Details
+                        {% elif current_sort == 'note_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -75,9 +75,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=investigation_id&order={% if current_sort == 'investigation_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=note_id&order={% if current_sort == 'note_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'investigation_id' %}
+                                {% if current_sort == 'note_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -87,9 +87,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=suspected_fraud_type&order={% if current_sort == 'suspected_fraud_type' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Suspected Fraud Type
-                                {% if current_sort == 'suspected_fraud_type' %}
+                            <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Entity Name
+                                {% if current_sort == 'entity_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -99,9 +99,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=details&order={% if current_sort == 'details' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Details
-                                {% if current_sort == 'details' %}
+                            <a href="?sort_by=note_details&order={% if current_sort == 'note_details' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Note Details
+                                {% if current_sort == 'note_details' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -110,12 +110,8 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Reported By</th>
-                        <th>Evidence Collected</th>
-                        <th>Root Cause</th>
-                        <th>Corrective Actions</th>
-                        <th>Status</th>
-                        <th>Resolution Date</th>
+                        <th>Add By</th>
+                        <th>Note Date</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
@@ -123,110 +119,82 @@
                 </thead>
 
                 <tbody>
-                    {% for fraud_investigation in paginated_fraud_investigations %}
+                    {% for other_notes in paginated_other_notess %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ fraud_investigation.investigation_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_fraud_investigations.start_index|add:-1 }}</td>
-                        <td>{{ fraud_investigation.suspected_fraud_type }}</td>
-                        <td>{{ fraud_investigation.details }}</td>
-                        <td>{{ fraud_investigation.reported_by }}</td>
-                        <td>{{ fraud_investigation.evidence_collected }}</td>
-                        <td>{{ fraud_investigation.root_cause }}</td>
-                        <td>{{ fraud_investigation.corrective_actions }}</td>
-                        <td>{{ fraud_investigation.status }}</td>
-                        <td>{{ fraud_investigation.resolution_date }}</td>
-                        <td>{{ fraud_investigation.comments }}</td>
+                        <td><input type="radio" name="selected" value="{{ other_notes.note_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_other_notess.start_index|add:-1 }}</td>
+                        <td>{{ other_notes.entity_name }}</td>
+                        <td>{{ other_notes.note_details }}</td>
+                        <td>{{ other_notes.added_by }}</td>
+                        <td>{{ other_notes.note_date }}</td>
+                        <td>{{ other_notes.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' fraud_investigation.investigation_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' other_notes.note_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if fraud_investigation.investigation_id %}
-                    <div class="modal fade" id="editModal-{{ fraud_investigation.investigation_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ fraud_investigation.investigation_id }}" aria-hidden="true">
+                    {% if other_notes.note_id %}
+                    <div class="modal fade" id="editModal-{{ other_notes.note_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ other_notes.note_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ fraud_investigation.investigation_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ other_notes.note_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_fraud_investigation' fraud_investigation.investigation_id %}">
+                                <form method="POST" action="{% url 'edit_other_notes' other_notes.note_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ fraud_investigation.investigation_id }}" data-toggle="tab" href="#general-{{ fraud_investigation.investigation_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ other_notes.note_id }}" data-toggle="tab" href="#general-{{ other_notes.note_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ fraud_investigation.investigation_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ other_notes.note_id }}" role="tabpanel">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_suspected_fraud_type-{{ fraud_investigation.investigation_id }}">Suspected Fraud Type</label>
-                                                        <input type="text" name="suspected_fraud_type" id="id_suspected_fraud_type-{{ fraud_investigation.investigation_id }}" class="form-control" value="{{ fraud_investigation.suspected_fraud_type }}">
+                                                        <label for="id_entity_name-{{ other_notes.note_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="id_entity_name-{{ other_notes.note_id }}" class="form-control" value="{{ other_notes.entity_name }}">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_details-{{ fraud_investigation.investigation_id }}">Details</label>
-                                                        <textarea name="details" id="id_details-{{ fraud_investigation.investigation_id }}" class="form-control">{{ fraud_investigation.details }}</textarea>
+                                                        <label for="id_note_details-{{ other_notes.note_id }}">Note Details</label>
+                                                        <textarea name="note_details" id="id_note_details-{{ other_notes.note_id }}" class="form-control">{{ other_notes.note_details }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_reported_by-{{ fraud_investigation.investigation_id }}">Reported By</label>
-                                                        <select name="reported_by" id="id_reported_by-{{ fraud_investigation.investigation_id }}" class="form-control">
-                                                            {% for value in reported_by_choices %}
-                                                                <option value="{{ value.id }}" {% if fraud_investigation.reported_by.id == value.id %}selected{% endif %}>
+                                                        <label for="id_added_by-{{ other_notes.note_id }}">Add By</label>
+                                                        <select name="added_by" id="id_added_by-{{ other_notes.note_id }}" class="form-control">
+                                                            {% for value in added_by_choices %}
+                                                                <option value="{{ value.id }}" {% if other_notes.added_by == value %}selected{% endif %}>
                                                                     {{ value }}
                                                                 </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_evidence_collected-{{ fraud_investigation.investigation_id }}">Evidence Collected</label>
-                                                        <textarea name="evidence_collected" id="id_evidence_collected-{{ fraud_investigation.investigation_id }}" class="form-control">{{ fraud_investigation.evidence_collected }}</textarea>
+                                                        <label for="id_note_date-{{ other_notes.note_id }}">Note Date</label>
+                                                        <input type="date" name="note_date" id="id_note_date-{{ other_notes.note_id }}" class="form-control" value="{{ other_notes.note_date|date:'Y-m-d' }}">
                                                     </div>
                                                 </div>
+                                                
+                                                    
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_root_cause-{{ fraud_investigation.investigation_id }}">Root Cause</label>
-                                                        <textarea name="root_cause" id="id_root_cause-{{ fraud_investigation.investigation_id }}" class="form-control">{{ fraud_investigation.root_cause }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_corrective_actions-{{ fraud_investigation.investigation_id }}">Corrective Actions</label>
-                                                        <textarea name="corrective_actions" id="id_corrective_actions-{{ fraud_investigation.investigation_id }}" class="form-control">{{ fraud_investigation.corrective_actions }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <label for="id_status-{{ fraud_investigation.investigation_id }}">Status</label>
-                                                        <select name="status" id="id_status-{{ fraud_investigation.investigation_id }}" class="form-control">
-                                                            {% for value, label in status_choices %}
-                                                                <option value="{{ value }}" {% if fraud_investigation.status == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_resolution_date-{{ fraud_investigation.investigation_id }}">Resolution Date</label>
-                                                        <input type="date" name="resolution_date" id="id_resolution_date-{{ fraud_investigation.investigation_id }}" class="form-control" value="{{ fraud_investigation.resolution_date|date:'Y-m-d' }}">
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <label for="id_comments-{{ fraud_investigation.investigation_id }}">Comments</label>
-                                                        <textarea name="comments" id="id_comments-{{ fraud_investigation.investigation_id }}" class="form-control">{{ fraud_investigation.comments }}</textarea>
+                                                        <label for="id_comments-{{ other_notes.note_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ other_notes.note_id }}" class="form-control">{{ other_notes.comments }}</textarea>
                                                     </div>
                                                     {% comment %} <div class="col">
-                                                        <label for="id_supporting_files-{{ fraud_investigation.investigation_id }}">Supporting Files</label>
-                                                        <input type="file" name="supporting_files" id="id_supporting_files-{{ fraud_investigation.investigation_id }}" class="form-control">
+                                                        <label for="id_supporting_files-{{ other_notes.note_id }}">Supporting Files</label>
+                                                        <input type="file" name="supporting_files" id="id_supporting_files-{{ other_notes.note_id }}" class="form-control">
                                                     </div> {% endcomment %}
                                                 </div>
                                             </div>
@@ -264,26 +232,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_fraud_investigations.start_index }} - {{ paginated_fraud_investigations.end_index }} of {{ paginated_fraud_investigations.paginator.count }} Investigation
+                Showing {{ paginated_other_notess.start_index }} - {{ paginated_other_notess.end_index }} of {{ paginated_other_notess.paginator.count }} Note
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_fraud_investigations.has_previous %}
+                    {% if paginated_other_notess.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_fraud_investigations.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_other_notess.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_fraud_investigations.number }}</span>
+                        <span class="page-link">{{ paginated_other_notess.number }}</span>
                     </li>
                     
-                    {% if paginated_fraud_investigations.has_next %}
+                    {% if paginated_other_notess.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_fraud_investigations.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_other_notess.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -304,7 +272,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_fraud_investigation' %}">
+            <form method="POST" action="{% url 'add_other_notes' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -321,42 +289,22 @@
                             
                             <div class="row">
                                 <div class="col">
-                                    <label for="id_suspected_fraud_type">Suspected Fraud Type</label>
-                                    {{ form.suspected_fraud_type|add_class:"form-control" }}
+                                    <label for="id_entity_name">Entity Name</label>
+                                    {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_details">Details</label>
-                                    {{ form.details|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="id_reported_by">Reported By</label>
-                                    {{ form.reported_by|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_evidence_collected">Evidence Collected</label>
-                                    {{ form.evidence_collected|add_class:"form-control" }}
+                                    <label for="id_note_details">Note Details</label>
+                                    {{ form.note_details|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <label for="id_root_cause">Root Cause</label>
-                                    {{ form.root_cause|add_class:"form-control" }}
+                                    <label for="id_added_by">Add By</label>
+                                    {{ form.added_by|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_corrective_actions">Corrective Actions</label>
-                                    {{ form.corrective_actions|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="id_status">Status</label>
-                                    {{ form.status|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_resolution_date">Resolution Date</label>
-                                    {{ form.resolution_date|add_class:"form-control" }}
+                                    <label for="id_note_date">Note Date</label>
+                                    {{ form.note_date|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row">
@@ -391,18 +339,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Investigation is selected
+                // Check if a Note is selected
                 if (!selectedRadio) {
-                    alert('Please select a Investigation.');
+                    alert('Please select a Note.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Investigation ID
+                const selectedId = selectedRadio.value; // Get the selected Note ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/fraud_investigations/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Investigation?')) {
+                    const deleteUrl = `/iam/fieldwork/other_notess/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Note?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

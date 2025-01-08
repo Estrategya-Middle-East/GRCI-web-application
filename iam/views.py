@@ -18,16 +18,13 @@ from django.views.generic import TemplateView
 # IAM Dashboard View
 def dashboard(request):
     components = [
-        {"name": "Audit Governance and Oversight", "icon": "fas fa-gavel", "link": "audit_oversight/audit_plannings/"},
-        {"name": "Risk and Process Analysis", "icon": "fas fa-chart-pie", "link": "risk_mappings"},
-        {"name": "Audit Engagement Management", "icon": "fas fa-tasks", "link": "audit_engagement/engagement_plannings/"},
-        {"name": "Audit Execution", "icon": "fas fa-check-circle", "link": "audit_executions"},
-        {"name": "Audit Follow-Up and Monitoring", "icon": "fas fa-sync-alt", "link": "follow_ups"},
-        {"name": "Audit Reporting", "icon": "fas fa-file-alt", "link": "audit_reporting/audit_reports/"},
-        {"name": "Audit Quality Assurance", "icon": "fas fa-thumbs-up", "link": "quality_assurances"},
-        {"name": "Fraud Detection and Investigation", "icon": "fas fa-search-dollar", "link": "fraud_investigations"},
-        #{"name": "Document Management", "icon": "fas fa-folder-open", "link": "#"},
-        {"name": "Compliance Monitoring", "icon": "fas fa-shield-alt", "link": "compliance_trackers"},
+        {"name": "Macro Planning", "icon": "fas fa-gavel", "link": "macro_planning/audit_plans/"},
+        {"name": "Micro Planning", "icon": "fas fa-tasks", "link": "micro_planning/audit_assessments/"},
+        {"name": "FieldWork", "icon": "fas fa-chart-pie", "link": "fieldwork/working_papers/"},
+        {"name": "Reporting", "icon": "fas fa-check-circle", "link": "#"},
+        {"name": "Feedback", "icon": "fas fa-sync-alt", "link": "#"},
+        {"name": "Audit Follow-Up", "icon": "fas fa-file-alt", "link": "#"},
+        
     ]
     context = {
         'page_title': "IAM Dashboard",
@@ -35,7 +32,7 @@ def dashboard(request):
     }
     return render(request, 'iam/dashboard.html', context)
 
-def audit_oversight_dashboard(request):
+def macro_planning_dashboard(request):
     components = [
         {"name": "Audit Planning", "icon": "fas fa-calendar-alt", "link": "audit_plannings"},  # Calendar for planning
         {"name": "Audit Universe Register", "icon": "fas fa-database", "link": "audit_registers"},  # Database for register
@@ -44,134 +41,43 @@ def audit_oversight_dashboard(request):
         'page_title': "Audit Governance and Oversight",
         'components': components,
     }
-    return render(request, 'audit_oversight/dashboard.html', context)
+    return render(request, 'macro_planning/dashboard.html', context)
 
 
-def audit_engagement_dashboard(request):
+def micro_planning_dashboard(request):
     components = [
-        {"name": "Engagement Planning", "icon": "fas fa-tasks", "link": "engagement_plannings"},  # Tasks for planning engagement
-        {"name": "Audit Resource Planner", "icon": "fas fa-users-cog", "link": "audit_resources"},  # Users and cog for resource management
+        {"name": "Audit Assessment", "icon": "fas fa-tasks", "link": "audit_assessments"},  # Tasks for planning engagement
+        {"name": "Audit Notification Planner", "icon": "fas fa-users-cog", "link": "audit_notifications"},  # Users and cog for resource management
     ]
     context = {
         'page_title': "Audit Engagement Management",
         'components': components,
     }
-    return render(request, 'audit_engagement/dashboard.html', context)
+    return render(request, 'micro_planning/dashboard.html', context)
 
 
-def audit_reporting_dashboard(request):
+def audit_programing_dashboard(request):
     components = [
-        {"name": "Audit Report", "icon": "fas fa-file-alt", "link": "audit_reports"},  # File for reporting
-        {"name": "Risk Trends Report", "icon": "fas fa-chart-line", "link": "risktrends_reports"},  # Chart line for trends report
+        {"name": "Audit Program", "icon": "fas fa-file-alt", "link": "audit_programs"},  # File for reporting
+        {"name": "Working Paper", "icon": "fas fa-chart-line", "link": "working_papers"},  # Chart line for trends report
     ]
     context = {
-        'page_title': "Audit Reporting",
+        'page_title': "Audit Programing",
         'components': components,
     }
-    return render(request, 'audit_reporting/dashboard.html', context)
+    return render(request, 'audit_programing/dashboard.html', context)
 
 
-####
-
-def list_audit_planning(request):
-    # Get all records by default
-    audit_plannings = AuditPlanning.objects.all()
-    form = AuditPlanningForm()
-
-    
-    # Default sorting by plan_id
-    sort_by = request.GET.get('sort_by', 'plan_id')
-    order = request.GET.get('order', 'asc')
-
-    # Toggle order on each click
-    if order == 'asc':
-        audit_plannings = audit_plannings.order_by(sort_by)
-    else:
-        audit_plannings = audit_plannings.order_by(F(sort_by).desc())
-
-    # Pagination setup
-    rows_per_page = request.GET.get('rows_per_page', 10)
-    try:
-        rows_per_page = int(rows_per_page)
-    except ValueError:
-        rows_per_page = 10
-
-    paginator = Paginator(audit_plannings, rows_per_page)
-    page = request.GET.get('page', 1)
-
-    try:
-        paginated_audit_plannings = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_audit_plannings = paginator.page(1)
-    except EmptyPage:
-        paginated_audit_plannings = paginator.page(paginator.num_pages)
-
-    
-    # Pass necessary context to the template
-    context = {
-        'page_title': "Audit Planning",
-        'audit_plannings':audit_plannings, 
-        'current_sort': sort_by,
-        'current_order': order,       
-        'paginated_audit_plannings': paginated_audit_plannings,
-        'rows_per_page': rows_per_page,
-        'form': form,
-        'approval_status_choices': AuditPlanning._meta.get_field('approval_status').choices,
-        'audit_frequency_choices': AuditPlanning._meta.get_field('audit_frequency').choices,
-        'reviewers': Staff.objects.all(),
-    }
-    return render(request, 'audit_oversight/audit_planning.html', context)
-
-
-# Add Oversigh 
-
-def add_audit_planning(request):
-    form = AuditPlanningForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Audit Plan  added successfully!")
-            return redirect('list_audit_planning')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to add Audit Plan. Please correct the errors.")
-    return redirect('list_audit_planning')
-
-# Audit Planning Dashboard
-def edit_audit_planning(request, plan_id):
-    audit_planning = get_object_or_404(AuditPlanning, plan_id=plan_id)
-    if request.method == 'POST':
-        form = AuditPlanningForm(request.POST, instance=audit_planning)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Audit Plan updated successfully!")
-            return redirect('list_audit_planning')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to update Audit Plan. Please correct the errors.")
-    else:
-        form = AuditPlanningForm(instance=audit_planning)
-    return render(request, 'audit_oversight/audit_planning.html', {'form': form})
-
-
-
-# Delete audit_planning
-def delete_audit_planning(request, plan_id):
-    audit_planning = get_object_or_404(AuditPlanning, plan_id=plan_id) 
-    audit_planning.delete()
-    messages.success(request, "Audit Plan deleted successfully!")
-    return redirect('list_audit_planning')
-
-####
+#### Macro Planning ####
 
 def list_audit_register(request):
     # Get all records by default
-    audit_registers = AuditUniverseRegister.objects.all()
-    form = AuditUniverseRegisterForm()
+    audit_registers = AuditUniverse.objects.all()
+    form = AuditUniverseForm()
 
     
-    # Default sorting by entity_id
-    sort_by = request.GET.get('sort_by', 'entity_id')
+    # Default sorting by audit_id
+    sort_by = request.GET.get('sort_by', 'audit_id')
     order = request.GET.get('order', 'asc')
 
     # Toggle order on each click
@@ -207,17 +113,17 @@ def list_audit_register(request):
         'paginated_audit_registers': paginated_audit_registers,
         'rows_per_page': rows_per_page,
         'form': form,
-        'audit_cycle_status_choices': AuditUniverseRegister._meta.get_field('audit_cycle_status').choices,
-        'audit_frequency_choices': AuditUniverseRegister._meta.get_field('audit_frequency').choices,
-        'risk_owners': Staff.objects.all(),
+        'risk_category_choices': AuditUniverse._meta.get_field('risk_category').choices,
+        'priority_level_choices': AuditUniverse._meta.get_field('priority_level').choices,
+        'assigned_auditors': Staff.objects.all(),
     }
-    return render(request, 'audit_oversight/audit_register.html', context)
+    return render(request, 'macro_planning/audit_register.html', context)
 
 
 # Add Oversigh 
 
 def add_audit_register(request):
-    form = AuditUniverseRegisterForm(request.POST or None)
+    form = AuditUniverseForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
@@ -228,11 +134,11 @@ def add_audit_register(request):
             messages.error(request, "Failed to add Audit Register. Please correct the errors.")
     return redirect('list_audit_register')
 
-# Audit Planning Dashboard
-def edit_audit_register(request, entity_id):
-    audit_register = get_object_or_404(AuditUniverseRegister, entity_id=entity_id)
+# Audit Planning 
+def edit_audit_register(request, audit_id):
+    audit_register = get_object_or_404(AuditUniverse, audit_id=audit_id)
     if request.method == 'POST':
-        form = AuditUniverseRegisterForm(request.POST, instance=audit_register)
+        form = AuditUniverseForm(request.POST, instance=audit_register)
         if form.is_valid():
             form.save()
             messages.success(request, "Audit Register updated successfully!")
@@ -241,35 +147,35 @@ def edit_audit_register(request, entity_id):
             print(form.errors)
             messages.error(request, "Failed to update Audit Register. Please correct the errors.")
     else:
-        form = AuditUniverseRegisterForm(instance=audit_register)
-    return render(request, 'audit_oversight/audit_register.html', {'form': form})
+        form = AuditUniverseForm(instance=audit_register)
+    return render(request, 'macro_planning/audit_register.html', {'form': form})
 
 
 
 # Delete audit_register
-def delete_audit_register(request, entity_id):
-    audit_register = get_object_or_404(AuditUniverseRegister, entity_id=entity_id) 
+def delete_audit_register(request, audit_id):
+    audit_register = get_object_or_404(AuditUniverse, audit_id=audit_id) 
     audit_register.delete()
     messages.success(request, "Audit Register deleted successfully!")
     return redirect('list_audit_register')
 
 ####
 
-def list_risk_mapping(request):
+def list_risk_assessment(request):
     # Get all records by default
-    risk_mappings = RiskMapping.objects.all()
-    form = RiskMappingForm()
+    risk_assessments = RiskAssessment.objects.all()
+    form = RiskAssessmentForm()
 
     
-    # Default sorting by process_id
-    sort_by = request.GET.get('sort_by', 'process_id')
+    # Default sorting by risk_id
+    sort_by = request.GET.get('sort_by', 'risk_id')
     order = request.GET.get('order', 'asc')
 
     # Toggle order on each click
     if order == 'asc':
-        risk_mappings = risk_mappings.order_by(sort_by)
+        risk_assessments = risk_assessments.order_by(sort_by)
     else:
-        risk_mappings = risk_mappings.order_by(F(sort_by).desc())
+        risk_assessments = risk_assessments.order_by(F(sort_by).desc())
 
     # Pagination setup
     rows_per_page = request.GET.get('rows_per_page', 10)
@@ -278,90 +184,89 @@ def list_risk_mapping(request):
     except ValueError:
         rows_per_page = 10
 
-    paginator = Paginator(risk_mappings, rows_per_page)
+    paginator = Paginator(risk_assessments, rows_per_page)
     page = request.GET.get('page', 1)
 
     try:
-        paginated_risk_mappings = paginator.page(page)
+        paginated_risk_assessments = paginator.page(page)
     except PageNotAnInteger:
-        paginated_risk_mappings = paginator.page(1)
+        paginated_risk_assessments = paginator.page(1)
     except EmptyPage:
-        paginated_risk_mappings = paginator.page(paginator.num_pages)
+        paginated_risk_assessments = paginator.page(paginator.num_pages)
 
     
     # Pass necessary context to the template
     context = {
-        'page_title': "Risk Mapping",
-        'risk_mappings':risk_mappings, 
+        'page_title': "Risk Assessment",
+        'risk_assessments':risk_assessments, 
         'current_sort': sort_by,
         'current_order': order,       
-        'paginated_risk_mappings': paginated_risk_mappings,
+        'paginated_risk_assessments': paginated_risk_assessments,
         'rows_per_page': rows_per_page,
         'form': form,
-        'risk_severity_choices': RiskMapping._meta.get_field('risk_severity').choices,
-        'update_frequency_choices': RiskMapping._meta.get_field('update_frequency').choices,
-        'owners': Staff.objects.all(),
+        'risk_severity_choices': RiskAssessment._meta.get_field('risk_severity').choices,
+        'risk_type_choices': RiskAssessment._meta.get_field('risk_type').choices,
+        'assessed_bys': Staff.objects.all(),
     }
-    return render(request, 'iam/risk_mapping.html', context)
+    return render(request, 'macro_planning/risk_assessment.html', context)
 
 
 # Add Oversigh 
 
-def add_risk_mapping(request):
-    form = RiskMappingForm(request.POST or None)
+def add_risk_assessment(request):
+    form = RiskAssessmentForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "Risk Mapping  added successfully!")
-            return redirect('list_risk_mapping')
+            messages.success(request, "Risk Assessment  added successfully!")
+            return redirect('list_risk_assessment')
         else:
             print(form.errors)
-            messages.error(request, "Failed to add Risk Mapping. Please correct the errors.")
-    return redirect('list_risk_mapping')
+            messages.error(request, "Failed to add Risk Assessment. Please correct the errors.")
+    return redirect('list_risk_assessment')
 
-# Risk Mapping Dashboard
-def edit_risk_mapping(request, process_id):
-    risk_mapping = get_object_or_404(RiskMapping, process_id=process_id)
+# Risk Assessment 
+def edit_risk_assessment(request, risk_id):
+    risk_assessment = get_object_or_404(RiskAssessment, risk_id=risk_id)
     if request.method == 'POST':
-        form = RiskMappingForm(request.POST, instance=risk_mapping)
+        form = RiskAssessmentForm(request.POST, instance=risk_assessment)
         if form.is_valid():
             form.save()
-            messages.success(request, "Risk Mapping updated successfully!")
-            return redirect('list_risk_mapping')
+            messages.success(request, "Risk Assessment updated successfully!")
+            return redirect('list_risk_assessment')
         else:
             print(form.errors)
-            messages.error(request, "Failed to update Risk Mapping. Please correct the errors.")
+            messages.error(request, "Failed to update Risk Assessment. Please correct the errors.")
     else:
-        form = RiskMappingForm(instance=risk_mapping)
-    return render(request, 'iam/risk_mapping.html', {'form': form})
+        form = RiskAssessmentForm(instance=risk_assessment)
+    return render(request, 'macro_planning/risk_assessment.html', {'form': form})
 
 
 
-# Delete risk_mapping
-def delete_risk_mapping(request, process_id):
-    risk_mapping = get_object_or_404(RiskMapping, process_id=process_id) 
-    risk_mapping.delete()
-    messages.success(request, "Risk Mapping deleted successfully!")
-    return redirect('list_risk_mapping')
+# Delete risk_assessment
+def delete_risk_assessment(request, risk_id):
+    risk_assessment = get_object_or_404(RiskAssessment, risk_id=risk_id) 
+    risk_assessment.delete()
+    messages.success(request, "Risk Assessment deleted successfully!")
+    return redirect('list_risk_assessment')
 
+####
 
-######
-######
-def list_engagement_planning(request):
+def list_audit_plan(request):
     # Get all records by default
-    engagement_plannings = EngagementPlanning.objects.all()
-    form = EngagementPlanningForm()
+    audit_plans = AuditPlan.objects.all()
+    form = AuditPlanForm()
 
     
-    # Default sorting by engagement_id
-    sort_by = request.GET.get('sort_by', 'engagement_id')
+    # Default sorting by plan_id
+    sort_by = request.GET.get('sort_by', 'plan_id')
     order = request.GET.get('order', 'asc')
 
     # Toggle order on each click
     if order == 'asc':
-        engagement_plannings = engagement_plannings.order_by(sort_by)
+        audit_plans = audit_plans.order_by(sort_by)
     else:
-        engagement_plannings = engagement_plannings.order_by(F(sort_by).desc())
+        audit_plans = audit_plans.order_by(F(sort_by).desc())
 
     # Pagination setup
     rows_per_page = request.GET.get('rows_per_page', 10)
@@ -370,87 +275,180 @@ def list_engagement_planning(request):
     except ValueError:
         rows_per_page = 10
 
-    paginator = Paginator(engagement_plannings, rows_per_page)
+    paginator = Paginator(audit_plans, rows_per_page)
     page = request.GET.get('page', 1)
 
     try:
-        paginated_engagement_plannings = paginator.page(page)
+        paginated_audit_plans = paginator.page(page)
     except PageNotAnInteger:
-        paginated_engagement_plannings = paginator.page(1)
+        paginated_audit_plans = paginator.page(1)
     except EmptyPage:
-        paginated_engagement_plannings = paginator.page(paginator.num_pages)
+        paginated_audit_plans = paginator.page(paginator.num_pages)
 
     
     # Pass necessary context to the template
     context = {
-        'page_title': "Engagement Planning",
-        'engagement_plannings':engagement_plannings, 
+        'page_title': "Audit Plan",
+        'audit_plans':audit_plans, 
         'current_sort': sort_by,
         'current_order': order,       
-        'paginated_engagement_plannings': paginated_engagement_plannings,
+        'paginated_audit_plans': paginated_audit_plans,
         'rows_per_page': rows_per_page,
         'form': form,
-        'approval_status_choices': EngagementPlanning._meta.get_field('approval_status').choices,
+        'priority_level_choices': AuditPlan._meta.get_field('priority_level').choices,
+        'audit_frequency_choices': AuditPlan._meta.get_field('audit_frequency').choices,
+        'assigned_teams': Staff.objects.all(),
+    }
+    return render(request, 'macro_planning/audit_plan.html', context)
+
+
+# Add Oversigh 
+
+def add_audit_plan(request):
+    form = AuditPlanForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Audit Plan  added successfully!")
+            return redirect('list_audit_plan')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Audit Plan. Please correct the errors.")
+    return redirect('list_audit_plan')
+
+# Audit Plan 
+def edit_audit_plan(request, plan_id):
+    audit_plan = get_object_or_404(AuditPlan, plan_id=plan_id)
+    if request.method == 'POST':
+        form = AuditPlanForm(request.POST, instance=audit_plan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Audit Plan updated successfully!")
+            return redirect('list_audit_plan')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Audit Plan. Please correct the errors.")
+    else:
+        form = AuditPlanForm(instance=audit_plan)
+    return render(request, 'macro_planning/audit_plan.html', {'form': form})
+
+
+
+# Delete audit_plan
+def delete_audit_plan(request, plan_id):
+    audit_plan = get_object_or_404(AuditPlan, plan_id=plan_id) 
+    audit_plan.delete()
+    messages.success(request, "Audit Plan deleted successfully!")
+    return redirect('list_audit_plan')
+
+
+
+### Micro Planning ###
+
+######
+def list_audit_assessment(request):
+    # Get all records by default
+    audit_assessments = AuditAssessment.objects.all()
+    form = AuditAssessmentForm()
+
+    
+    # Default sorting by assessment_id
+    sort_by = request.GET.get('sort_by', 'assessment_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        audit_assessments = audit_assessments.order_by(sort_by)
+    else:
+        audit_assessments = audit_assessments.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(audit_assessments, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_audit_assessments = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_audit_assessments = paginator.page(1)
+    except EmptyPage:
+        paginated_audit_assessments = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Audit Assessment",
+        'audit_assessments':audit_assessments, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_audit_assessments': paginated_audit_assessments,
+        'rows_per_page': rows_per_page,
+        'form': form,
         'auditors': Staff.objects.all(),
     }
-    return render(request, 'audit_engagement/engagement_planning.html', context)
+    return render(request, 'micro_planning/audit_assessment.html', context)
 
 
 # Add Oversigh 
 
-def add_engagement_planning(request):
-    form = EngagementPlanningForm(request.POST or None)
+def add_audit_assessment(request):
+    form = AuditAssessmentForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Plan  added successfully!")
-            return redirect('list_engagement_planning')
+            messages.success(request, "Audit Assessment  added successfully!")
+            return redirect('list_audit_assessment')
         else:
             print(form.errors)
-            messages.error(request, "Failed to add Audit Plan. Please correct the errors.")
-    return redirect('list_engagement_planning')
+            messages.error(request, "Failed to add Audit Assessment. Please correct the errors.")
+    return redirect('list_audit_assessment')
 
-# Engagement Planning Dashboard
-def edit_engagement_planning(request, engagement_id):
-    engagement_planning = get_object_or_404(EngagementPlanning, engagement_id=engagement_id)
+# Audit Assessment 
+def edit_audit_assessment(request, assessment_id):
+    audit_assessment = get_object_or_404(AuditAssessment, assessment_id=assessment_id)
     if request.method == 'POST':
-        form = EngagementPlanningForm(request.POST, instance=engagement_planning)
+        form = AuditAssessmentForm(request.POST, instance=audit_assessment)
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Plan updated successfully!")
-            return redirect('list_engagement_planning')
+            messages.success(request, "Audit Assessment updated successfully!")
+            return redirect('list_audit_assessment')
         else:
             print(form.errors)
-            messages.error(request, "Failed to update Audit Plan. Please correct the errors.")
+            messages.error(request, "Failed to update Audit Assessment. Please correct the errors.")
     else:
-        form = EngagementPlanningForm(instance=engagement_planning)
-    return render(request, 'audit_engagement/engagement_planning.html', {'form': form})
+        form = AuditAssessmentForm(instance=audit_assessment)
+    return render(request, 'micro_planning/audit_assessment.html', {'form': form})
 
 
 
-# Delete engagement_planning
-def delete_engagement_planning(request, engagement_id):
-    engagement_planning = get_object_or_404(EngagementPlanning, engagement_id=engagement_id) 
-    engagement_planning.delete()
-    messages.success(request, "Audit Plan deleted successfully!")
-    return redirect('list_engagement_planning')
+# Delete audit_assessment
+def delete_audit_assessment(request, assessment_id):
+    audit_assessment = get_object_or_404(AuditAssessment, assessment_id=assessment_id) 
+    audit_assessment.delete()
+    messages.success(request, "Audit Assessment deleted successfully!")
+    return redirect('list_audit_assessment')
 
 ######
-def list_audit_resource(request):
+def list_audit_notification(request):
     # Get all records by default
-    audit_resources = AuditResourcePlanner.objects.all()
-    form = AuditResourcePlannerForm()
+    audit_notifications = AuditNotification.objects.all()
+    form = AuditNotificationForm()
 
     
-    # Default sorting by resource_id
-    sort_by = request.GET.get('sort_by', 'resource_id')
+    # Default sorting by notification_id
+    sort_by = request.GET.get('sort_by', 'notification_id')
     order = request.GET.get('order', 'asc')
 
     # Toggle order on each click
     if order == 'asc':
-        audit_resources = audit_resources.order_by(sort_by)
+        audit_notifications = audit_notifications.order_by(sort_by)
     else:
-        audit_resources = audit_resources.order_by(F(sort_by).desc())
+        audit_notifications = audit_notifications.order_by(F(sort_by).desc())
 
     # Pagination setup
     rows_per_page = request.GET.get('rows_per_page', 10)
@@ -459,87 +457,86 @@ def list_audit_resource(request):
     except ValueError:
         rows_per_page = 10
 
-    paginator = Paginator(audit_resources, rows_per_page)
+    paginator = Paginator(audit_notifications, rows_per_page)
     page = request.GET.get('page', 1)
 
     try:
-        paginated_audit_resources = paginator.page(page)
+        paginated_audit_notifications = paginator.page(page)
     except PageNotAnInteger:
-        paginated_audit_resources = paginator.page(1)
+        paginated_audit_notifications = paginator.page(1)
     except EmptyPage:
-        paginated_audit_resources = paginator.page(paginator.num_pages)
+        paginated_audit_notifications = paginator.page(paginator.num_pages)
 
     
     # Pass necessary context to the template
     context = {
-        'page_title': "Audit Resource",
-        'audit_resources':audit_resources, 
+        'page_title': "Audit Notification",
+        'audit_notifications':audit_notifications, 
         'current_sort': sort_by,
         'current_order': order,       
-        'paginated_audit_resources': paginated_audit_resources,
+        'paginated_audit_notifications': paginated_audit_notifications,
         'rows_per_page': rows_per_page,
         'form': form,
-        'availability_status_choices': AuditResourcePlanner._meta.get_field('availability_status').choices,
-        'engagements': EngagementPlanning.objects.all(),
+        'engagements': Staff.objects.all(),
     }
-    return render(request, 'audit_engagement/audit_resource.html', context)
+    return render(request, 'micro_planning/audit_notification.html', context)
 
 
 # Add Oversigh 
 
-def add_audit_resource(request):
-    form = AuditResourcePlannerForm(request.POST or None)
+def add_audit_notification(request):
+    form = AuditNotificationForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Plan  added successfully!")
-            return redirect('list_audit_resource')
+            messages.success(request, "Audit Notification  added successfully!")
+            return redirect('list_audit_notification')
         else:
             print(form.errors)
-            messages.error(request, "Failed to add Audit Plan. Please correct the errors.")
-    return redirect('list_audit_resource')
+            messages.error(request, "Failed to add Audit Notification. Please correct the errors.")
+    return redirect('list_audit_notification')
 
-# Audit Resource Dashboard
-def edit_audit_resource(request, resource_id):
-    audit_resource = get_object_or_404(AuditResourcePlanner, resource_id=resource_id)
+# Audit Notification 
+def edit_audit_notification(request, notification_id):
+    audit_notification = get_object_or_404(AuditNotification, notification_id=notification_id)
     if request.method == 'POST':
-        form = AuditResourcePlannerForm(request.POST, instance=audit_resource)
+        form = AuditNotificationForm(request.POST, instance=audit_notification)
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Plan updated successfully!")
-            return redirect('list_audit_resource')
+            messages.success(request, "Audit Notification updated successfully!")
+            return redirect('list_audit_notification')
         else:
             print(form.errors)
-            messages.error(request, "Failed to update Audit Plan. Please correct the errors.")
+            messages.error(request, "Failed to update Audit Notification. Please correct the errors.")
     else:
-        form = AuditResourcePlannerForm(instance=audit_resource)
-    return render(request, 'audit_engagement/audit_resource.html', {'form': form})
+        form = AuditNotificationForm(instance=audit_notification)
+    return render(request, 'micro_planning/audit_notification.html', {'form': form})
 
 
 
-# Delete audit_resource
-def delete_audit_resource(request, resource_id):
-    audit_resource = get_object_or_404(AuditResourcePlanner, resource_id=resource_id) 
-    audit_resource.delete()
-    messages.success(request, "Audit Plan deleted successfully!")
-    return redirect('list_audit_resource')
+# Delete audit_notification
+def delete_audit_notification(request, notification_id):
+    audit_notification = get_object_or_404(AuditNotification, notification_id=notification_id) 
+    audit_notification.delete()
+    messages.success(request, "Audit Notification deleted successfully!")
+    return redirect('list_audit_notification')
 
 ######
-def list_audit_execution(request):
+def list_entrance_meeting(request):
     # Get all records by default
-    audit_executions = ExecutionLog.objects.all()
-    form = ExecutionLogForm()
+    entrance_meetings = EntranceMeeting.objects.all()
+    form = EntranceMeetingForm()
 
     
-    # Default sorting by execution_id
-    sort_by = request.GET.get('sort_by', 'execution_id')
+    # Default sorting by meeting_id
+    sort_by = request.GET.get('sort_by', 'meeting_id')
     order = request.GET.get('order', 'asc')
 
     # Toggle order on each click
     if order == 'asc':
-        audit_executions = audit_executions.order_by(sort_by)
+        entrance_meetings = entrance_meetings.order_by(sort_by)
     else:
-        audit_executions = audit_executions.order_by(F(sort_by).desc())
+        entrance_meetings = entrance_meetings.order_by(F(sort_by).desc())
 
     # Pagination setup
     rows_per_page = request.GET.get('rows_per_page', 10)
@@ -548,88 +545,87 @@ def list_audit_execution(request):
     except ValueError:
         rows_per_page = 10
 
-    paginator = Paginator(audit_executions, rows_per_page)
+    paginator = Paginator(entrance_meetings, rows_per_page)
     page = request.GET.get('page', 1)
 
     try:
-        paginated_audit_executions = paginator.page(page)
+        paginated_entrance_meetings = paginator.page(page)
     except PageNotAnInteger:
-        paginated_audit_executions = paginator.page(1)
+        paginated_entrance_meetings = paginator.page(1)
     except EmptyPage:
-        paginated_audit_executions = paginator.page(paginator.num_pages)
+        paginated_entrance_meetings = paginator.page(paginator.num_pages)
 
     
     # Pass necessary context to the template
     context = {
-        'page_title': "Audit Execution",
-        'audit_executions':audit_executions, 
+        'page_title': "Entrance Meeting",
+        'entrance_meetings':entrance_meetings, 
         'current_sort': sort_by,
         'current_order': order,       
-        'paginated_audit_executions': paginated_audit_executions,
+        'paginated_entrance_meetings': paginated_entrance_meetings,
         'rows_per_page': rows_per_page,
         'form': form,
-        'status_choices': ExecutionLog._meta.get_field('status').choices,
-        'engagements': EngagementPlanning.objects.all(),
+        'engagements': Staff.objects.all(),
     }
-    return render(request, 'iam/audit_execution.html', context)
+    return render(request, 'micro_planning/entrance_meeting.html', context)
 
 
 # Add Oversigh 
 
-def add_audit_execution(request):
-    form = ExecutionLogForm(request.POST or None)
+def add_entrance_meeting(request):
+    form = EntranceMeetingForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Execution added successfully!")
-            return redirect('list_audit_execution')
+            messages.success(request, "Entrance Meeting added successfully!")
+            return redirect('list_entrance_meeting')
         else:
             print(form.errors)
-            messages.error(request, "Failed to add Audit Execution. Please correct the errors.")
-    return redirect('list_audit_execution')
+            messages.error(request, "Failed to add Entrance Meeting. Please correct the errors.")
+    return redirect('list_entrance_meeting')
 
-# Audit Execution Dashboard
-def edit_audit_execution(request, execution_id):
-    audit_execution = get_object_or_404(ExecutionLog, execution_id=execution_id)
+# Entrance Meeting 
+def edit_entrance_meeting(request, meeting_id):
+    entrance_meeting = get_object_or_404(EntranceMeeting, meeting_id=meeting_id)
     if request.method == 'POST':
-        form = ExecutionLogForm(request.POST, instance=audit_execution)
+        form = EntranceMeetingForm(request.POST, instance=entrance_meeting)
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Execution updated successfully!")
-            return redirect('list_audit_execution')
+            messages.success(request, "Entrance Meeting updated successfully!")
+            return redirect('list_entrance_meeting')
         else:
             print(form.errors)
-            messages.error(request, "Failed to update Audit Execution. Please correct the errors.")
+            messages.error(request, "Failed to update Entrance Meeting. Please correct the errors.")
     else:
-        form = ExecutionLogForm(instance=audit_execution)
-    return render(request, 'iam/audit_execution.html', {'form': form})
+        form = EntranceMeetingForm(instance=entrance_meeting)
+    return render(request, 'micro_planning/entrance_meeting.html', {'form': form})
 
 
 
-# Delete audit_execution
-def delete_audit_execution(request, execution_id):
-    audit_execution = get_object_or_404(ExecutionLog, execution_id=execution_id) 
-    audit_execution.delete()
-    messages.success(request, "Audit Execution deleted successfully!")
-    return redirect('list_audit_execution')
+# Delete entrance_meeting
+def delete_entrance_meeting(request, meeting_id):
+    entrance_meeting = get_object_or_404(EntranceMeeting, meeting_id=meeting_id) 
+    entrance_meeting.delete()
+    messages.success(request, "Entrance Meeting deleted successfully!")
+    return redirect('list_entrance_meeting')
 
 
 ######
-def list_follow_up(request):
+def list_sub_risk_assessment(request):
     # Get all records by default
-    follow_ups = FollowUp.objects.all()
-    form = FollowUpForm()
+    sub_risk_assessments = SubRiskAssessment.objects.all()
+    form = SubRiskAssessmentForm()
 
     
-    # Default sorting by follow_up_id
-    sort_by = request.GET.get('sort_by', 'follow_up_id')
+    # Default sorting by assessment_id
+    sort_by = request.GET.get('sort_by', 'assessment_id')
     order = request.GET.get('order', 'asc')
 
     # Toggle order on each click
     if order == 'asc':
-        follow_ups = follow_ups.order_by(sort_by)
+        sub_risk_assessments = sub_risk_assessments.order_by(sort_by)
     else:
-        follow_ups = follow_ups.order_by(F(sort_by).desc())
+        sub_risk_assessments = sub_risk_assessments.order_by(F(sort_by).desc())
 
     # Pagination setup
     rows_per_page = request.GET.get('rows_per_page', 10)
@@ -638,77 +634,521 @@ def list_follow_up(request):
     except ValueError:
         rows_per_page = 10
 
-    paginator = Paginator(follow_ups, rows_per_page)
+    paginator = Paginator(sub_risk_assessments, rows_per_page)
     page = request.GET.get('page', 1)
 
     try:
-        paginated_follow_ups = paginator.page(page)
+        paginated_sub_risk_assessments = paginator.page(page)
     except PageNotAnInteger:
-        paginated_follow_ups = paginator.page(1)
+        paginated_sub_risk_assessments = paginator.page(1)
     except EmptyPage:
-        paginated_follow_ups = paginator.page(paginator.num_pages)
+        paginated_sub_risk_assessments = paginator.page(paginator.num_pages)
 
     
     # Pass necessary context to the template
     context = {
-        'page_title': "FollowUp",
-        'follow_ups':follow_ups, 
+        'page_title': "Sub-Process Risk Assessment",
+        'sub_risk_assessments':sub_risk_assessments, 
         'current_sort': sort_by,
         'current_order': order,       
-        'paginated_follow_ups': paginated_follow_ups,
+        'paginated_sub_risk_assessments': paginated_sub_risk_assessments,
         'rows_per_page': rows_per_page,
         'form': form,
-        'completion_status_choices': FollowUp._meta.get_field('completion_status').choices,
-        'assigned_to_choices': Staff.objects.all(),
-        'audit_choices': AuditUniverseRegister.objects.all(),
+        'risk_severity_choices': SubRiskAssessment._meta.get_field('risk_severity').choices,
+        'risk_category_choices': SubRiskAssessment._meta.get_field('risk_category').choices,
+        'assessed_bys': Staff.objects.all(),
     }
-    return render(request, 'iam/follow_up.html', context)
+    return render(request, 'micro_planning/sub_risk_assessment.html', context)
 
 
 # Add Oversigh 
 
-def add_follow_up(request):
-    form = FollowUpForm(request.POST or None)
+def add_sub_risk_assessment(request):
+    form = SubRiskAssessmentForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "FollowUp added successfully!")
-            return redirect('list_follow_up')
+            messages.success(request, "SubRisk Assessment added successfully!")
+            return redirect('list_sub_risk_assessment')
         else:
             print(form.errors)
-            messages.error(request, "Failed to add FollowUp. Please correct the errors.")
-    return redirect('list_follow_up')
+            messages.error(request, "Failed to add SubRiskAssessment. Please correct the errors.")
+    return redirect('list_sub_risk_assessment')
 
-# FollowUp Dashboard
-def edit_follow_up(request, follow_up_id):
-    follow_up = get_object_or_404(FollowUp, follow_up_id=follow_up_id)
+# SubRiskAssessment 
+def edit_sub_risk_assessment(request, assessment_id):
+    sub_risk_assessment = get_object_or_404(SubRiskAssessment, assessment_id=assessment_id)
     if request.method == 'POST':
-        form = FollowUpForm(request.POST, instance=follow_up)
+        form = SubRiskAssessmentForm(request.POST, instance=sub_risk_assessment)
         if form.is_valid():
             form.save()
-            messages.success(request, "FollowUp updated successfully!")
-            return redirect('list_follow_up')
+            messages.success(request, "SubRisk Assessment updated successfully!")
+            return redirect('list_sub_risk_assessment')
         else:
             print(form.errors)
-            messages.error(request, "Failed to update FollowUp. Please correct the errors.")
+            messages.error(request, "Failed to update SubRisk Assessment. Please correct the errors.")
     else:
-        form = FollowUpForm(instance=follow_up)
-    return render(request, 'iam/follow_up.html', {'form': form})
+        form = SubRiskAssessmentForm(instance=sub_risk_assessment)
+    return render(request, 'micro_planning/sub_risk_assessment.html', {'form': form})
 
 
 
-# Delete follow_up
-def delete_follow_up(request, follow_up_id):
-    follow_up = get_object_or_404(FollowUp, follow_up_id=follow_up_id) 
-    follow_up.delete()
-    messages.success(request, "FollowUp deleted successfully!")
-    return redirect('list_follow_up')
+# Delete sub_risk_assessment
+def delete_sub_risk_assessment(request, assessment_id):
+    sub_risk_assessment = get_object_or_404(SubRiskAssessment, assessment_id=assessment_id) 
+    sub_risk_assessment.delete()
+    messages.success(request, "SubRisk Assessment deleted successfully!")
+    return redirect('list_sub_risk_assessment')
 
 ######
-def list_audit_report(request):
+def list_audit_program(request):
     # Get all records by default
-    audit_reports = AuditReport.objects.all()
-    form = AuditReportForm()
+    audit_programs = AuditProgram.objects.all()
+    form = AuditProgramForm()
+
+    
+    # Default sorting by program_id
+    sort_by = request.GET.get('sort_by', 'program_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        audit_programs = audit_programs.order_by(sort_by)
+    else:
+        audit_programs = audit_programs.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(audit_programs, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_audit_programs = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_audit_programs = paginator.page(1)
+    except EmptyPage:
+        paginated_audit_programs = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Audit Program",
+        'audit_programs':audit_programs, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_audit_programs': paginated_audit_programs,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'owners': Staff.objects.all(),
+        'sub_process_choices': SubRiskAssessment.objects.all(),
+    }
+    return render(request, 'micro_planning/audit_program.html', context)
+
+
+# Add Oversigh 
+
+def add_audit_program(request):
+    form = AuditProgramForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Audit Program added successfully!")
+            return redirect('list_audit_program')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Audit Program. Please correct the errors.")
+    return redirect('list_audit_program')
+
+# Audit Program 
+def edit_audit_program(request, program_id):
+    audit_program = get_object_or_404(AuditProgram, program_id=program_id)
+    if request.method == 'POST':
+        form = AuditProgramForm(request.POST, instance=audit_program)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Audit Program updated successfully!")
+            return redirect('list_audit_program')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Audit Program. Please correct the errors.")
+    else:
+        form = AuditProgramForm(instance=audit_program)
+    return render(request, 'micro_planning/audit_program.html', {'form': form})
+
+
+
+# Delete audit_program
+def delete_audit_program(request, program_id):
+    audit_program = get_object_or_404(AuditProgram, program_id=program_id) 
+    audit_program.delete()
+    messages.success(request, "Audit Program deleted successfully!")
+    return redirect('list_audit_program')
+
+######
+def list_working_paper(request):
+    # Get all records by default
+    working_papers = WorkingPaper.objects.all()
+    form = WorkingPaperForm()
+
+    
+    # Default sorting by working_paper_id
+    sort_by = request.GET.get('sort_by', 'working_paper_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        working_papers = working_papers.order_by(sort_by)
+    else:
+        working_papers = working_papers.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(working_papers, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_working_papers = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_working_papers = paginator.page(1)
+    except EmptyPage:
+        paginated_working_papers = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Working Paper",
+        'working_papers':working_papers, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_working_papers': paginated_working_papers,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'performed_by_choices': Staff.objects.all(),
+    }
+    return render(request, 'fieldwork/working_paper.html', context)
+
+
+# Add Oversight 
+
+def add_working_paper(request):
+    form = WorkingPaperForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Working Paper added successfully!")
+            return redirect('list_working_paper')
+        
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Working Paper. Please correct the errors.")
+    return redirect('list_working_paper')
+
+# WorkingPaper 
+def edit_working_paper(request, working_paper_id):
+    working_paper = get_object_or_404(WorkingPaper, working_paper_id=working_paper_id)
+    if request.method == 'POST':
+        form = WorkingPaperForm(request.POST, instance=working_paper)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Working Paper updated successfully!")
+            return redirect('list_working_paper')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Working Paper. Please correct the errors.")
+    else:
+        form = WorkingPaperForm(instance=working_paper)
+    return render(request, 'fieldwork/working_paper.html', {'form': form})
+
+
+
+# Delete working_paper
+def delete_working_paper(request, working_paper_id):
+    working_paper = get_object_or_404(WorkingPaper, working_paper_id=working_paper_id) 
+    working_paper.delete()
+    messages.success(request, "WorkingPaper deleted successfully!")
+    return redirect('list_working_paper')
+
+######
+def list_observation_sheet(request):
+    # Get all records by default
+    observation_sheets = ObservationSheet.objects.all()
+    form = ObservationSheetForm()
+
+    
+    # Default sorting by observation_id
+    sort_by = request.GET.get('sort_by', 'observation_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        observation_sheets = observation_sheets.order_by(sort_by)
+    else:
+        observation_sheets = observation_sheets.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(observation_sheets, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_observation_sheets = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_observation_sheets = paginator.page(1)
+    except EmptyPage:
+        paginated_observation_sheets = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Observation Sheet",
+        'observation_sheets':observation_sheets, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_observation_sheets': paginated_observation_sheets,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'assigned_tos': Staff.objects.all(),
+    }
+    return render(request, 'fieldwork/observation_sheet.html', context)
+
+
+# Add Oversigh 
+
+def add_observation_sheet(request):
+    form = ObservationSheetForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Observation Sheet added successfully!")
+            return redirect('list_observation_sheet')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Observation Sheet. Please correct the errors.")
+    return redirect('list_observation_sheet')
+
+# ObservationSheet 
+def edit_observation_sheet(request, observation_id):
+    observation_sheet = get_object_or_404(ObservationSheet, observation_id=observation_id)
+    if request.method == 'POST':
+        form = ObservationSheetForm(request.POST, instance=observation_sheet)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Observation Sheet updated successfully!")
+            return redirect('list_observation_sheet')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Observation Sheet. Please correct the errors.")
+    else:
+        form = ObservationSheetForm(instance=observation_sheet)
+    return render(request, 'fieldwork/observation_sheet.html', {'form': form})
+
+
+
+# Delete observation_sheet
+def delete_observation_sheet(request, observation_id):
+    observation_sheet = get_object_or_404(ObservationSheet, observation_id=observation_id) 
+    observation_sheet.delete()
+    messages.success(request, "Observation Sheet deleted successfully!")
+    return redirect('list_observation_sheet')
+
+
+######
+def list_other_notes(request):
+    # Get all records by default
+    other_notess = OtherNotes.objects.all()
+    form = OtherNotesForm()
+
+    
+    # Default sorting by note_id
+    sort_by = request.GET.get('sort_by', 'note_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        other_notess = other_notess.order_by(sort_by)
+    else:
+        other_notess = other_notess.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(other_notess, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_other_notess = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_other_notess = paginator.page(1)
+    except EmptyPage:
+        paginated_other_notess = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Other Notes",
+        'other_notess':other_notess, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_other_notess': paginated_other_notess,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'added_by_choices': Staff.objects.all(),
+    }
+    return render(request, 'fieldwork/other_notes.html', context)
+
+
+# Add Oversigh 
+
+def add_other_notes(request):
+    form = OtherNotesForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Other Notes added successfully!")
+            return redirect('list_other_notes')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Other Notes. Please correct the errors.")
+    return redirect('list_other_notes')
+
+# OtherNotes 
+def edit_other_notes(request, note_id):
+    other_notes = get_object_or_404(OtherNotes, note_id=note_id)
+    if request.method == 'POST':
+        form = OtherNotesForm(request.POST, instance=other_notes)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Other Notes updated successfully!")
+            return redirect('list_other_notes')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Other Notes. Please correct the errors.")
+    else:
+        form = OtherNotesForm(instance=other_notes)
+    return render(request, 'fieldwork/other_notes.html', {'form': form})
+
+
+
+# Delete other_notes
+def delete_other_notes(request, note_id):
+    other_notes = get_object_or_404(OtherNotes, note_id=note_id) 
+    other_notes.delete()
+    messages.success(request, "Other Notes deleted successfully!")
+    return redirect('list_other_notes')
+
+######
+def list_exit_meeting(request):
+    # Get all records by default
+    exit_meetings = ExitMeeting.objects.all()
+    form = ExitMeetingForm()
+
+    
+    # Default sorting by meeting_id
+    sort_by = request.GET.get('sort_by', 'meeting_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        exit_meetings = exit_meetings.order_by(sort_by)
+    else:
+        exit_meetings = exit_meetings.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(exit_meetings, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_exit_meetings = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_exit_meetings = paginator.page(1)
+    except EmptyPage:
+        paginated_exit_meetings = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Exit Meeting",
+        'exit_meetings':exit_meetings, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_exit_meetings': paginated_exit_meetings,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'engagements': Staff.objects.all(),
+    }
+    return render(request, 'audit_reporting/exit_meeting.html', context)
+
+
+# Add Oversigh 
+
+def add_exit_meeting(request):
+    form = ExitMeetingForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Exit Meeting added successfully!")
+            return redirect('list_exit_meeting')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Exit Meeting. Please correct the errors.")
+    return redirect('list_exit_meeting')
+
+# Exit Meeting 
+def edit_exit_meeting(request, meeting_id):
+    exit_meeting = get_object_or_404(ExitMeeting, meeting_id=meeting_id)
+    if request.method == 'POST':
+        form = ExitMeetingForm(request.POST, instance=exit_meeting)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Exit Meeting updated successfully!")
+            return redirect('list_exit_meeting')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Exit Meeting. Please correct the errors.")
+    else:
+        form = ExitMeetingForm(instance=exit_meeting)
+    return render(request, 'audit_reporting/exit_meeting.html', {'form': form})
+
+
+
+# Delete exit_meeting
+def delete_exit_meeting(request, meeting_id):
+    exit_meeting = get_object_or_404(ExitMeeting, meeting_id=meeting_id) 
+    exit_meeting.delete()
+    messages.success(request, "Exit Meeting deleted successfully!")
+    return redirect('list_exit_meeting')
+
+
+####
+def list_draft_report(request):
+    # Get all records by default
+    draft_reports = DraftReport.objects.all()
+    form = DraftReportForm()
 
     
     # Default sorting by report_id
@@ -717,9 +1157,9 @@ def list_audit_report(request):
 
     # Toggle order on each click
     if order == 'asc':
-        audit_reports = audit_reports.order_by(sort_by)
+        draft_reports = draft_reports.order_by(sort_by)
     else:
-        audit_reports = audit_reports.order_by(F(sort_by).desc())
+        draft_reports = draft_reports.order_by(F(sort_by).desc())
 
     # Pagination setup
     rows_per_page = request.GET.get('rows_per_page', 10)
@@ -728,429 +1168,66 @@ def list_audit_report(request):
     except ValueError:
         rows_per_page = 10
 
-    paginator = Paginator(audit_reports, rows_per_page)
+    paginator = Paginator(draft_reports, rows_per_page)
     page = request.GET.get('page', 1)
 
     try:
-        paginated_audit_reports = paginator.page(page)
+        paginated_draft_reports = paginator.page(page)
     except PageNotAnInteger:
-        paginated_audit_reports = paginator.page(1)
+        paginated_draft_reports = paginator.page(1)
     except EmptyPage:
-        paginated_audit_reports = paginator.page(paginator.num_pages)
+        paginated_draft_reports = paginator.page(paginator.num_pages)
 
     
     # Pass necessary context to the template
     context = {
-        'page_title': "Audit Report",
-        'audit_reports':audit_reports, 
+        'page_title': "Draft Report",
+        'draft_reports':draft_reports, 
         'current_sort': sort_by,
         'current_order': order,       
-        'paginated_audit_reports': paginated_audit_reports,
+        'paginated_draft_reports': paginated_draft_reports,
         'rows_per_page': rows_per_page,
         'form': form,
-        'created_by_choices': Staff.objects.all(),
-        'audit_choices': AuditUniverseRegister.objects.all(),
+        'drafted_by_choices': Staff.objects.all(),
     }
-    return render(request, 'audit_reporting/audit_report.html', context)
+    return render(request, 'audit_reporting/draft_report.html', context)
 
 
 # Add Oversigh 
 
-def add_audit_report(request):
-    form = AuditReportForm(request.POST or None)
+def add_draft_report(request):
+    form = DraftReportForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Report added successfully!")
-            return redirect('list_audit_report')
+            messages.success(request, "Draft Report added successfully!")
+            return redirect('list_draft_report')
         else:
             print(form.errors)
-            messages.error(request, "Failed to add Audit Report. Please correct the errors.")
-    return redirect('list_audit_report')
+            messages.error(request, "Failed to add Draft Report. Please correct the errors.")
+    return redirect('list_draft_report')
 
-# AuditReport Dashboard
-def edit_audit_report(request, report_id):
-    audit_report = get_object_or_404(AuditReport, report_id=report_id)
+# DraftReport 
+def edit_draft_report(request, report_id):
+    draft_report = get_object_or_404(DraftReport, report_id=report_id)
     if request.method == 'POST':
-        form = AuditReportForm(request.POST, instance=audit_report)
+        form = DraftReportForm(request.POST, instance=draft_report)
         if form.is_valid():
             form.save()
-            messages.success(request, "Audit Report updated successfully!")
-            return redirect('list_audit_report')
+            messages.success(request, "Draft Report updated successfully!")
+            return redirect('list_draft_report')
         else:
             print(form.errors)
-            messages.error(request, "Failed to update Audit Report. Please correct the errors.")
+            messages.error(request, "Failed to update Draft Report. Please correct the errors.")
     else:
-        form = AuditReportForm(instance=audit_report)
-    return render(request, 'audit_reporting/audit_report.html', {'form': form})
+        form = DraftReportForm(instance=draft_report)
+    return render(request, 'audit_reporting/draft_report.html', {'form': form})
 
 
 
-# Delete audit_report
-def delete_audit_report(request, report_id):
-    audit_report = get_object_or_404(AuditReport, report_id=report_id) 
-    audit_report.delete()
-    messages.success(request, "AuditReport deleted successfully!")
-    return redirect('list_audit_report')
-
-######
-def list_risktrends_report(request):
-    # Get all records by default
-    risktrends_reports = RiskTrendsReport.objects.all()
-    form = RiskTrendsReportForm()
-
-    
-    # Default sorting by trend_id
-    sort_by = request.GET.get('sort_by', 'trend_id')
-    order = request.GET.get('order', 'asc')
-
-    # Toggle order on each click
-    if order == 'asc':
-        risktrends_reports = risktrends_reports.order_by(sort_by)
-    else:
-        risktrends_reports = risktrends_reports.order_by(F(sort_by).desc())
-
-    # Pagination setup
-    rows_per_page = request.GET.get('rows_per_page', 10)
-    try:
-        rows_per_page = int(rows_per_page)
-    except ValueError:
-        rows_per_page = 10
-
-    paginator = Paginator(risktrends_reports, rows_per_page)
-    page = request.GET.get('page', 1)
-
-    try:
-        paginated_risktrends_reports = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_risktrends_reports = paginator.page(1)
-    except EmptyPage:
-        paginated_risktrends_reports = paginator.page(paginator.num_pages)
-
-    
-    # Pass necessary context to the template
-    context = {
-        'page_title': "Risk Trends Report",
-        'risktrends_reports':risktrends_reports, 
-        'current_sort': sort_by,
-        'current_order': order,       
-        'paginated_risktrends_reports': paginated_risktrends_reports,
-        'rows_per_page': rows_per_page,
-        'form': form,
-        'owners': Staff.objects.all(),
-        'impact_level_choices': RiskTrendsReport._meta.get_field('impact_level').choices,
-    }
-    return render(request, 'audit_reporting/risktrends_report.html', context)
-
-
-# Add Oversight 
-
-def add_risktrends_report(request):
-    form = RiskTrendsReportForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Risk Trends Report added successfully!")
-            return redirect('list_risktrends_report')
-        
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to add Risk Trends Report. Please correct the errors.")
-    return redirect('list_risktrends_report')
-
-# RiskTrendsReport Dashboard
-def edit_risktrends_report(request, trend_id):
-    risktrends_report = get_object_or_404(RiskTrendsReport, trend_id=trend_id)
-    if request.method == 'POST':
-        form = RiskTrendsReportForm(request.POST, instance=risktrends_report)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Risk Trends Report updated successfully!")
-            return redirect('list_risktrends_report')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to update Risk Trends Report. Please correct the errors.")
-    else:
-        form = RiskTrendsReportForm(instance=risktrends_report)
-    return render(request, 'audit_reporting/risktrends_report.html', {'form': form})
-
-
-
-# Delete risktrends_report
-def delete_risktrends_report(request, trend_id):
-    risktrends_report = get_object_or_404(RiskTrendsReport, trend_id=trend_id) 
-    risktrends_report.delete()
-    messages.success(request, "RiskTrendsReport deleted successfully!")
-    return redirect('list_risktrends_report')
-
-######
-def list_quality_assurance(request):
-    # Get all records by default
-    quality_assurances = QualityAssurance.objects.all()
-    form = QualityAssuranceForm()
-
-    
-    # Default sorting by qa_id
-    sort_by = request.GET.get('sort_by', 'qa_id')
-    order = request.GET.get('order', 'asc')
-
-    # Toggle order on each click
-    if order == 'asc':
-        quality_assurances = quality_assurances.order_by(sort_by)
-    else:
-        quality_assurances = quality_assurances.order_by(F(sort_by).desc())
-
-    # Pagination setup
-    rows_per_page = request.GET.get('rows_per_page', 10)
-    try:
-        rows_per_page = int(rows_per_page)
-    except ValueError:
-        rows_per_page = 10
-
-    paginator = Paginator(quality_assurances, rows_per_page)
-    page = request.GET.get('page', 1)
-
-    try:
-        paginated_quality_assurances = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_quality_assurances = paginator.page(1)
-    except EmptyPage:
-        paginated_quality_assurances = paginator.page(paginator.num_pages)
-
-    
-    # Pass necessary context to the template
-    context = {
-        'page_title': "Quality Assurance",
-        'quality_assurances':quality_assurances, 
-        'current_sort': sort_by,
-        'current_order': order,       
-        'paginated_quality_assurances': paginated_quality_assurances,
-        'rows_per_page': rows_per_page,
-        'form': form,
-        'compliance_status_choices': QualityAssurance._meta.get_field('compliance_status').choices,
-        'implementation_status_choices': QualityAssurance._meta.get_field('implementation_status').choices,
-        'audit_choices': AuditUniverseRegister.objects.all(),
-        'reviewers': Staff.objects.all(),
-    }
-    return render(request, 'iam/quality_assurance.html', context)
-
-
-# Add Oversigh 
-
-def add_quality_assurance(request):
-    form = QualityAssuranceForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Quality Assurance added successfully!")
-            return redirect('list_quality_assurance')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to add Quality Assurance. Please correct the errors.")
-    return redirect('list_quality_assurance')
-
-# QualityAssurance Dashboard
-def edit_quality_assurance(request, qa_id):
-    quality_assurance = get_object_or_404(QualityAssurance, qa_id=qa_id)
-    if request.method == 'POST':
-        form = QualityAssuranceForm(request.POST, instance=quality_assurance)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Quality Assurance updated successfully!")
-            return redirect('list_quality_assurance')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to update Quality Assurance. Please correct the errors.")
-    else:
-        form = QualityAssuranceForm(instance=quality_assurance)
-    return render(request, 'iam/quality_assurance.html', {'form': form})
-
-
-
-# Delete quality_assurance
-def delete_quality_assurance(request, qa_id):
-    quality_assurance = get_object_or_404(QualityAssurance, qa_id=qa_id) 
-    quality_assurance.delete()
-    messages.success(request, "Quality Assurance deleted successfully!")
-    return redirect('list_quality_assurance')
-
-
-######
-def list_fraud_investigation(request):
-    # Get all records by default
-    fraud_investigations = FraudInvestigationLog.objects.all()
-    form = FraudInvestigationLogForm()
-
-    
-    # Default sorting by investigation_id
-    sort_by = request.GET.get('sort_by', 'investigation_id')
-    order = request.GET.get('order', 'asc')
-
-    # Toggle order on each click
-    if order == 'asc':
-        fraud_investigations = fraud_investigations.order_by(sort_by)
-    else:
-        fraud_investigations = fraud_investigations.order_by(F(sort_by).desc())
-
-    # Pagination setup
-    rows_per_page = request.GET.get('rows_per_page', 10)
-    try:
-        rows_per_page = int(rows_per_page)
-    except ValueError:
-        rows_per_page = 10
-
-    paginator = Paginator(fraud_investigations, rows_per_page)
-    page = request.GET.get('page', 1)
-
-    try:
-        paginated_fraud_investigations = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_fraud_investigations = paginator.page(1)
-    except EmptyPage:
-        paginated_fraud_investigations = paginator.page(paginator.num_pages)
-
-    
-    # Pass necessary context to the template
-    context = {
-        'page_title': "Fraud Investigation",
-        'fraud_investigations':fraud_investigations, 
-        'current_sort': sort_by,
-        'current_order': order,       
-        'paginated_fraud_investigations': paginated_fraud_investigations,
-        'rows_per_page': rows_per_page,
-        'form': form,
-        'status_choices': FraudInvestigationLog._meta.get_field('status').choices,
-        'reported_by_choices': Staff.objects.all(),
-    }
-    return render(request, 'iam/fraud_investigation.html', context)
-
-
-# Add Oversigh 
-
-def add_fraud_investigation(request):
-    form = FraudInvestigationLogForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Fraud Investigation added successfully!")
-            return redirect('list_fraud_investigation')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to add Fraud Investigation. Please correct the errors.")
-    return redirect('list_fraud_investigation')
-
-# FraudInvestigationLog Dashboard
-def edit_fraud_investigation(request, investigation_id):
-    fraud_investigation = get_object_or_404(FraudInvestigationLog, investigation_id=investigation_id)
-    if request.method == 'POST':
-        form = FraudInvestigationLogForm(request.POST, instance=fraud_investigation)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Fraud Investigation updated successfully!")
-            return redirect('list_fraud_investigation')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to update Fraud Investigation. Please correct the errors.")
-    else:
-        form = FraudInvestigationLogForm(instance=fraud_investigation)
-    return render(request, 'iam/fraud_investigation.html', {'form': form})
-
-
-
-# Delete fraud_investigation
-def delete_fraud_investigation(request, investigation_id):
-    fraud_investigation = get_object_or_404(FraudInvestigationLog, investigation_id=investigation_id) 
-    fraud_investigation.delete()
-    messages.success(request, "Fraud Investigation deleted successfully!")
-    return redirect('list_fraud_investigation')
-
-######
-def list_compliance_tracker(request):
-    # Get all records by default
-    compliance_trackers = ComplianceTracker.objects.all()
-    form = ComplianceTrackerForm()
-
-    
-    # Default sorting by compliance_id
-    sort_by = request.GET.get('sort_by', 'compliance_id')
-    order = request.GET.get('order', 'asc')
-
-    # Toggle order on each click
-    if order == 'asc':
-        compliance_trackers = compliance_trackers.order_by(sort_by)
-    else:
-        compliance_trackers = compliance_trackers.order_by(F(sort_by).desc())
-
-    # Pagination setup
-    rows_per_page = request.GET.get('rows_per_page', 10)
-    try:
-        rows_per_page = int(rows_per_page)
-    except ValueError:
-        rows_per_page = 10
-
-    paginator = Paginator(compliance_trackers, rows_per_page)
-    page = request.GET.get('page', 1)
-
-    try:
-        paginated_compliance_trackers = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_compliance_trackers = paginator.page(1)
-    except EmptyPage:
-        paginated_compliance_trackers = paginator.page(paginator.num_pages)
-
-    
-    # Pass necessary context to the template
-    context = {
-        'page_title': "Compliance Tracker",
-        'compliance_trackers':compliance_trackers, 
-        'current_sort': sort_by,
-        'current_order': order,       
-        'paginated_compliance_trackers': paginated_compliance_trackers,
-        'rows_per_page': rows_per_page,
-        'form': form,
-        'compliance_rating_choices': ComplianceTracker._meta.get_field('compliance_rating').choices,
-        'compliance_status_choices': ComplianceTracker._meta.get_field('compliance_status').choices,
-        'review_frequency_choices': ComplianceTracker._meta.get_field('review_frequency').choices,
-        'assigned_owner_choices': Staff.objects.all(),
-    }
-    return render(request, 'iam/compliance_tracker.html', context)
-
-
-# Add Oversigh 
-
-def add_compliance_tracker(request):
-    form = ComplianceTrackerForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Compliance Tracker added successfully!")
-            return redirect('list_compliance_tracker')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to add Compliance Tracker. Please correct the errors.")
-    return redirect('list_compliance_tracker')
-
-# ComplianceTracker Dashboard
-def edit_compliance_tracker(request, compliance_id):
-    compliance_tracker = get_object_or_404(ComplianceTracker, compliance_id=compliance_id)
-    if request.method == 'POST':
-        form = ComplianceTrackerForm(request.POST, instance=compliance_tracker)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Compliance Tracker updated successfully!")
-            return redirect('list_compliance_tracker')
-        else:
-            print(form.errors)
-            messages.error(request, "Failed to update Compliance Tracker. Please correct the errors.")
-    else:
-        form = ComplianceTrackerForm(instance=compliance_tracker)
-    return render(request, 'iam/compliance_tracker.html', {'form': form})
-
-
-
-# Delete compliance_tracker
-def delete_compliance_tracker(request, compliance_id):
-    compliance_tracker = get_object_or_404(ComplianceTracker, compliance_id=compliance_id) 
-    compliance_tracker.delete()
-    messages.success(request, "Compliance Tracker deleted successfully!")
-    return redirect('list_compliance_tracker')
+# Delete draft_report
+def delete_draft_report(request, report_id):
+    draft_report = get_object_or_404(DraftReport, report_id=report_id) 
+    draft_report.delete()
+    messages.success(request, "Draft Report deleted successfully!")
+    return redirect('list_draft_report')

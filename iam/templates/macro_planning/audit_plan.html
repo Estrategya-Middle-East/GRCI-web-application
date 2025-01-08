@@ -1,0 +1,408 @@
+{% extends 'iam/iam_base.html' %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Annual Audit Plan{% endblock page_title %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container-fluid mt-4">
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        {% comment %} <div class="mb-3 action_menu">
+            <select id="action-menu" class="form-control w-25 d-inline-block">
+                <option value="">Select Action</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
+        </div> {% endcomment %}
+        <div class="row">
+            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_sort == 'audit_year' %}
+                        SORT BY Audit Year
+                        {% elif current_sort == 'entity_name' %}
+                        SORT BY Summary
+                        {% elif current_sort == 'plan_id' %}
+                        SORT BY ID
+                        {% endif %}
+                    <span>
+                </div>
+            </div>
+        
+            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_order == 'asc' %}
+                        ORDER IS ASC
+                        {% else %}
+                        ORDER IS DES
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="col-12" style="margin-left: 10px">
+                <!-- Search Form -->
+                <form method="get" class="form-inline mb-4">
+                    <div class="row">
+                        
+                        <div class="col-0 ">
+                            <label for="search">Filter:</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                            value="{{ search_query }}" placeholder="Type to filter..." />
+                        </div>
+                        
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                        </div>
+                    </div>  
+                </form>
+            </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>
+                            <a href="?sort_by=plan_id&order={% if current_sort == 'plan_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                #
+                                {% if current_sort == 'plan_id' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=audit_year&order={% if current_sort == 'audit_year' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Audit Year
+                                {% if current_sort == 'audit_year' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Entry Name
+                                {% if current_sort == 'entity_name' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>Audit Frequency</th>
+                        <th>Priority Level</th>
+                        <th>Allocated Resources</th>
+                        <th>Audit Schedule</th>
+                        <th>Assigned Team</th>
+                        <th>Comments</th>
+
+                        
+                        {% comment %} <th>Actions</th> {% endcomment %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for audit_plan in paginated_audit_plans %}
+                    <tr >
+                        <td><input type="radio" name="selected" value="{{ audit_plan.plan_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_audit_plans.start_index|add:-1 }}</td>
+                        <td>{{ audit_plan.audit_year }}</td>
+                        <td>{{ audit_plan.entity_name }}</td>
+                        <td>{{ audit_plan.audit_frequency }}</td>
+                        <td>{{ audit_plan.priority_level }}</td>
+                        <td>{{ audit_plan.allocated_resources }}</td>
+                        <td>{{ audit_plan.audit_schedule }}</td>
+                        <td>{{ audit_plan.assigned_team.id }}</td>
+                        <td>{{ audit_plan.comments }}</td>
+                        
+                        {% comment %} <td>
+                            <!-- View Workflow Icon -->
+                            <a href="{% url 'workflow_view' audit_plan.plan_id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td> {% endcomment %}
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    {% if audit_plan.plan_id %}
+                    <div class="modal fade" id="editModal-{{ audit_plan.plan_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_plan.plan_id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ audit_plan.plan_id }}">Edit</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_audit_plan' audit_plan.plan_id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ audit_plan.plan_id }}" data-toggle="tab" href="#general-{{ audit_plan.plan_id }}" role="tab">General</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ audit_plan.plan_id }}" role="tabpanel">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="id_audit_year-{{ audit_plan.plan_id }}">Audit Year</label>
+                                                        <input type="text" name="audit_year" id="id_audit_year-{{ audit_plan.plan_id }}" class="form-control" value="{{ audit_plan.audit_year }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_entity_name-{{ audit_plan.plan_id }}">Entry Name</label>
+                                                        <textarea name="entity_name" id="id_entity_name-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.entity_name }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_audit_frequency-{{ audit_plan.plan_id }}">Audit Frequency</label>
+                                                        <select name="audit_frequency" id="id_audit_frequency-{{ audit_plan.plan_id }}" class="form-control">
+                                                            {% for value, label in audit_frequency_choices %}
+                                                            <option value="{{ value }}" {% if audit_plan.audit_frequency == value %}selected{% endif %}>
+                                                                {{ label }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_allocated_resources-{{ audit_plan.plan_id }}">Allocated Resources</label>
+                                                        <textarea name="allocated_resources" id="id_allocated_resources-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.allocated_resources }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_priority_level-{{ audit_plan.plan_id }}">Priority Level</label>
+                                                        <select name="priority_level" id="id_priority_level-{{ audit_plan.plan_id }}" class="form-control">
+                                                            {% for value, label in priority_level_choices %}
+                                                            <option value="{{ value }}" {% if audit_plan.priority_level == value %}selected{% endif %}>
+                                                                {{ label }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_audit_schedule-{{ audit_plan.plan_id }}">Audit Schedule</label>
+                                                        <textarea name="audit_schedule" id="id_audit_schedule-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.audit_schedule }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_assigned_team-{{ audit_plan.plan_id }}">Assigned Team</label>
+                                                        {{ form.assigned_team|add_class:"form-control" }}
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row mt-2">
+                                                    
+                                                    <div class="col">
+                                                        <label for="id_comments-{{ audit_plan.plan_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.comments }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <!-- Pagination -->
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+            <form method="get" class="form-inline">
+                <label for="rows-per-page" class="mr-2">Show:</label>
+                <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                    <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if rows_per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+                {% for key, value in request.GET.items %}
+                    {% if key != 'rows_per_page' and key != 'page' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+
+            <div>
+                Showing {{ paginated_audit_plans.start_index }} - {{ paginated_audit_plans.end_index }} of {{ paginated_audit_plans.paginator.count }} Audit Plans
+            </div>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if paginated_audit_plans.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_audit_plans.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">{{ paginated_audit_plans.number }}</span>
+                    </li>
+                    
+                    {% if paginated_audit_plans.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_audit_plans.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </form>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_audit_plan' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
+                        </li>
+                        
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="id_audit_year">Audit Year</label>
+                                    {{ form.audit_year|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_entity_name">Entry Name</label>
+                                    {{ form.entity_name|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_audit_frequency">Audit Frequency</label>
+                                    {{ form.audit_frequency|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_allocated_resources">Allocated Resources</label>
+                                    {{ form.allocated_resources|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_priority_level">Priority Level</label>
+                                    {{ form.priority_level|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_audit_schedule">Audit Schedule</label>
+                                    {{ form.audit_schedule|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_assigned_team">Assigned Team</label>
+                                    {{ form.assigned_team|add_class:"form-control" }}
+                                </div>
+                                
+                            </div>
+                            <div class="row mt-2">
+                                
+                                <div class="col">
+                                    <label for="id_comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionLinks = document.querySelectorAll('.trig'); // Action items in the dropdown
+    
+        // Listen for a click on the action links
+        actionLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default behavior
+                const selectedRadio = document.querySelector('input[name="selected"]:checked');
+    
+                // Check if a Audit Plan is selected
+                if (!selectedRadio) {
+                    alert('Please select a Audit Plan.');
+                    return;
+                }
+    
+                const selectedId = selectedRadio.value; // Get the selected Audit Plan ID
+                const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
+    
+                if (selectedAction === 'delete') {
+                    const deleteUrl = `/iam/macro_planning/audit_plans/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Audit Plan?')) {
+                        // Redirect to the delete URL
+                        window.location.href = deleteUrl;
+                    }
+                } else if (selectedAction === 'edit') {
+                    const editModal = new bootstrap.Modal(document.getElementById(`editModal-${selectedId}`));
+                    editModal.show();
+                }
+            });
+        });
+    });
+    
+
+</script>
+
+
+{% endblock content %}

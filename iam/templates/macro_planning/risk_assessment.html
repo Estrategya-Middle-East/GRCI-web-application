@@ -1,7 +1,7 @@
-{% extends 'iam/iam_base.html' %}
+{% extends "iam/iam_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Audit Report{% endblock page_title %}
+{% block page_title %}Risk Assessment{% endblock page_title %}
 
 {% block content %}
 
@@ -25,11 +25,11 @@
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
-                        {% if current_sort == 'report_title' %}
-                        SORT BY Report Title
-                        {% elif current_sort == 'findings_summary' %}
-                        SORT BY Findings Summary
-                        {% elif current_sort == 'report_id' %}
+                        {% if current_sort == 'entity_name' %}
+                        SORT BY Entity Name
+                        {% elif current_sort == 'risk_type' %}
+                        SORT BY Risk Type
+                        {% elif current_sort == 'risk_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -65,8 +65,6 @@
                         </div>
                     </div>  
                 </form>
-            
-                
             </div>
         </div>
         
@@ -77,22 +75,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=report_id&order={% if current_sort == 'report_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=risk_id&order={% if current_sort == 'risk_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'report_id' %}
-                                    {% if current_order == 'asc' %}
-                                        &#x2191;
-                                    {% else %}
-                                        &#x2193;
-                                    {% endif %}
-                                {% endif %}
-                            </a>
-                        </th>
-                        <th>Audit</th>
-                        <th>
-                            <a href="?sort_by=report_title&order={% if current_sort == 'report_title' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Report Title
-                                {% if current_sort == 'report_title' %}
+                                {% if current_sort == 'risk_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -102,9 +87,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=findings_summary&order={% if current_sort == 'findings_summary' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Findings Summary
-                                {% if current_sort == 'findings_summary' %}
+                            <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Entity Name
+                                {% if current_sort == 'entity_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -113,119 +98,141 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Recommendations</th>
-                        <th>Stakeholder Distribution</th>
-                        <th>Report Date</th>
-                        <th>Created By</th>
-                        <th>Key Metrics</th>
-                        <th>Follow-Up Plan</th>
+                        <th>
+                            <a href="?sort_by=risk_type&order={% if current_sort == 'risk_type' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Risk Type
+                                {% if current_sort == 'risk_type' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>Inherent Risk</th>
+                        <th>Residual Risk</th>
+                        <th>Control Effectiveness</th>
+                        <th>Assessed By</th>
+                        <th>Assessed Date</th>
+                        <th>Risk Severity</th>
+                        <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for audit_report in paginated_audit_reports %}
+                    {% for risk_assessment in paginated_risk_assessments %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ audit_report.report_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_audit_reports.start_index|add:-1 }}</td>
-                        <td>{{ audit_report.audit_id }}</td>
-                        <td>{{ audit_report.report_title }}</td>
-                        <td>{{ audit_report.findings_summary }}</td>
-                        <td>{{ audit_report.recommendations }}</td>
-                        <td>{{ audit_report.stakeholder_distribution }}</td>
-                        <td>{{ audit_report.report_date }}</td>
-                        <td>{{ audit_report.created_by }}</td>
-                        <td>{{ audit_report.key_metrics }}</td>
-                        <td>{{ audit_report.follow_up_plan }}</td>
+                        <td><input type="radio" name="selected" value="{{ risk_assessment.risk_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_risk_assessments.start_index|add:-1 }}</td>
+                        <td>{{ risk_assessment.entity_name }}</td>
+                        <td>{{ risk_assessment.risk_type }}</td>
+                        <td>{{ risk_assessment.inherent_risk }}</td>
+                        <td>{{ risk_assessment.residual_risk }}</td>
+                        <td>{{ risk_assessment.control_effectiveness }}</td>
+                        <td>{{ risk_assessment.assessed_by }}</td>
+                        <td>{{ risk_assessment.assessed_date }}</td>
+                        <td>{{ risk_assessment.risk_severity }}</td>
+                        <td>{{ risk_assessment.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' audit_report.report_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' risk_assessment.risk_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if audit_report.report_id %}
-                    <div class="modal fade" id="editModal-{{ audit_report.report_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_report.report_id }}" aria-hidden="true">
+                    {% if risk_assessment.risk_id %}
+                    <div class="modal fade" id="editModal-{{ risk_assessment.risk_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ risk_assessment.risk_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ audit_report.report_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ risk_assessment.risk_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_audit_report' audit_report.report_id %}">
+                                <form method="POST" action="{% url 'edit_risk_assessment' risk_assessment.risk_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ audit_report.report_id }}" data-toggle="tab" href="#general-{{ audit_report.report_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ risk_assessment.risk_id }}" data-toggle="tab" href="#general-{{ risk_assessment.risk_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ audit_report.report_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ risk_assessment.risk_id }}" role="tabpanel">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_audit_id-{{ audit_report.report_id }}">Audit</label>
-                                                        <select name="audit_id" id="id_audit_id-{{ audit_report.report_id }}" class="form-control">
-                                                            {% for value in audit_choices %}
-                                                                <option value="{{ value.entity_id }}" {% if audit_report.audit_id == value.entity_id %}selected{% endif %}>
-                                                                    {{ value }}
-                                                                </option>
+                                                        <label for="id_entity_name-{{ risk_assessment.risk_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="id_entity_name-{{ risk_assessment.risk_id }}" class="form-control" value="{{ risk_assessment.entity_name }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_risk_type-{{ risk_assessment.risk_id }}">Risk Type</label>
+                                                        <select name="risk_type" id="id_risk_type-{{ risk_assessment.risk_id }}" class="form-control">
+                                                            {% for value, label in risk_type_choices %}
+                                                            <option value="{{ value }}" {% if risk_assessment.risk_type == value %}selected{% endif %}>
+                                                                {{ label }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_inherent_risk-{{ risk_assessment.risk_id }}">Inherent Risks</label>
+                                                        <input type="number" name="inherent_risk" id="id_inherent_risk-{{ risk_assessment.risk_id }}" class="form-control" value="{{ risk_assessment.inherent_risk }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_residual_risk-{{ risk_assessment.risk_id }}">Residual Risks</label>
+                                                        <input type="number" name="residual_risk" id="id_residual_risk-{{ risk_assessment.risk_id }}" class="form-control" value="{{ risk_assessment.residual_risk }}">
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_assessed_date-{{ risk_assessment.risk_id }}">Assessed Date</label>
+                                                        <input type="date" name="assessed_date" id="id_assessed_date-{{ risk_assessment.risk_id }}" class="form-control" value="{{ risk_assessment.assessed_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_assessed_by-{{ risk_assessment.risk_id }}">Assessed By</label>
+                                                        <select name="assessed_by" id="id_assessed_by-{{ risk_assessment.risk_id }}" class="form-control">
+                                                            {% for owner in assessed_bys %}
+                                                            <option value="{{ owner.id }}" {% if risk_assessment.assessed_by == owner.id %}selected{% endif %}>
+                                                                {{ owner }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_risk_severity-{{ risk_assessment.risk_id }}">Risk Severity</label>
+                                                        <select name="risk_severity" id="id_risk_severity-{{ risk_assessment.risk_id }}" class="form-control">
+                                                            {% for value, label in risk_severity_choices %}
+                                                            <option value="{{ value }}" {% if risk_assessment.risk_severity == value %}selected{% endif %}>
+                                                                {{ label }}
+                                                            </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_report_title-{{ audit_report.report_id }}">Report Title</label>
-                                                        <input type="text" name="report_title" id="id_report_title-{{ audit_report.report_id }}" class="form-control" value="{{ audit_report.report_title }}">
+                                                        <label for="id_control_effectiveness-{{ risk_assessment.risk_id }}">Control Effectiveness</label>
+                                                        <textarea name="control_effectiveness" id="id_control_effectiveness-{{ risk_assessment.risk_id }}" class="form-control">{{ risk_assessment.control_effectiveness }}</textarea>
                                                     </div>
                                                 </div>
-                            
-                                                <div class="row mt-3">
+                                                <div class="row mt-2">
+                                                    
                                                     <div class="col">
-                                                        <label for="id_findings_summary-{{ audit_report.report_id }}">Findings Summary</label>
-                                                        <textarea name="findings_summary" id="id_findings_summary-{{ audit_report.report_id }}" class="form-control">{{ audit_report.findings_summary }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_recommendations-{{ audit_report.report_id }}">Recommendations</label>
-                                                        <textarea name="recommendations" id="id_recommendations-{{ audit_report.report_id }}" class="form-control">{{ audit_report.recommendations }}</textarea>
-                                                    </div>
-                                                </div>
-                            
-                                                <div class="row mt-3">
-                                                    <div class="col">
-                                                        <label for="id_stakeholder_distribution-{{ audit_report.report_id }}">Stakeholder Distribution</label>
-                                                        <textarea name="stakeholder_distribution" id="id_stakeholder_distribution-{{ audit_report.report_id }}" class="form-control">{{ audit_report.stakeholder_distribution }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_report_date-{{ audit_report.report_id }}">Report Date</label>
-                                                        <input type="date" name="report_date" id="id_report_date-{{ audit_report.report_id }}" class="form-control" value="{{ audit_report.report_date|date:'Y-m-d' }}">
-                                                    </div>
-                                                </div>
-                            
-                                                <div class="row mt-3">
-                                                    <div class="col">
-                                                        <label for="id_created_by-{{ audit_report.report_id }}">Created By</label>
-                                                        <select name="created_by" id="id_created_by-{{ audit_report.report_id }}" class="form-control">
-                                                            {% for value in created_by_choices %}
-                                                                <option value="{{ value.id }}" {% if audit_report.created_by.id == value.id %}selected{% endif %}>{{ value }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_key_metrics-{{ audit_report.report_id }}">Key Metrics</label>
-                                                        <textarea name="key_metrics" id="id_key_metrics-{{ audit_report.report_id }}" class="form-control">{{ audit_report.key_metrics }}</textarea>
-                                                    </div>
-                                                </div>
-                            
-                                                <div class="row mt-3">
-                                                    <div class="col">
-                                                        <label for="id_follow_up_plan-{{ audit_report.report_id }}">Follow-Up Plan</label>
-                                                        <textarea name="follow_up_plan" id="id_follow_up_plan-{{ audit_report.report_id }}" class="form-control">{{ audit_report.follow_up_plan }}</textarea>
+                                                        <label for="id_comments-{{ risk_assessment.risk_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ risk_assessment.risk_id }}" class="form-control">{{ risk_assessment.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -263,26 +270,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_audit_reports.start_index }} - {{ paginated_audit_reports.end_index }} of {{ paginated_audit_reports.paginator.count }} Audit Reports
+                Showing {{ paginated_risk_assessments.start_index }} - {{ paginated_risk_assessments.end_index }} of {{ paginated_risk_assessments.paginator.count }} Risk assessment
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_audit_reports.has_previous %}
+                    {% if paginated_risk_assessments.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_risk_assessments.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_audit_reports.number }}</span>
+                        <span class="page-link">{{ paginated_risk_assessments.number }}</span>
                     </li>
                     
-                    {% if paginated_audit_reports.has_next %}
+                    {% if paginated_risk_assessments.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_risk_assessments.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -303,7 +310,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_audit_report' %}">
+            <form method="POST" action="{% url 'add_risk_assessment' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -319,52 +326,51 @@
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             <div class="row">
                                 <div class="col">
-                                    <label for="id_audit_id">Audit</label>
-                                    {{ form.audit_id|add_class:"form-control" }}
+                                    <label for="id_entity_name">Entity Name</label>
+                                    {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_report_title">Report Title</label>
-                                    {{ form.report_title|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row mt-3">
-                                <div class="col">
-                                    <label for="id_findings_summary">Findings Summary</label>
-                                    {{ form.findings_summary|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_recommendations">Recommendations</label>
-                                    {{ form.recommendations|add_class:"form-control" }}
+                                    <label for="id_risk_type">Risk Type</label>
+                                    {{ form.risk_type|add_class:"form-control" }}
                                 </div>
                             </div>
-        
-                            <div class="row mt-3">
+                            <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_stakeholder_distribution">Stakeholder Distribution</label>
-                                    {{ form.stakeholder_distribution|add_class:"form-control" }}
+                                    <label for="id_inherent_risk">Inherent Risks</label>
+                                    {{ form.inherent_risk|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_report_date">Report Date</label>
-                                    {{ form.report_date|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row mt-3">
-                                <div class="col">
-                                    <label for="id_created_by">Created By</label>
-                                    {{ form.created_by|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_key_metrics">Key Metrics</label>
-                                    {{ form.key_metrics|add_class:"form-control" }}
+                                    <label for="id_residual_risk">Residual Risks</label>
+                                    {{ form.residual_risk|add_class:"form-control" }}
                                 </div>
                             </div>
-        
-                            <div class="row mt-3">
+                            <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_follow_up_plan">Follow-Up Plan</label>
-                                    {{ form.follow_up_plan|add_class:"form-control" }}
+                                    <label for="id_assessed_date">Assessed Date</label>
+                                    {{ form.assessed_date|add_class:"form-control" }}
+                                </div>
+                                
+                                <div class="col">
+                                    <label for="id_assessed_by">Assessed By</label>
+                                    {{ form.assessed_by|add_class:"form-control" }}
+                                </div>
+                                
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_risk_severity">Risk Severity</label>
+                                    {{ form.risk_severity|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_control_effectiveness">Control Effectiveness</label>
+                                    {{ form.control_effectiveness|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                
+                                <div class="col">
+                                    <label for="id_comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
                                 </div>
                             </div>
                         </div>
@@ -389,18 +395,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Audit Report is selected
+                // Check if a Risk assessment is selected
                 if (!selectedRadio) {
-                    alert('Please select a Audit Report.');
+                    alert('Please select a Risk assessment.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Audit Report ID
+                const selectedId = selectedRadio.value; // Get the selected Risk assessment ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_reporting/audit_reports/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Audit Report?')) {
+                    const deleteUrl = `/iam/macro_planning/risk_assessments/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Risk assessment?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

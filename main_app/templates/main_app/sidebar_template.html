@@ -136,13 +136,13 @@
                     </li>
                     {% endfor %}
                     
-                             <!-- Apps Link -->
-                            <li class="nav-item">
-                                <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
-                                    <i class="nav-icon fas fa-store"></i>
-                                    <p>Apps</p>
-                                </a>
-                            </li>       
+                    <!-- Apps Link -->
+                    <li class="nav-item">
+                        <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
+                            <i class="nav-icon fas fa-store"></i>
+                            <p>Apps</p>
+                        </a>
+                    </li>       
                     <li class="nav-item has-treeview">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-cog"></i>
@@ -488,7 +488,14 @@
                                     </a>
                                 </li>
                                 {% endfor %}
-                                
+
+                                <!-- Apps Link -->
+                                <li class="nav-item">
+                                    <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
+                                        <i class="nav-icon fas fa-store"></i>
+                                        <p>Apps</p>
+                                    </a>
+                                </li>
                                                 
                                 <li class="nav-item has-treeview">
                                     <a href="#" class="nav-link">
@@ -499,13 +506,6 @@
                                         </p>
                                     </a>
                                     <ul class="nav nav-treeview">
-                                        <!-- Apps Link -->
-                                        <li class="nav-item">
-                                            <a href="{% url 'app_store' %}" class="nav-link {% if request.path == '/app_store/' %} active {% endif %}">
-                                                <i class="nav-icon fas fa-store"></i>
-                                                <p>Apps</p>
-                                            </a>
-                                        </li>
                                         <!-- Departments -->
                                         <li class="nav-item has-treeview">
                                             <a href="#" class="nav-link">
@@ -535,7 +535,7 @@
                                         </li>
                                 
                                         <!-- Staff -->
-                                        <li class="nav-item has-treeview">
+                                        {% comment %} <li class="nav-item has-treeview">
                                             <a href="#" class="nav-link">
                                                 <i class="nav-icon fas fa-user-plus"></i>
                                                 <p>
@@ -544,13 +544,6 @@
                                                 </p>
                                             </a>
                                             <ul class="nav nav-treeview">
-                                                {% comment %} <li class="nav-item">
-                                                    {% url 'add_staff' as add_staff %}
-                                                    <a href="{{add_staff}}" class="nav-link {% if add_staff == request.path %} active {% endif %}">
-                                                        <i class="nav-icon fas fa-user-plus"></i>
-                                                        <p>Add Staff</p>
-                                                    </a>
-                                                </li> {% endcomment %}
                                                 <li class="nav-item">
                                                     {% url 'manage_staff' as manage_staff %}
                                                     {% url 'edit_staff' staff_id as edit_staff %}
@@ -568,7 +561,7 @@
                                                     </a>
                                                 </li>
                                             </ul>
-                                        </li>
+                                        </li> {% endcomment %}
                                 
                                         {% comment %} <!-- Users -->
                                         <li class="nav-item has-treeview">
@@ -635,31 +628,31 @@
                                                 </li> {% endcomment %}
                                             </ul>
                                         </li>
-                                
-                                    </ul>
-                                </li>
-                                <li class="nav-item has-treeview">
-                                    <a href="#" class="nav-link">
-                                        <i class="nav-icon fas fa-bookmark"></i>
-                                        <p>
-                                            Profile
-                                            <i class="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            {% url 'staff_view_profile' as staff_view_profile %}
-                                            <a href="{{staff_view_profile}}"
-                                                class="nav-link {% if staff_view_profile == request.path %} active {% endif %}">
-                                                <i class="nav-icon fas fa-address-card"></i>
+                                        <li class="nav-item has-treeview">
+                                            <a href="#" class="nav-link">
+                                                <i class="nav-icon fas fa-bookmark"></i>
                                                 <p>
-                                                    Update Profile
-                
+                                                    Profile
+                                                    <i class="fas fa-angle-left right"></i>
                                                 </p>
                                             </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    {% url 'staff_view_profile' as staff_view_profile %}
+                                                    <a href="{{staff_view_profile}}"
+                                                        class="nav-link {% if staff_view_profile == request.path %} active {% endif %}">
+                                                        <i class="nav-icon fas fa-address-card"></i>
+                                                        <p>
+                                                            Update Profile
+                        
+                                                        </p>
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </li>
                                     </ul>
                                 </li>
+                                
                             <!--#-->
     
                                 {% else %}

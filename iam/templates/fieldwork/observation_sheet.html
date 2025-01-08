@@ -1,7 +1,7 @@
-{% extends 'iam/iam_base.html' %}
+{% extends "iam/iam_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Audit Resource Planner{% endblock page_title %}
+{% block page_title %}Observation Sheet{% endblock page_title %}
 
 {% block content %}
 
@@ -25,11 +25,11 @@
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
-                        {% if current_sort == 'team_member' %}
-                        SORT BY Team Member
-                        {% elif current_sort == 'assigned_tasks' %}
-                        SORT BY Assigned Tasks
-                        {% elif current_sort == 'resource_id' %}
+                        {% if current_sort == 'entity_name' %}
+                        SORT BY Entity Name
+                        {% elif current_sort == 'observation_details' %}
+                        SORT BY Observation Details
+                        {% elif current_sort == 'observation_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -65,8 +65,6 @@
                         </div>
                     </div>  
                 </form>
-            
-                
             </div>
         </div>
         
@@ -77,9 +75,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=resource_id&order={% if current_sort == 'resource_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=observation_id&order={% if current_sort == 'observation_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'resource_id' %}
+                                {% if current_sort == 'observation_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -89,9 +87,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=team_member&order={% if current_sort == 'team_member' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Team Member
-                                {% if current_sort == 'team_member' %}
+                            <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Entity Name
+                                {% if current_sort == 'entity_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -101,9 +99,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=assigned_tasks&order={% if current_sort == 'assigned_tasks' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Assigned Tasks
-                                {% if current_sort == 'assigned_tasks' %}
+                            <a href="?sort_by=observation_details&order={% if current_sort == 'observation_details' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Observation Details
+                                {% if current_sort == 'observation_details' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -112,118 +110,100 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Availability Status</th>
-                        <th>Skillset</th>
-                        <th>Allocation Date</th>
-                        <th>Engagement</th>
-                        <th>Hours Allocated</th>
-                        <th>Remaining Capacity</th>
+                        <th>Impact</th>
+                        <th>Assigned To</th>
+                        <th>Recommendation</th>
+                        <th>Deadline</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for audit_resource in paginated_audit_resources %}
+                    {% for observation_sheet in paginated_observation_sheets %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ audit_resource.resource_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_audit_resources.start_index|add:-1 }}</td>
-                        <td>{{ audit_resource.team_member }}</td>
-                        <td>{{ audit_resource.assigned_tasks }}</td>
-                        <td>{{ audit_resource.availability_status }}</td>
-                        <td>{{ audit_resource.skillset }}</td>
-                        <td>{{ audit_resource.allocation_date }}</td>
-                        <td>{{ audit_resource.engagement_id }}</td>
-                        <td>{{ audit_resource.hours_allocated }}</td>
-                        <td>{{ audit_resource.remaining_capacity }}</td>
-                        <td>{{ audit_resource.comments }}</td>
+                        <td><input type="radio" name="selected" value="{{ observation_sheet.observation_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_observation_sheets.start_index|add:-1 }}</td>
+                        <td>{{ observation_sheet.entity_name }}</td>
+                        <td>{{ observation_sheet.observation_details }}</td>
+                        <td>{{ observation_sheet.impact }}</td>
+                        <td>{{ observation_sheet.recommendation }}</td>
+                        <td>{{ observation_sheet.assigned_to }}</td>
+                        <td>{{ observation_sheet.deadline }}</td>
+                        <td>{{ observation_sheet.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' audit_resource.resource_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' observation_sheet.observation_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if audit_resource.resource_id %}
-                    <div class="modal fade" id="editModal-{{ audit_resource.resource_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_resource.resource_id }}" aria-hidden="true">
+                    {% if observation_sheet.observation_id %}
+                    <div class="modal fade" id="editModal-{{ observation_sheet.observation_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ observation_sheet.observation_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ audit_resource.resource_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ observation_sheet.observation_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_audit_resource' audit_resource.resource_id %}">
+                                <form method="POST" action="{% url 'edit_observation_sheet' observation_sheet.observation_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ audit_resource.resource_id }}" data-toggle="tab" href="#general-{{ audit_resource.resource_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ observation_sheet.observation_id }}" data-toggle="tab" href="#general-{{ observation_sheet.observation_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ audit_resource.resource_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ observation_sheet.observation_id }}" role="tabpanel">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_team_member-{{ audit_resource_resource.resource_id }}">Team Member</label>
-                                                        <input type="text" name="team_member" id="id_team_member-{{ audit_resource_resource.resource_id }}" class="form-control" value="{{ audit_resource.team_member }}">
+                                                        <label for="entity_name-{{ observation_sheet.observation_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="entity_name-{{ observation_sheet.observation_id }}" class="form-control" value="{{ observation_sheet.entity_name }}">
+                                                    </div>
+                                                    
+                                                    <div class="col">
+                                                        <label for="observation_details-{{ observation_sheet.observation_id }}">Impact</label>
+                                                        <textarea name="observation_details" id="observation_details-{{ observation_sheet.observation_id }}" class="form-control">{{ observation_sheet.observation_details }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    
+                                                    <div class="col">
+                                                        <label for="impact-{{ observation_sheet.observation_id }}">Impact</label>
+                                                        <textarea name="impact" id="impact-{{ observation_sheet.observation_id }}" class="form-control">{{ observation_sheet.impact }}</textarea>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_assigned_tasks-{{ audit_resource_resource.resource_id }}">Assigned Tasks</label>
-                                                        <textarea name="assigned_tasks" id="id_assigned_tasks-{{ audit_resource_resource.resource_id }}" class="form-control">{{ audit_resource.assigned_tasks }}</textarea>
+                                                        <label for="recommendation-{{ observation_sheet.observation_id }}">Recommendation</label>
+                                                        <textarea name="recommendation" id="recommendation-{{ observation_sheet.observation_id }}" class="form-control">{{ observation_sheet.recommendation }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2">
                                                     <div class="col">
-                                                        <label for="id_availability_status-{{ audit_resource_resource.resource_id }}">Availability Status</label>
-                                                        <select name="availability_status" id="id_availability_status-{{ audit_resource_resource.resource_id }}" class="form-control">
-                                                            {% for value, label in availability_status_choices %}
-                                                                <option value="{{ value }}" {% if audit_resource.availability_status == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
+                                                        <label for="assigned_to-{{ observation_sheet.observation_id }}">Assigned To</label>
+                                                        <select name="assigned_to" id="assigned_to-{{ observation_sheet.observation_id }}" class="form-control">
+                                                            {% for assigned_to in assigned_tos %}
+                                                                <option value="{{ assigned_to.id }}" {% if observation_sheet.assigned_to.id == assigned_to.id %}selected{% endif %}>{{ assigned_to }}</option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_skillset-{{ audit_resource_resource.resource_id }}">Skillset</label>
-                                                        <textarea name="skillset" id="id_skillset-{{ audit_resource_resource.resource_id }}" class="form-control">{{ audit_resource.skillset }}</textarea>
+                                                        <label for="deadline-{{ observation_sheet.observation_id }}">Deadline</label>
+                                                        <input type="date" name="deadline" id="deadline-{{ observation_sheet.observation_id }}" class="form-control" value="{{ observation_sheet.deadline|date:"Y-m-d" }}">
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2">
+                                                   
                                                     <div class="col">
-                                                        <label for="id_allocation_date-{{ audit_resource_resource.resource_id }}">Allocation Date</label>
-                                                        <input type="date" name="allocation_date" id="id_allocation_date-{{ audit_resource_resource.resource_id }}" class="form-control" value="{{ audit_resource.allocation_date|date:'Y-m-d' }}">
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_engagement_id-{{ audit_resource_resource.resource_id }}">Engagement ID</label>
-                                                        <select name="engagement_id" id="id_engagement_id-{{ audit_resource_resource.resource_id }}" class="form-control">
-                                                            {% for engagement in engagements %}
-                                                                <option value="{{ engagement.id }}" {% if audit_resource.engagement_id == engagement.engagement_id %}selected{% endif %}>
-                                                                    {{ engagement }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="id_hours_allocated-{{ audit_resource_resource.resource_id }}">Hours Allocated</label>
-                                                        <input type="number" name="hours_allocated" id="id_hours_allocated-{{ audit_resource_resource.resource_id }}" class="form-control" value="{{ audit_resource.hours_allocated }}">
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_remaining_capacity-{{ audit_resource_resource.resource_id }}">Remaining Capacity</label>
-                                                        <input type="number" name="remaining_capacity" id="id_remaining_capacity-{{ audit_resource_resource.resource_id }}" class="form-control" value="{{ audit_resource.remaining_capacity }}">
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="id_comments-{{ audit_resource_resource.resource_id }}">Comments</label>
-                                                        <textarea name="comments" id="id_comments-{{ audit_resource_resource.resource_id }}" class="form-control">{{ audit_resource.comments }}</textarea>
+                                                        <label for="comments-{{ observation_sheet.observation_id }}">Comments</label>
+                                                        <textarea name="comments" id="comments-{{ observation_sheet.observation_id }}" class="form-control">{{ observation_sheet.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -261,26 +241,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_audit_resources.start_index }} - {{ paginated_audit_resources.end_index }} of {{ paginated_audit_resources.paginator.count }} Audit Resources
+                Showing {{ paginated_observation_sheets.start_index }} - {{ paginated_observation_sheets.end_index }} of {{ paginated_observation_sheets.paginator.count }} Observation Sheet
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_audit_resources.has_previous %}
+                    {% if paginated_observation_sheets.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_resources.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_observation_sheets.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_audit_resources.number }}</span>
+                        <span class="page-link">{{ paginated_observation_sheets.number }}</span>
                     </li>
                     
-                    {% if paginated_audit_resources.has_next %}
+                    {% if paginated_observation_sheets.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_resources.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_observation_sheets.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -301,7 +281,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_audit_resource' %}">
+            <form method="POST" action="{% url 'add_observation_sheet' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -315,49 +295,42 @@
                     <div class="tab-content mt-3">
                         <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            
                             <div class="row">
                                 <div class="col">
-                                    <label for="id_team_member">Team Member</label>
-                                    {{ form.team_member|add_class:"form-control" }}
+                                    <label for="entity_name">Entity Name</label>
+                                    {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_assigned_tasks">Assigned Tasks</label>
-                                    {{ form.assigned_tasks|add_class:"form-control" }}
+                                    <label for="observation_details">Observation Details</label>
+                                    {{ form.observation_details|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                
+                                <div class="col">
+                                    <label for="impact">Impact</label>
+                                    {{ form.impact|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="recommendation">Recommendation</label>
+                                    {{ form.recommendation|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_availability_status">Availability Status</label>
-                                    {{ form.availability_status|add_class:"form-control" }}
+                                    <label for="assigned_to">Assigned To</label>
+                                    {{ form.assigned_to|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_skillset">Skillset</label>
-                                    {{ form.skillset|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_allocation_date">Allocation Date</label>
-                                    {{ form.allocation_date|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_engagement_id">Engagement</label>
-                                    {{ form.engagement_id|add_class:"form-control" }}
+                                    <label for="deadline">Deadline</label>
+                                    {{ form.deadline|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row mt-2">
+                                
                                 <div class="col">
-                                    <label for="id_hours_allocated">Hours Allocated</label>
-                                    {{ form.hours_allocated|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_remaining_capacity">Remaining Capacity</label>
-                                    {{ form.remaining_capacity|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_comments">Comments</label>
+                                    <label for="comments">Comments</label>
                                     {{ form.comments|add_class:"form-control" }}
                                 </div>
                             </div>
@@ -383,18 +356,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Audit Resource is selected
+                // Check if a Observation Sheet is selected
                 if (!selectedRadio) {
-                    alert('Please select a Audit Resource.');
+                    alert('Please select a Observation Sheet.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Audit Resource ID
+                const selectedId = selectedRadio.value; // Get the selected Observation Sheet ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_engagement/audit_resources/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Audit Resource?')) {
+                    const deleteUrl = `/iam/fieldwork/observation_sheets/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Observation Sheet?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

@@ -1,7 +1,7 @@
 {% extends 'iam/iam_base.html' %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Audit Universe Register{% endblock page_title %}
+{% block page_title %}Audit Notification{% endblock page_title %}
 
 {% block content %}
 
@@ -27,9 +27,9 @@
                     <span>
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
-                        {% elif current_sort == 'risk_score' %}
-                        SORT BY Risk Score
-                        {% elif current_sort == 'entity_id' %}
+                        {% elif current_sort == 'auditee_name' %}
+                        SORT BY Auditee Name
+                        {% elif current_sort == 'notification_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -65,6 +65,8 @@
                         </div>
                     </div>  
                 </form>
+            
+                
             </div>
         </div>
         
@@ -75,9 +77,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=entity_id&order={% if current_sort == 'entity_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=notification_id&order={% if current_sort == 'notification_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'entity_id' %}
+                                {% if current_sort == 'notification_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -99,9 +101,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=risk_score&order={% if current_sort == 'risk_score' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Risk Score
-                                {% if current_sort == 'risk_score' %}
+                            <a href="?sort_by=auditee_name&order={% if current_sort == 'auditee_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Auditee Name
+                                {% if current_sort == 'auditee_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -110,121 +112,100 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Control Effectiveness</th>
-                        <th>Audit Frequency</th>
-                        <th>Last Audit Date</th>
-                        <th>Next Audit Date</th>
-                        <th>Risk Owner</th>
-                        <th>Audit Cycle Status</th>
+                        <th>Audit Scope</th>
+                        <th>Objectives</th>
+                        <th>Audit Timeline</th>
+                        <th>Notification Date</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
-
                 <tbody>
-                    {% for audit_register in paginated_audit_registers %}
+                    {% for audit_notification in paginated_audit_notifications %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ audit_register.entity_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_audit_registers.start_index|add:-1 }}</td>
-                        <td>{{ audit_register.entity_name }}</td>
-                        <td>{{ audit_register.risk_score }}</td>
-                        <td>{{ audit_register.control_effectiveness }}</td>
-                        <td>{{ audit_register.audit_frequency }}</td>
-                        <td>{{ audit_register.last_audit_date }}</td>
-                        <td>{{ audit_register.next_audit_date }}</td>
-                        <td>{{ audit_register.risk_owner }}</td>
-                        <td>{{ audit_register.audit_cycle_status }}</td>
-                        <td>{{ audit_register.comments }}</td>
+                        <td><input type="radio" name="selected" value="{{ audit_notification.notification_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_audit_notifications.start_index|add:-1 }}</td>
+                        <td>{{ audit_notification.entity_name }}</td>
+                        <td>{{ audit_notification.auditee_name }}</td>
+                        <td>{{ audit_notification.audit_scope }}</td>
+                        <td>{{ audit_notification.objectives }}</td>
+                        <td>{{ audit_notification.audit_timeline }}</td>
+                        <td>{{ audit_notification.notification_date }}</td>
+                        <td>{{ audit_notification.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' audit_register.entity_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' audit_notification.notification_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if audit_register.entity_id %}
-                    <div class="modal fade" id="editModal-{{ audit_register.entity_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_register.entity_id }}" aria-hidden="true">
+                    {% if audit_notification.notification_id %}
+                    <div class="modal fade" id="editModal-{{ audit_notification.notification_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_notification.notification_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ audit_register.entity_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ audit_notification.notification_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_audit_register' audit_register.entity_id %}">
+                                <form method="POST" action="{% url 'edit_audit_notification' audit_notification.notification_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ audit_register.entity_id }}" data-toggle="tab" href="#general-{{ audit_register.entity_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ audit_notification.notification_id }}" data-toggle="tab" href="#general-{{ audit_notification.notification_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ audit_register.entity_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ audit_notification.notification_id }}" role="tabpanel">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_entity_name-{{ audit_register.entity_id }}">Entity Name</label>
-                                                        <input type="text" name="entity_name" id="id_entity_name-{{ audit_register.entity_id }}" class="form-control" value="{{ audit_register.entity_name }}">
+                                                        <label for="id_entity_name-{{ audit_notification_resource.notification_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="id_entity_name-{{ audit_notification_resource.notification_id }}" class="form-control" value="{{ audit_notification.entity_name }}">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_risk_score-{{ audit_register.entity_id }}">Risk Score</label>
-                                                        <input type="number" name="risk_score" id="id_risk_score-{{ audit_register.entity_id }}" class="form-control" value="{{ audit_register.risk_score }}">
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="id_control_effectiveness-{{ audit_register.entity_id }}">Control Effectiveness</label>
-                                                        <textarea name="control_effectiveness" id="id_control_effectiveness-{{ audit_register.entity_id }}" class="form-control">{{ audit_register.control_effectiveness }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_audit_frequency-{{ audit_register.entity_id }}">Audit Frequency</label>
-                                                        <select name="audit_frequency" id="id_audit_frequency-{{ audit_register.entity_id }}" class="form-control">
-                                                            {% for value, label in audit_frequency_choices %}
-                                                            <option value="{{ value }}" {% if audit_register.audit_frequency == value %}selected{% endif %}>
-                                                                {{ label }}
-                                                            </option>
+                                                        <label for="id_auditee_name-{{ audit_notification_resource.notification_id }}">Auditee Name</label>
+                                                        <select name="auditee_name" id="id_auditee_name-{{ audit_notification_resource.notification_id }}" class="form-control">
+                                                            {% for engagement in engagements %}
+                                                                <option value="{{ engagement.id }}" {% if audit_notification.auditee_name == engagement.auditee_name %}selected{% endif %}>
+                                                                    {{ engagement }}
+                                                                </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
+                                                    
                                                 </div>
                                                 <div class="row mt-2">
                                                     <div class="col">
-                                                        <label for="id_last_audit_date-{{ audit_register.entity_id }}">Last Audit Date</label>
-                                                        <input type="date" name="last_audit_date" id="id_last_audit_date-{{ audit_register.entity_id }}" class="form-control" value="{{ audit_register.last_audit_date|date:'Y-m-d' }}">
+                                                        <label for="id_objectives-{{ audit_notification_resource.notification_id }}">Objectives</label>
+                                                        <textarea name="objectives" id="id_objectives-{{ audit_notification_resource.notification_id }}" class="form-control">{{ audit_notification.objectives }}</textarea>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_next_audit_date-{{ audit_register.entity_id }}">Next Audit Date</label>
-                                                        <input type="date" name="next_audit_date" id="id_next_audit_date-{{ audit_register.entity_id }}" class="form-control" value="{{ audit_register.next_audit_date|date:'Y-m-d' }}">
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="id_risk_owner-{{ audit_register.entity_id }}">Risk Owner</label>
-                                                        <select name="risk_owner" id="id_risk_owner-{{ audit_register.entity_id }}" class="form-control">
-                                                            {% for risk_owner in risk_owners %}
-                                                                <option value="{{ risk_owner.id }}" {% if audit_register.risk_owner == risk_owner.id %}selected{% endif %}>{{ risk_owner }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_audit_cycle_status-{{ audit_register.entity_id }}">Audit Cycle Status</label>
-                                                        <select name="audit_cycle_status" id="id_audit_cycle_status-{{ audit_register.entity_id }}" class="form-control">
-                                                            {% for value, label in audit_cycle_status_choices %}
-                                                                <option value="{{ value }}" {% if audit_register.audit_cycle_status == value %}selected{% endif %}>{{ label }}</option>
-                                                            {% endfor %}
-                                                        </select>
+                                                        <label for="id_audit_scope-{{ audit_notification_resource.notification_id }}">Audit Scope</label>
+                                                        <textarea name="audit_scope" id="id_audit_scope-{{ audit_notification_resource.notification_id }}" class="form-control">{{ audit_notification.audit_scope }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2">
                                                     <div class="col">
-                                                        <label for="id_comments-{{ audit_register.entity_id }}">Comments</label>
-                                                        <textarea name="comments" id="id_comments-{{ audit_register.entity_id }}" class="form-control">{{ audit_register.comments }}</textarea>
+                                                        <label for="id_audit_timeline-{{ audit_notification_resource.notification_id }}">Audit Timeline</label>
+                                                        <textarea name="audit_timeline" id="id_audit_timeline-{{ audit_notification_resource.notification_id }}" class="form-control">{{ audit_notification.audit_timeline }}</textarea>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_notification_date-{{ audit_notification_resource.notification_id }}">Notification Date</label>
+                                                        <input type="date" name="notification_date" id="id_notification_date-{{ audit_notification_resource.notification_id }}" class="form-control" value="{{ audit_notification.notification_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_comments-{{ audit_notification_resource.notification_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ audit_notification_resource.notification_id }}" class="form-control">{{ audit_notification.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -262,26 +243,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_audit_registers.start_index }} - {{ paginated_audit_registers.end_index }} of {{ paginated_audit_registers.paginator.count }} Audit Registers
+                Showing {{ paginated_audit_notifications.start_index }} - {{ paginated_audit_notifications.end_index }} of {{ paginated_audit_notifications.paginator.count }} Audit Notifications
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_audit_registers.has_previous %}
+                    {% if paginated_audit_notifications.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_registers.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_audit_notifications.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_audit_registers.number }}</span>
+                        <span class="page-link">{{ paginated_audit_notifications.number }}</span>
                     </li>
                     
-                    {% if paginated_audit_registers.has_next %}
+                    {% if paginated_audit_notifications.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_audit_registers.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_audit_notifications.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -302,7 +283,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_audit_register' %}">
+            <form method="POST" action="{% url 'add_audit_notification' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -322,40 +303,33 @@
                                     {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_risk_score">Risk Score</label>
-                                    {{ form.risk_score|add_class:"form-control" }}
+                                    <label for="id_auditee_name">Auditee Name</label>
+                                    {{ form.auditee_name|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                
+                                <div class="col">
+                                    <label for="id_audit_scope">Audit Scope</label>
+                                    {{ form.audit_scope|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_objectives">Objectives</label>
+                                    {{ form.objectives|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_control_effectiveness">Control Effectiveness</label>
-                                    {{ form.control_effectiveness|add_class:"form-control" }}
+                                    <label for="id_audit_timeline">Audit Timeline</label>
+                                    {{ form.audit_timeline|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_audit_frequency">Audit Frequency</label>
-                                    {{ form.audit_frequency|add_class:"form-control" }}
+                                    <label for="id_notification_date">Notification Date</label>
+                                    {{ form.notification_date|add_class:"form-control" }}
                                 </div>
+                                
                             </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_last_audit_date">Last Audit Date</label>
-                                    {{ form.last_audit_date|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_next_audit_date">Next Audit Date</label>
-                                    {{ form.next_audit_date|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_risk_owner">Risk Owner</label>
-                                    {{ form.risk_owner|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_audit_cycle_status">Audit Cycle Status</label>
-                                    {{ form.audit_cycle_status|add_class:"form-control" }}
-                                </div>
-                            </div>
+                            
                             <div class="row mt-2">
                                 <div class="col">
                                     <label for="id_comments">Comments</label>
@@ -384,18 +358,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Audit Register is selected
+                // Check if a Audit Notification is selected
                 if (!selectedRadio) {
-                    alert('Please select a Audit Register.');
+                    alert('Please select a Audit Notification.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Audit Register ID
+                const selectedId = selectedRadio.value; // Get the selected Audit Notification ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_oversight/audit_registers/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Audit Register?')) {
+                    const deleteUrl = `/iam/micro_planning/audit_notifications/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Audit Notification?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }
