@@ -1,7 +1,7 @@
 {% extends 'iam/iam_base.html' %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Risk Trends Report{% endblock page_title %}
+{% block page_title %}Final Report{% endblock page_title %}
 
 {% block content %}
 
@@ -25,11 +25,11 @@
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
-                        {% if current_sort == 'recurring_issues' %}
-                        SORT BY Recurring Issues
-                        {% elif current_sort == 'root_causes' %}
-                        SORT BY Root Causes
-                        {% elif current_sort == 'trend_id' %}
+                        {% if current_sort == 'entity_name' %}
+                        SORT BY Entity Name
+                        {% elif current_sort == 'findings_summary' %}
+                        SORT BY Findings Summary
+                        {% elif current_sort == 'report_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -77,9 +77,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=trend_id&order={% if current_sort == 'trend_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=report_id&order={% if current_sort == 'report_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'trend_id' %}
+                                {% if current_sort == 'report_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -89,9 +89,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=recurring_issues&order={% if current_sort == 'recurring_issues' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Recurring Issues
-                                {% if current_sort == 'recurring_issues' %}
+                            <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Entity Name
+                                {% if current_sort == 'entity_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -101,9 +101,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=root_causes&order={% if current_sort == 'root_causes' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Root Causes
-                                {% if current_sort == 'root_causes' %}
+                            <a href="?sort_by=findings_summary&order={% if current_sort == 'findings_summary' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Findings Summary
+                                {% if current_sort == 'findings_summary' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -112,127 +112,96 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Impact Level</th>
                         <th>Recommendations</th>
-                        <th>Metrics</th>
-                        <th>Associated Audits</th>
-                        <th>Trend Analysis Date</th>
-                        <th>Improvement Plan</th>
-                        <th>Owner</th>
+                        <th>Draft Date</th>
+                        <th>Drafted By</th>
+                        <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for risktrends_report in paginated_risktrends_reports %}
+                    {% for final_report in paginated_final_reports %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ risktrends_report.trend_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_risktrends_reports.start_index|add:-1 }}</td>
-                        <td>{{ risktrends_report.recurring_issues }}</td>
-                        <td>{{ risktrends_report.root_causes }}</td>
-                        <td>{{ risktrends_report.impact_level }}</td>
-                        <td>{{ risktrends_report.recommendations }}</td>
-                        <td>{{ risktrends_report.metrics }}</td>
-                        <td>{{ risktrends_report.associated_audits }}</td>
-                        <td>{{ risktrends_report.trend_analysis_date }}</td>
-                        <td>{{ risktrends_report.improvement_plan }}</td>
-                        <td>{{ risktrends_report.owner }}</td>
+                        <td><input type="radio" name="selected" value="{{ final_report.report_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_final_reports.start_index|add:-1 }}</td>
+                        <td>{{ final_report.entity_name }}</td>
+                        <td>{{ final_report.findings_summary }}</td>
+                        <td>{{ final_report.recommendations }}</td>
+                        <td>{{ final_report.submission_date }}</td>
+                        <td>{{ final_report.approved_by }}</td>
+                        <td>{{ final_report.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' risktrends_report.trend_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' final_report.report_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if risktrends_report.trend_id %}
-                    <div class="modal fade" id="editModal-{{ risktrends_report.trend_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ risktrends_report.trend_id }}" aria-hidden="true">
+                    {% if final_report.report_id %}
+                    <div class="modal fade" id="editModal-{{ final_report.report_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ final_report.report_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ risktrends_report.trend_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ final_report.report_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_risktrends_report' risktrends_report.trend_id %}">
+                                <form method="POST" action="{% url 'edit_final_report' final_report.report_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ risktrends_report.trend_id }}" data-toggle="tab" href="#general-{{ risktrends_report.trend_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ final_report.report_id }}" data-toggle="tab" href="#general-{{ final_report.report_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ risktrends_report.trend_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ final_report.report_id }}" role="tabpanel">
                                                 <div class="row">
-                                                    <!-- Recurring Issues -->
+                                                    
                                                     <div class="col">
-                                                        <label for="id_recurring_issues-{{ risktrends_report.trend_id }}">Recurring Issues</label>
-                                                        <textarea name="recurring_issues" id="id_recurring_issues-{{ risktrends_report.trend_id }}" class="form-control">{{ risktrends_report.recurring_issues }}</textarea>
-                                                    </div>
-                                                    <!-- Root Causes -->
-                                                    <div class="col">
-                                                        <label for="id_root_causes-{{ risktrends_report.trend_id }}">Root Causes</label>
-                                                        <textarea name="root_causes" id="id_root_causes-{{ risktrends_report.trend_id }}" class="form-control">{{ risktrends_report.root_causes }}</textarea>
+                                                        <label for="id_entity_name-{{ final_report.report_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="id_entity_name-{{ final_report.report_id }}" class="form-control" value="{{ final_report.entity_name }}">
                                                     </div>
                                                 </div>
+                            
                                                 <div class="row mt-3">
-                                                    <!-- Impact Level -->
                                                     <div class="col">
-                                                        <label for="id_impact_level-{{ risktrends_report.trend_id }}">Impact Level</label>
-                                                        <select name="impact_level" id="id_impact_level-{{ risktrends_report.trend_id }}" class="form-control">
-                                                            {% for value, label in impact_level_choices %}
-                                                                <option value="{{ value }}" {% if risktrends_report.impact_level == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
+                                                        <label for="id_findings_summary-{{ final_report.report_id }}">Findings Summary</label>
+                                                        <textarea name="findings_summary" id="id_findings_summary-{{ final_report.report_id }}" class="form-control">{{ final_report.findings_summary }}</textarea>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_recommendations-{{ final_report.report_id }}">Recommendations</label>
+                                                        <textarea name="recommendations" id="id_recommendations-{{ final_report.report_id }}" class="form-control">{{ final_report.recommendations }}</textarea>
+                                                    </div>
+                                                </div>
+                            
+                                                <div class="row mt-3">
+                                                    <div class="col">
+                                                        <label for="id_approved_by-{{ final_report.report_id }}">Drafted By</label>
+                                                        <select name="approved_by" id="id_approved_by-{{ final_report.report_id }}" class="form-control">
+                                                            {% for value in approved_by_choices %}
+                                                                <option value="{{ value.id }}" {% if final_report.approved_by.id == value.id %}selected{% endif %}>{{ value }}</option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                                                    <!-- Recommendations -->
                                                     <div class="col">
-                                                        <label for="id_recommendations-{{ risktrends_report.trend_id }}">Recommendations</label>
-                                                        <textarea name="recommendations" id="id_recommendations-{{ risktrends_report.trend_id }}" class="form-control">{{ risktrends_report.recommendations }}</textarea>
+                                                        <label for="id_submission_date-{{ final_report.report_id }}">Final Date</label>
+                                                        <input type="date" name="submission_date" id="id_submission_date-{{ final_report.report_id }}" class="form-control" value="{{ final_report.submission_date|date:'Y-m-d' }}">
                                                     </div>
                                                 </div>
+                            
+                                                
+                            
                                                 <div class="row mt-3">
-                                                    <!-- Metrics -->
                                                     <div class="col">
-                                                        <label for="id_metrics-{{ risktrends_report.trend_id }}">Metrics</label>
-                                                        <textarea name="metrics" id="id_metrics-{{ risktrends_report.trend_id }}" class="form-control">{{ risktrends_report.metrics }}</textarea>
-                                                    </div>
-                                                    <!-- Associated Audits -->
-                                                    <div class="col">
-                                                        <label for="id_associated_audits-{{ risktrends_report.trend_id }}">Associated Audits</label>
-                                                        <textarea name="associated_audits" id="id_associated_audits-{{ risktrends_report.trend_id }}" class="form-control">{{ risktrends_report.associated_audits }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <!-- Trend Analysis Date -->
-                                                    <div class="col">
-                                                        <label for="id_trend_analysis_date-{{ risktrends_report.trend_id }}">Trend Analysis Date</label>
-                                                        <input type="date" name="trend_analysis_date" id="id_trend_analysis_date-{{ risktrends_report.trend_id }}" class="form-control" value="{{ risktrends_report.trend_analysis_date|date:'Y-m-d' }}">
-                                                    </div>
-                                                    <!-- Improvement Plan -->
-                                                    <div class="col">
-                                                        <label for="id_improvement_plan-{{ risktrends_report.trend_id }}">Improvement Plan</label>
-                                                        <textarea name="improvement_plan" id="id_improvement_plan-{{ risktrends_report.trend_id }}" class="form-control">{{ risktrends_report.improvement_plan }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <!-- Owner -->
-                                                    <div class="col">
-                                                        <label for="id_owner-{{ risktrends_report.trend_id }}">Owner</label>
-                                                        <select name="owner" id="id_owner-{{ risktrends_report.trend_id }}" class="form-control">
-                                                            {% for value in owners %}
-                                                                <option value="{{ value.id }}" {% if risktrends_report.owner.id == value.id %}selected{% endif %}>
-                                                                    {{ value }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
+                                                        <label for="id_comments-{{ final_report.report_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ final_report.report_id }}" class="form-control">{{ final_report.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -270,26 +239,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_risktrends_reports.start_index }} - {{ paginated_risktrends_reports.end_index }} of {{ paginated_risktrends_reports.paginator.count }} Risk Trends Reports
+                Showing {{ paginated_final_reports.start_index }} - {{ paginated_final_reports.end_index }} of {{ paginated_final_reports.paginator.count }} Audit Reports
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_risktrends_reports.has_previous %}
+                    {% if paginated_final_reports.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_risktrends_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_final_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_risktrends_reports.number }}</span>
+                        <span class="page-link">{{ paginated_final_reports.number }}</span>
                     </li>
                     
-                    {% if paginated_risktrends_reports.has_next %}
+                    {% if paginated_final_reports.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_risktrends_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_final_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -310,7 +279,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_risktrends_report' %}">
+            <form method="POST" action="{% url 'add_final_report' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -325,58 +294,41 @@
                         <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             <div class="row">
-                                <!-- Recurring Issues -->
+                                
                                 <div class="col">
-                                    <label for="id_recurring_issues">Recurring Issues</label>
-                                    {{ form.recurring_issues|add_class:"form-control" }}
-                                </div>
-                                <!-- Root Causes -->
-                                <div class="col">
-                                    <label for="id_root_causes">Root Causes</label>
-                                    {{ form.root_causes|add_class:"form-control" }}
+                                    <label for="id_entity_name">Entity Name</label>
+                                    {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                             </div>
+        
                             <div class="row mt-3">
-                                <!-- Impact Level -->
                                 <div class="col">
-                                    <label for="id_impact_level">Impact Level</label>
-                                    {{ form.impact_level|add_class:"form-control" }}
+                                    <label for="id_findings_summary">Findings Summary</label>
+                                    {{ form.findings_summary|add_class:"form-control" }}
                                 </div>
-                                <!-- Recommendations -->
                                 <div class="col">
                                     <label for="id_recommendations">Recommendations</label>
                                     {{ form.recommendations|add_class:"form-control" }}
                                 </div>
                             </div>
+        
                             <div class="row mt-3">
-                                <!-- Metrics -->
                                 <div class="col">
-                                    <label for="id_metrics">Metrics</label>
-                                    {{ form.metrics|add_class:"form-control" }}
+                                    <label for="id_approved_by">Drafted By</label>
+                                    {{ form.approved_by|add_class:"form-control" }}
                                 </div>
-                                <!-- Associated Audits -->
                                 <div class="col">
-                                    <label for="id_associated_audits">Associated Audits</label>
-                                    {{ form.associated_audits|add_class:"form-control" }}
+                                    <label for="id_submission_date">Draft Date</label>
+                                    {{ form.submission_date|add_class:"form-control" }}
                                 </div>
                             </div>
+        
+                            
+        
                             <div class="row mt-3">
-                                <!-- Trend Analysis Date -->
                                 <div class="col">
-                                    <label for="id_trend_analysis_date">Trend Analysis Date</label>
-                                    {{ form.trend_analysis_date|add_class:"form-control" }}
-                                </div>
-                                <!-- Improvement Plan -->
-                                <div class="col">
-                                    <label for="id_improvement_plan">Improvement Plan</label>
-                                    {{ form.improvement_plan|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <!-- Owner -->
-                                <div class="col">
-                                    <label for="id_owner">Owner</label>
-                                    {{ form.owner|add_class:"form-control" }}
+                                    <label for="id_comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
                                 </div>
                             </div>
                         </div>
@@ -401,18 +353,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Risk Trends Report is selected
+                // Check if a Audit Report is selected
                 if (!selectedRadio) {
-                    alert('Please select a Risk Trends Report.');
+                    alert('Please select a Audit Report.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Risk Trends Report ID
+                const selectedId = selectedRadio.value; // Get the selected Audit Report ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_reporting/risktrends_reports/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Risk Trends Report?')) {
+                    const deleteUrl = `/iam/audit_reporting/final_reports/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Audit Report?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }
