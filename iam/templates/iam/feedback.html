@@ -1,7 +1,7 @@
-{% extends 'iam/iam_base.html' %}
+{% extends "iam/iam_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Draft Report{% endblock page_title %}
+{% block page_title %}Feedback{% endblock page_title %}
 
 {% block content %}
 
@@ -27,9 +27,9 @@
                     <span>
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
-                        {% elif current_sort == 'findings' %}
-                        SORT BY Findings
-                        {% elif current_sort == 'report_id' %}
+                        {% elif current_sort == 'feedback_details' %}
+                        SORT BY Feedback Details
+                        {% elif current_sort == 'survey_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -65,8 +65,6 @@
                         </div>
                     </div>  
                 </form>
-            
-                
             </div>
         </div>
         
@@ -77,9 +75,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=report_id&order={% if current_sort == 'report_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=survey_id&order={% if current_sort == 'survey_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'report_id' %}
+                                {% if current_sort == 'survey_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -101,9 +99,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=findings&order={% if current_sort == 'findings' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Findings
-                                {% if current_sort == 'findings' %}
+                            <a href="?sort_by=feedback_details&order={% if current_sort == 'feedback_details' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Feedback Details
+                                {% if current_sort == 'feedback_details' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -112,96 +110,91 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Recommendations</th>
-                        <th>Draft Date</th>
-                        <th>Drafted By</th>
+                        <th>Auditee Name</th>
+                        <th>Survey Date</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for draft_report in paginated_draft_reports %}
+                    {% for feedback in paginated_feedbacks %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ draft_report.report_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_draft_reports.start_index|add:-1 }}</td>
-                        <td>{{ draft_report.entity_name }}</td>
-                        <td>{{ draft_report.findings }}</td>
-                        <td>{{ draft_report.recommendations }}</td>
-                        <td>{{ draft_report.draft_date }}</td>
-                        <td>{{ draft_report.drafted_by }}</td>
-                        <td>{{ draft_report.comments }}</td>
-                        {% comment %} <td>
-                            <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' draft_report.report_id %}" class="btn btn-info btn-sm">
-                                <i class="fas fa-eye"></i> View
-                            </a>
-                        </td> {% endcomment %}
+                        <td><input type="radio" name="selected" value="{{ feedback.survey_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_feedbacks.start_index|add:-1 }}</td>
+                        <td>{{ feedback.entity_name }}</td>
+                        <td>{{ feedback.feedback_details }}</td>
+                        <td>{{ feedback.auditee_name }}</td>
+                        <td>{{ feedback.survey_date }}</td>
+                        <td>{{ feedback.comments }}</td>
+                        
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if draft_report.report_id %}
-                    <div class="modal fade" id="editModal-{{ draft_report.report_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ draft_report.report_id }}" aria-hidden="true">
+                    {% if feedback.survey_id %}
+                    <div class="modal fade" id="editModal-{{ feedback.survey_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ feedback.survey_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ draft_report.report_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ feedback.survey_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_draft_report' draft_report.report_id %}">
+                                <form method="POST" action="{% url 'edit_feedback' feedback.survey_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ draft_report.report_id }}" data-toggle="tab" href="#general-{{ draft_report.report_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ feedback.survey_id }}" data-toggle="tab" href="#general-{{ feedback.survey_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ draft_report.report_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ feedback.survey_id }}" role="tabpanel">
+                                                <div class="row">
+                                                   
+                            
+                                                    <!-- Entity Name -->
+                                                    <div class="col">
+                                                        <label for="id_entity_name-{{ feedback.survey_id }}">Entity Name</label>
+                                                        <textarea name="entity_name" id="id_entity_name-{{ feedback.survey_id }}" class="form-control">{{ feedback.entity_name }}</textarea>
+                                                    </div>
+                                                </div>
+                            
                                                 <div class="row">
                                                     
+                                                    <!-- Survey Date -->
                                                     <div class="col">
-                                                        <label for="id_entity_name-{{ draft_report.report_id }}">Entity Name</label>
-                                                        <input type="text" name="entity_name" id="id_entity_name-{{ draft_report.report_id }}" class="form-control" value="{{ draft_report.entity_name }}">
+                                                        <label for="id_survey_date-{{ feedback.survey_id }}">Survey Date</label>
+                                                        <input type="date" name="survey_date" id="id_survey_date-{{ feedback.survey_id }}" class="form-control" value="{{ feedback.survey_date|date:'Y-m-d' }}">
                                                     </div>
-                                                </div>
-                            
-                                                <div class="row mt-3">
+                                                    <!-- Auditee Name -->
                                                     <div class="col">
-                                                        <label for="id_findings-{{ draft_report.report_id }}">Findings</label>
-                                                        <textarea name="findings" id="id_findings-{{ draft_report.report_id }}" class="form-control">{{ draft_report.findings }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_recommendations-{{ draft_report.report_id }}">Recommendations</label>
-                                                        <textarea name="recommendations" id="id_recommendations-{{ draft_report.report_id }}" class="form-control">{{ draft_report.recommendations }}</textarea>
-                                                    </div>
-                                                </div>
-                            
-                                                <div class="row mt-3">
-                                                    <div class="col">
-                                                        <label for="id_drafted_by-{{ draft_report.report_id }}">Drafted By</label>
-                                                        <select name="drafted_by" id="id_drafted_by-{{ draft_report.report_id }}" class="form-control">
-                                                            {% for value in drafted_by_choices %}
-                                                                <option value="{{ value.id }}" {% if draft_report.drafted_by.id == value.id %}selected{% endif %}>{{ value }}</option>
+                                                        <label for="id_auditee_name-{{ feedback.survey_id }}">Auditee Name</label>
+                                                        <select name="auditee_name" id="id_auditee_name-{{ feedback.survey_id }}" class="form-control">
+                                                            {% for value in auditee_name_choices %}
+                                                                <option value="{{ value.id }}" {% if feedback.auditee_name.id == value.id %}selected{% endif %}>
+                                                                    {{ value }}
+                                                                </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                                                    <div class="col">
-                                                        <label for="id_draft_date-{{ draft_report.report_id }}">Draft Date</label>
-                                                        <input type="date" name="draft_date" id="id_draft_date-{{ draft_report.report_id }}" class="form-control" value="{{ draft_report.draft_date|date:'Y-m-d' }}">
-                                                    </div>
                                                 </div>
                             
-                                                
-                            
-                                                <div class="row mt-3">
+                                                <div class="row">
+                                                    
+                                                    <!-- Feedback Details -->
                                                     <div class="col">
-                                                        <label for="id_comments-{{ draft_report.report_id }}">Comments</label>
-                                                        <textarea name="comments" id="id_comments-{{ draft_report.report_id }}" class="form-control">{{ draft_report.comments }}</textarea>
+                                                        <label for="id_feedback_details-{{ feedback.survey_id }}">Feedback Details</label>
+                                                        <textarea name="feedback_details" id="id_feedback_details-{{ feedback.survey_id }}" class="form-control">{{ feedback.feedback_details }}</textarea>
+                                                    </div>
+                                                    <!-- Comments -->
+                                                    <div class="col">
+                                                        <label for="id_comments-{{ feedback.survey_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ feedback.survey_id }}" class="form-control">{{ feedback.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -239,26 +232,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_draft_reports.start_index }} - {{ paginated_draft_reports.end_index }} of {{ paginated_draft_reports.paginator.count }} Audit Reports
+                Showing {{ paginated_feedbacks.start_index }} - {{ paginated_feedbacks.end_index }} of {{ paginated_feedbacks.paginator.count }} FollowUp
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_draft_reports.has_previous %}
+                    {% if paginated_feedbacks.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_draft_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_feedbacks.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_draft_reports.number }}</span>
+                        <span class="page-link">{{ paginated_feedbacks.number }}</span>
                     </li>
                     
-                    {% if paginated_draft_reports.has_next %}
+                    {% if paginated_feedbacks.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_draft_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_feedbacks.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -279,7 +272,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_draft_report' %}">
+            <form method="POST" action="{% url 'add_feedback' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -293,39 +286,37 @@
                     <div class="tab-content mt-3">
                         <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            
                             <div class="row">
-                                
+        
+                                <!-- Entity Name -->
                                 <div class="col">
                                     <label for="id_entity_name">Entity Name</label>
                                     {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                             </div>
         
-                            <div class="row mt-3">
+                            <div class="row">
+                                
+                                <!-- Survey Date -->
                                 <div class="col">
-                                    <label for="id_findings">Findings</label>
-                                    {{ form.findings|add_class:"form-control" }}
+                                    <label for="id_survey_date">Survey Date</label>
+                                    {{ form.survey_date|add_class:"form-control" }}
                                 </div>
+                                <!-- Auditee Name -->
                                 <div class="col">
-                                    <label for="id_recommendations">Recommendations</label>
-                                    {{ form.recommendations|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row mt-3">
-                                <div class="col">
-                                    <label for="id_drafted_by">Drafted By</label>
-                                    {{ form.drafted_by|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_draft_date">Draft Date</label>
-                                    {{ form.draft_date|add_class:"form-control" }}
+                                    <label for="id_auditee_name">Auditee Name</label>
+                                    {{ form.auditee_name|add_class:"form-control" }}
                                 </div>
                             </div>
         
-                            
-        
-                            <div class="row mt-3">
+                            <div class="row">
+                                
+                                <!-- Feedback Details -->
+                                <div class="col">
+                                    <label for="id_feedback_details">Feedback Details</label>
+                                    {{ form.feedback_details|add_class:"form-control" }}
+                                </div>
                                 <div class="col">
                                     <label for="id_comments">Comments</label>
                                     {{ form.comments|add_class:"form-control" }}
@@ -353,18 +344,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Audit Report is selected
+                // Check if a FollowUp is selected
                 if (!selectedRadio) {
-                    alert('Please select a Audit Report.');
+                    alert('Please select a FollowUp.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Audit Report ID
+                const selectedId = selectedRadio.value; // Get the selected FollowUp ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_reporting/draft_reports/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Audit Report?')) {
+                    const deleteUrl = `/iam/feedbacks/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this FollowUp?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

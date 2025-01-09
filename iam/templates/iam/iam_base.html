@@ -186,23 +186,24 @@
                 </div>
                 <!-- Audit Reporting -->
                 <div class="dropdown ml-3">
-                    {% url 'list_audit_report' as url1 %}{% url 'list_exit_meeting' as url2 %}{% url 'list_risktrends_report' as url3 %}
+                    {% url 'list_draft_report' as url1 %}{% url 'list_exit_meeting' as url2 %}{% url 'list_final_report' as url3 %}
                     <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path or url3  == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
                         Audit Reporting
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
+                        
+                        {% url 'list_draft_report' as url %}
+                        <li>
+                            <a href="{% url 'list_draft_report' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Draft Report</a>
+                        </li>
                         {% url 'list_exit_meeting' as url %}
                         <li>
                             <a href="{% url 'list_exit_meeting' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Exit Meeting</a>
                         </li>
-                        {% comment %} {% url 'list_audit_report' as url %}
+                        {% url 'list_final_report' as url %}
                         <li>
-                            <a href="{% url 'list_audit_report' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Report</a>
+                            <a href="{% url 'list_final_report'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Final Report</a>
                         </li>
-                        {% url 'list_risktrends_report' as url %}
-                        <li>
-                            <a href="{% url 'list_risktrends_report'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Risk Trends Report</a>
-                        </li> {% endcomment %}
                     </ul>
                 </div> 
                 <!-- Audits Section -->
@@ -213,11 +214,11 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
                         
-                        {% comment %}
-                        {% url 'list_follow_up' as url %}
+                        
+                        {% url 'list_feedback' as url %}
                         <li>
-                            <a href="{% url 'list_follow_up' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Follow-Up and Monitoring</a>
-                        </li> {% endcomment %}
+                            <a href="{% url 'list_feedback' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Feedback</a>
+                        </li> 
                         <li>
                             <a href="#" class="dropdown-item ">Reports</a>
                         </li>
@@ -231,12 +232,12 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
                         
-                        {% comment %}
+                        
                         {% url 'list_follow_up' as url %}
                         <li>
-                            <a href="{% url 'list_follow_up' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Follow-Up and Monitoring</a>
+                            <a href="{% url 'list_follow_up' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Follow-Up</a>
                         </li>
-                        {% endcomment %}
+                        
                         <li>
                             <a href="#" class="dropdown-item ">Reports</a>
                         </li>

@@ -1,7 +1,7 @@
 {% extends 'iam/iam_base.html' %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Draft Report{% endblock page_title %}
+{% block page_title %}Final Report{% endblock page_title %}
 
 {% block content %}
 
@@ -27,8 +27,8 @@
                     <span>
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
-                        {% elif current_sort == 'findings' %}
-                        SORT BY Findings
+                        {% elif current_sort == 'findings_summary' %}
+                        SORT BY Findings Summary
                         {% elif current_sort == 'report_id' %}
                         SORT BY ID
                         {% endif %}
@@ -101,9 +101,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=findings&order={% if current_sort == 'findings' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Findings
-                                {% if current_sort == 'findings' %}
+                            <a href="?sort_by=findings_summary&order={% if current_sort == 'findings_summary' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Findings Summary
+                                {% if current_sort == 'findings_summary' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -121,78 +121,78 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for draft_report in paginated_draft_reports %}
+                    {% for final_report in paginated_final_reports %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ draft_report.report_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_draft_reports.start_index|add:-1 }}</td>
-                        <td>{{ draft_report.entity_name }}</td>
-                        <td>{{ draft_report.findings }}</td>
-                        <td>{{ draft_report.recommendations }}</td>
-                        <td>{{ draft_report.draft_date }}</td>
-                        <td>{{ draft_report.drafted_by }}</td>
-                        <td>{{ draft_report.comments }}</td>
+                        <td><input type="radio" name="selected" value="{{ final_report.report_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_final_reports.start_index|add:-1 }}</td>
+                        <td>{{ final_report.entity_name }}</td>
+                        <td>{{ final_report.findings_summary }}</td>
+                        <td>{{ final_report.recommendations }}</td>
+                        <td>{{ final_report.submission_date }}</td>
+                        <td>{{ final_report.approved_by }}</td>
+                        <td>{{ final_report.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' draft_report.report_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' final_report.report_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if draft_report.report_id %}
-                    <div class="modal fade" id="editModal-{{ draft_report.report_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ draft_report.report_id }}" aria-hidden="true">
+                    {% if final_report.report_id %}
+                    <div class="modal fade" id="editModal-{{ final_report.report_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ final_report.report_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ draft_report.report_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ final_report.report_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_draft_report' draft_report.report_id %}">
+                                <form method="POST" action="{% url 'edit_final_report' final_report.report_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ draft_report.report_id }}" data-toggle="tab" href="#general-{{ draft_report.report_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ final_report.report_id }}" data-toggle="tab" href="#general-{{ final_report.report_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ draft_report.report_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ final_report.report_id }}" role="tabpanel">
                                                 <div class="row">
                                                     
                                                     <div class="col">
-                                                        <label for="id_entity_name-{{ draft_report.report_id }}">Entity Name</label>
-                                                        <input type="text" name="entity_name" id="id_entity_name-{{ draft_report.report_id }}" class="form-control" value="{{ draft_report.entity_name }}">
+                                                        <label for="id_entity_name-{{ final_report.report_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="id_entity_name-{{ final_report.report_id }}" class="form-control" value="{{ final_report.entity_name }}">
                                                     </div>
                                                 </div>
                             
                                                 <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_findings-{{ draft_report.report_id }}">Findings</label>
-                                                        <textarea name="findings" id="id_findings-{{ draft_report.report_id }}" class="form-control">{{ draft_report.findings }}</textarea>
+                                                        <label for="id_findings_summary-{{ final_report.report_id }}">Findings Summary</label>
+                                                        <textarea name="findings_summary" id="id_findings_summary-{{ final_report.report_id }}" class="form-control">{{ final_report.findings_summary }}</textarea>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_recommendations-{{ draft_report.report_id }}">Recommendations</label>
-                                                        <textarea name="recommendations" id="id_recommendations-{{ draft_report.report_id }}" class="form-control">{{ draft_report.recommendations }}</textarea>
+                                                        <label for="id_recommendations-{{ final_report.report_id }}">Recommendations</label>
+                                                        <textarea name="recommendations" id="id_recommendations-{{ final_report.report_id }}" class="form-control">{{ final_report.recommendations }}</textarea>
                                                     </div>
                                                 </div>
                             
                                                 <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_drafted_by-{{ draft_report.report_id }}">Drafted By</label>
-                                                        <select name="drafted_by" id="id_drafted_by-{{ draft_report.report_id }}" class="form-control">
-                                                            {% for value in drafted_by_choices %}
-                                                                <option value="{{ value.id }}" {% if draft_report.drafted_by.id == value.id %}selected{% endif %}>{{ value }}</option>
+                                                        <label for="id_approved_by-{{ final_report.report_id }}">Drafted By</label>
+                                                        <select name="approved_by" id="id_approved_by-{{ final_report.report_id }}" class="form-control">
+                                                            {% for value in approved_by_choices %}
+                                                                <option value="{{ value.id }}" {% if final_report.approved_by.id == value.id %}selected{% endif %}>{{ value }}</option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_draft_date-{{ draft_report.report_id }}">Draft Date</label>
-                                                        <input type="date" name="draft_date" id="id_draft_date-{{ draft_report.report_id }}" class="form-control" value="{{ draft_report.draft_date|date:'Y-m-d' }}">
+                                                        <label for="id_submission_date-{{ final_report.report_id }}">Final Date</label>
+                                                        <input type="date" name="submission_date" id="id_submission_date-{{ final_report.report_id }}" class="form-control" value="{{ final_report.submission_date|date:'Y-m-d' }}">
                                                     </div>
                                                 </div>
                             
@@ -200,8 +200,8 @@
                             
                                                 <div class="row mt-3">
                                                     <div class="col">
-                                                        <label for="id_comments-{{ draft_report.report_id }}">Comments</label>
-                                                        <textarea name="comments" id="id_comments-{{ draft_report.report_id }}" class="form-control">{{ draft_report.comments }}</textarea>
+                                                        <label for="id_comments-{{ final_report.report_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ final_report.report_id }}" class="form-control">{{ final_report.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -239,26 +239,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_draft_reports.start_index }} - {{ paginated_draft_reports.end_index }} of {{ paginated_draft_reports.paginator.count }} Audit Reports
+                Showing {{ paginated_final_reports.start_index }} - {{ paginated_final_reports.end_index }} of {{ paginated_final_reports.paginator.count }} Audit Reports
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_draft_reports.has_previous %}
+                    {% if paginated_final_reports.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_draft_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_final_reports.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_draft_reports.number }}</span>
+                        <span class="page-link">{{ paginated_final_reports.number }}</span>
                     </li>
                     
-                    {% if paginated_draft_reports.has_next %}
+                    {% if paginated_final_reports.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_draft_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_final_reports.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -279,7 +279,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_draft_report' %}">
+            <form method="POST" action="{% url 'add_final_report' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -303,8 +303,8 @@
         
                             <div class="row mt-3">
                                 <div class="col">
-                                    <label for="id_findings">Findings</label>
-                                    {{ form.findings|add_class:"form-control" }}
+                                    <label for="id_findings_summary">Findings Summary</label>
+                                    {{ form.findings_summary|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
                                     <label for="id_recommendations">Recommendations</label>
@@ -314,12 +314,12 @@
         
                             <div class="row mt-3">
                                 <div class="col">
-                                    <label for="id_drafted_by">Drafted By</label>
-                                    {{ form.drafted_by|add_class:"form-control" }}
+                                    <label for="id_approved_by">Drafted By</label>
+                                    {{ form.approved_by|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_draft_date">Draft Date</label>
-                                    {{ form.draft_date|add_class:"form-control" }}
+                                    <label for="id_submission_date">Draft Date</label>
+                                    {{ form.submission_date|add_class:"form-control" }}
                                 </div>
                             </div>
         
@@ -363,7 +363,7 @@
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/audit_reporting/draft_reports/${selectedId}/delete/`;
+                    const deleteUrl = `/iam/audit_reporting/final_reports/${selectedId}/delete/`;
                     if (confirm('Are you sure you want to delete this Audit Report?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;

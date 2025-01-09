@@ -95,28 +95,31 @@ urlpatterns = [
     path('audit_reporting/exit_meetings/add/', views.add_exit_meeting, name='add_exit_meeting'),
     path('audit_reporting/exit_meetings/<int:meeting_id>/edit/', views.edit_exit_meeting, name='edit_exit_meeting'),
     path('audit_reporting/exit_meetings/<int:meeting_id>/delete/', views.delete_exit_meeting, name='delete_exit_meeting'),
-  
+
+    #  Draft Report
+    path('audit_reporting/draft_reports/', views.list_draft_report, name='list_draft_report'),
+    path('audit_reporting/draft_reports/add/', views.add_draft_report, name='add_draft_report'),
+    path('audit_reporting/draft_reports/<int:report_id>/edit/', views.edit_draft_report, name='edit_draft_report'),
+    path('audit_reporting/draft_reports/<int:report_id>/delete/', views.delete_draft_report, name='delete_draft_report'),
+
+    # Final Report
+    path('audit_reporting/final_reports/', views.list_final_report, name='list_final_report'),
+    path('audit_reporting/final_reports/add/', views.add_final_report, name='add_final_report'),
+    path('audit_reporting/final_reports/<int:report_id>/edit/', views.edit_final_report, name='edit_final_report'),
+    path('audit_reporting/final_reports/<int:report_id>/delete/', views.delete_final_report, name='delete_final_report'),
+
+    # Feedback
+    path('feedbacks/', views.list_feedback, name='list_feedback'),
+    path('feedbacks/add/', views.add_feedback, name='add_feedback'),
+    path('feedbacks/<int:survey_id>/edit/', views.edit_feedback, name='edit_feedback'),
+    path('feedbacks/<int:survey_id>/delete/', views.delete_feedback, name='delete_feedback'),
+
+    # Follow Up
+    path('follow_ups/', views.list_follow_up, name='list_follow_up'),
+    path('follow_ups/add/', views.add_follow_up, name='add_follow_up'),
+    path('follow_ups/<int:follow_up_id>/edit/', views.edit_follow_up, name='edit_follow_up'),
+    path('follow_ups/<int:follow_up_id>/delete/', views.delete_follow_up, name='delete_follow_up'),
+
+ 
 ]
 
-
-""" 
-
-    # Quality Assurance
-    path('quality_assurances/', views.list_quality_assurance, name='list_quality_assurance'),
-    path('quality_assurances/add/', views.add_quality_assurance, name='add_quality_assurance'),
-    path('quality_assurances/<int:qa_id>/edit/', views.edit_quality_assurance, name='edit_quality_assurance'),
-    path('quality_assurances/<int:qa_id>/delete/', views.delete_quality_assurance, name='delete_quality_assurance'),
-
-    # Fraud Investigation
-    path('fraud_investigations/', views.list_fraud_investigation, name='list_fraud_investigation'),
-    path('fraud_investigations/add/', views.add_fraud_investigation, name='add_fraud_investigation'),
-    path('fraud_investigations/<int:investigation_id>/edit/', views.edit_fraud_investigation, name='edit_fraud_investigation'),
-    path('fraud_investigations/<int:investigation_id>/delete/', views.delete_fraud_investigation, name='delete_fraud_investigation'),
-
-    # Compliance Tracker
-    path('compliance_trackers/', views.list_compliance_tracker, name='list_compliance_tracker'),
-    path('compliance_trackers/add/', views.add_compliance_tracker, name='add_compliance_tracker'),
-    path('compliance_trackers/<int:compliance_id>/edit/', views.edit_compliance_tracker, name='edit_compliance_tracker'),
-    path('compliance_trackers/<int:compliance_id>/delete/', views.delete_compliance_tracker, name='delete_compliance_tracker'),
-
-"""

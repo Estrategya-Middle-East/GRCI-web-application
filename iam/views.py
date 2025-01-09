@@ -1231,3 +1231,268 @@ def delete_draft_report(request, report_id):
     draft_report.delete()
     messages.success(request, "Draft Report deleted successfully!")
     return redirect('list_draft_report')
+
+####
+def list_final_report(request):
+    # Get all records by default
+    final_reports = FinalReport.objects.all()
+    form = FinalReportForm()
+
+    
+    # Default sorting by report_id
+    sort_by = request.GET.get('sort_by', 'report_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        final_reports = final_reports.order_by(sort_by)
+    else:
+        final_reports = final_reports.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(final_reports, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_final_reports = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_final_reports = paginator.page(1)
+    except EmptyPage:
+        paginated_final_reports = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Final Report",
+        'final_reports':final_reports, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_final_reports': paginated_final_reports,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'approved_by_choices': Staff.objects.all(),
+    }
+    return render(request, 'audit_reporting/final_report.html', context)
+
+
+# Add Oversigh 
+
+def add_final_report(request):
+    form = FinalReportForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Final Report added successfully!")
+            return redirect('list_final_report')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Final Report. Please correct the errors.")
+    return redirect('list_final_report')
+
+# FinalReport 
+def edit_final_report(request, report_id):
+    final_report = get_object_or_404(FinalReport, report_id=report_id)
+    if request.method == 'POST':
+        form = FinalReportForm(request.POST, instance=final_report)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Final Report updated successfully!")
+            return redirect('list_final_report')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Final Report. Please correct the errors.")
+    else:
+        form = FinalReportForm(instance=final_report)
+    return render(request, 'audit_reporting/final_report.html', {'form': form})
+
+
+
+# Delete final_report
+def delete_final_report(request, report_id):
+    final_report = get_object_or_404(FinalReport, report_id=report_id) 
+    final_report.delete()
+    messages.success(request, "Final Report deleted successfully!")
+    return redirect('list_final_report')
+
+
+####
+def list_feedback(request):
+    # Get all records by default
+    feedbacks = Feedback.objects.all()
+    form = FeedbackForm()
+
+    
+    # Default sorting by survey_id
+    sort_by = request.GET.get('sort_by', 'survey_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        feedbacks = feedbacks.order_by(sort_by)
+    else:
+        feedbacks = feedbacks.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(feedbacks, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_feedbacks = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_feedbacks = paginator.page(1)
+    except EmptyPage:
+        paginated_feedbacks = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Feedback",
+        'feedbacks':feedbacks, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_feedbacks': paginated_feedbacks,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'auditee_name_choices': Staff.objects.all(),
+    }
+    return render(request, 'iam/feedback.html', context)
+
+
+# Add Oversigh 
+
+def add_feedback(request):
+    form = FeedbackForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Feedback added successfully!")
+            return redirect('list_feedback')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add Feedback. Please correct the errors.")
+    return redirect('list_feedback')
+
+# Feedback 
+def edit_feedback(request, survey_id):
+    feedback = get_object_or_404(Feedback, survey_id=survey_id)
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST, instance=feedback)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Feedback updated successfully!")
+            return redirect('list_feedback')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update Feedback. Please correct the errors.")
+    else:
+        form = FeedbackForm(instance=feedback)
+    return render(request, 'iam/feedback.html', {'form': form})
+
+
+
+# Delete feedback
+def delete_feedback(request, survey_id):
+    feedback = get_object_or_404(Feedback, survey_id=survey_id) 
+    feedback.delete()
+    messages.success(request, "Feedback deleted successfully!")
+    return redirect('list_feedback')
+
+####
+def list_follow_up(request):
+    # Get all records by default
+    follow_ups = AuditFollowUp.objects.all()
+    form = AuditFollowUpForm()
+
+    
+    # Default sorting by follow_up_id
+    sort_by = request.GET.get('sort_by', 'follow_up_id')
+    order = request.GET.get('order', 'asc')
+
+    # Toggle order on each click
+    if order == 'asc':
+        follow_ups = follow_ups.order_by(sort_by)
+    else:
+        follow_ups = follow_ups.order_by(F(sort_by).desc())
+
+    # Pagination setup
+    rows_per_page = request.GET.get('rows_per_page', 10)
+    try:
+        rows_per_page = int(rows_per_page)
+    except ValueError:
+        rows_per_page = 10
+
+    paginator = Paginator(follow_ups, rows_per_page)
+    page = request.GET.get('page', 1)
+
+    try:
+        paginated_follow_ups = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_follow_ups = paginator.page(1)
+    except EmptyPage:
+        paginated_follow_ups = paginator.page(paginator.num_pages)
+
+    
+    # Pass necessary context to the template
+    context = {
+        'page_title': "Audit FollowUp",
+        'follow_ups':follow_ups, 
+        'current_sort': sort_by,
+        'current_order': order,       
+        'paginated_follow_ups': paginated_follow_ups,
+        'rows_per_page': rows_per_page,
+        'form': form,
+        'follow_up_by_choices': Staff.objects.all(),
+    }
+    return render(request, 'iam/follow_up.html', context)
+
+
+# Add Oversigh 
+
+def add_follow_up(request):
+    form = AuditFollowUpForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "AuditFollowUp added successfully!")
+            return redirect('list_follow_up')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to add AuditFollowUp. Please correct the errors.")
+    return redirect('list_follow_up')
+
+# AuditFollowUp 
+def edit_follow_up(request, follow_up_id):
+    follow_up = get_object_or_404(AuditFollowUp, follow_up_id=follow_up_id)
+    if request.method == 'POST':
+        form = AuditFollowUpForm(request.POST, instance=follow_up)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "AuditFollowUp updated successfully!")
+            return redirect('list_follow_up')
+        else:
+            print(form.errors)
+            messages.error(request, "Failed to update AuditFollowUp. Please correct the errors.")
+    else:
+        form = AuditFollowUpForm(instance=follow_up)
+    return render(request, 'iam/follow_up.html', {'form': form})
+
+
+
+# Delete follow_up
+def delete_follow_up(request, follow_up_id):
+    follow_up = get_object_or_404(AuditFollowUp, follow_up_id=follow_up_id) 
+    follow_up.delete()
+    messages.success(request, "AuditFollowUp deleted successfully!")
+    return redirect('list_follow_up')

@@ -25,10 +25,10 @@
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
-                        {% if current_sort == 'recommendation' %}
-                        SORT BY Recommendation
-                        {% elif current_sort == 'action_plan' %}
-                        SORT BY Action Plan
+                        {% if current_sort == 'entity_name' %}
+                        SORT BY Entity Name
+                        {% elif current_sort == 'issues_resolved' %}
+                        SORT BY Issues Resolved
                         {% elif current_sort == 'follow_up_id' %}
                         SORT BY ID
                         {% endif %}
@@ -86,11 +86,10 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Audit</th>
                         <th>
-                            <a href="?sort_by=recommendation&order={% if current_sort == 'recommendation' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Recommendation
-                                {% if current_sort == 'recommendation' %}
+                            <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Entity Name
+                                {% if current_sort == 'entity_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -100,9 +99,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=action_plan&order={% if current_sort == 'action_plan' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Action Plan
-                                {% if current_sort == 'action_plan' %}
+                            <a href="?sort_by=issues_resolved&order={% if current_sort == 'issues_resolved' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Issues Resolved
+                                {% if current_sort == 'issues_resolved' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -111,12 +110,10 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Assigned To</th>
-                        <th>Due Date</th>
-                        <th>Completion Status</th>
+                        <th>Corrective Actions</th>
+                        <th>FollowUp By</th>
                         <th>Review Date</th>
-                        <th>Effectiveness Rating</th>
-                        <th>Reviewer Comments</th>
+                        <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
                     </tr>
@@ -127,15 +124,12 @@
                     <tr >
                         <td><input type="radio" name="selected" value="{{ follow_up.follow_up_id }}"></td>
                         <td>{{ forloop.counter|add:paginated_follow_ups.start_index|add:-1 }}</td>
-                        <td>{{ follow_up.audit_id }}</td>
-                        <td>{{ follow_up.recommendation }}</td>
-                        <td>{{ follow_up.action_plan }}</td>
-                        <td>{{ follow_up.assigned_to }}</td>
-                        <td>{{ follow_up.due_date }}</td>
-                        <td>{{ follow_up.completion_status }}</td>
-                        <td>{{ follow_up.review_date }}</td>
-                        <td>{{ follow_up.effectiveness_rating }}</td>
-                        <td>{{ follow_up.reviewer_comments }}</td>
+                        <td>{{ follow_up.entity_name }}</td>
+                        <td>{{ follow_up.issues_resolved }}</td>
+                        <td>{{ follow_up.corrective_actions }}</td>
+                        <td>{{ follow_up.follow_up_by }}</td>
+                        <td>{{ follow_up.follow_up_date }}</td>
+                        <td>{{ follow_up.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
                             <a href="{% url 'workflow_view' follow_up.follow_up_id %}" class="btn btn-info btn-sm">
@@ -168,92 +162,56 @@
                                             <!-- General Tab -->
                                             <div class="tab-pane fade show active" id="general-{{ follow_up.follow_up_id }}" role="tabpanel">
                                                 <div class="row">
-                                                    <!-- Audit ID -->
+                                                   
+                                                    <!-- Entity Name -->
                                                     <div class="col">
-                                                        <label for="id_audit_id-{{ follow_up.follow_up_id }}">Audit ID</label>
-                                                        <select name="audit_id" id="id_audit_id-{{ follow_up.follow_up_id }}" class="form-control">
-                                                            {% for value in audit_choices %}
-                                                                <option value="{{ value.entity_id }}" {% if follow_up.audit_id == value.entity_id %}selected{% endif %}>
-                                                                    {{ value }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
+                                                        <label for="id_entity_name-{{ follow_up.follow_up_id }}">Entity Name</label>
+                                                        <textarea name="entity_name" id="id_entity_name-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.entity_name }}</textarea>
                                                     </div>
-                            
-                                                    <!-- Recommendation -->
+                                                
                                                     <div class="col">
-                                                        <label for="id_recommendation-{{ follow_up.follow_up_id }}">Recommendation</label>
-                                                        <textarea name="recommendation" id="id_recommendation-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.recommendation }}</textarea>
-                                                    </div>
-                                                </div>
-                            
-                                                <div class="row">
-                                                    <!-- Action Plan -->
-                                                    <div class="col">
-                                                        <label for="id_action_plan-{{ follow_up.follow_up_id }}">Action Plan</label>
-                                                        <textarea name="action_plan" id="id_action_plan-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.action_plan }}</textarea>
-                                                    </div>
-                            
-                                                    <!-- Assigned To -->
-                                                    <div class="col">
-                                                        <label for="id_assigned_to-{{ follow_up.follow_up_id }}">Assigned To</label>
-                                                        <select name="assigned_to" id="id_assigned_to-{{ follow_up.follow_up_id }}" class="form-control">
-                                                            {% for value in assigned_to_choices %}
-                                                                <option value="{{ value.id }}" {% if follow_up.assigned_to.id == value.id %}selected{% endif %}>
+                                                        <label for="id_follow_up_by-{{ follow_up.follow_up_id }}">FollowUp By</label>
+                                                        <select name="follow_up_by" id="id_follow_up_by-{{ follow_up.follow_up_id }}" class="form-control">
+                                                            {% for value in follow_up_by_choices %}
+                                                                <option value="{{ value.id }}" {% if follow_up.follow_up_by.id == value.id %}selected{% endif %}>
                                                                     {{ value }}
                                                                 </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
                                                 </div>
-                            
-                                                <div class="row">
-                                                    <!-- Due Date -->
-                                                    <div class="col">
-                                                        <label for="id_due_date-{{ follow_up.follow_up_id }}">Due Date</label>
-                                                        <input type="date" name="due_date" id="id_due_date-{{ follow_up.follow_up_id }}" class="form-control" value="{{ follow_up.due_date|date:'Y-m-d' }}">
-                                                    </div>
-                            
-                                                    <!-- Completion Status -->
-                                                    <div class="col">
-                                                        <label for="id_completion_status-{{ follow_up.follow_up_id }}">Completion Status</label>
-                                                        <select name="completion_status" id="id_completion_status-{{ follow_up.follow_up_id }}" class="form-control">
-                                                            {% for value, label in completion_status_choices %}
-                                                                <option value="{{ value }}" {% if follow_up.completion_status == value %}selected{% endif %}>
-                                                                    {{ label }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                            
                                                 <div class="row">
                                                     <!-- Review Date -->
                                                     <div class="col">
-                                                        <label for="id_review_date-{{ follow_up.follow_up_id }}">Review Date</label>
-                                                        <input type="date" name="review_date" id="id_review_date-{{ follow_up.follow_up_id }}" class="form-control" value="{{ follow_up.review_date|date:'Y-m-d' }}">
+                                                        <label for="id_follow_up_date-{{ follow_up.follow_up_id }}">Review Date</label>
+                                                        <input type="date" name="follow_up_date" id="id_follow_up_date-{{ follow_up.follow_up_id }}" class="form-control" value="{{ follow_up.follow_up_date|date:'Y-m-d' }}">
                                                     </div>
                             
-                                                    <!-- Effectiveness Rating -->
+                                                    <!-- Issues Resolved -->
                                                     <div class="col">
-                                                        <label for="id_effectiveness_rating-{{ follow_up.follow_up_id }}">Effectiveness Rating</label>
-                                                        <textarea name="effectiveness_rating" id="id_effectiveness_rating-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.effectiveness_rating }}</textarea>
+                                                        <label for="id_issues_resolved-{{ follow_up.follow_up_id }}">Issues Resolved</label>
+                                                        <textarea name="issues_resolved" id="id_issues_resolved-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.issues_resolved }}</textarea>
                                                     </div>
+                                                    
+                                                    
                                                 </div>
+                            
+                                                
                             
                                                 <div class="row">
-                                                    <!-- Reviewer Comments -->
+                                                    
+                                                    <!-- Corrective Actions -->
                                                     <div class="col">
-                                                        <label for="id_reviewer_comments-{{ follow_up.follow_up_id }}">Reviewer Comments</label>
-                                                        <textarea name="reviewer_comments" id="id_reviewer_comments-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.reviewer_comments }}</textarea>
+                                                        <label for="id_corrective_actions-{{ follow_up.follow_up_id }}">Corrective Actions</label>
+                                                        <textarea name="corrective_actions" id="id_corrective_actions-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.corrective_actions }}</textarea>
                                                     </div>
-                            {% comment %} 
-                                                    <!-- Supporting Documents -->
+                                                    <!-- Comments -->
                                                     <div class="col">
-                                                        <label for="id_supporting_documents-{{ follow_up.follow_up_id }}">Supporting Documents</label>
-                                                        <textarea name="supporting_documents" id="id_supporting_documents-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.supporting_documents }}</textarea>
-                                                    </div> {% endcomment %}
+                                                        <label for="id_comments-{{ follow_up.follow_up_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ follow_up.follow_up_id }}" class="form-control">{{ follow_up.comments }}</textarea>
+                                                    </div>
                                                 </div>
+                            
                                             </div>
                                         </div>       
                                     </div>
@@ -345,74 +303,53 @@
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             
                             <div class="row">
-                                <!-- Audit ID -->
+                               
+                                <!-- Entity Name -->
                                 <div class="col">
-                                    <label for="id_audit_id">Audit</label>
-                                    {{ form.audit_id|add_class:"form-control" }}
+                                    <label for="id_entity_name">Entity Name</label>
+                                    {{ form.entity_name|add_class:"form-control" }}
                                 </div>
-        
-                                <!-- Recommendation -->
+                                <!-- FollowUp By -->
                                 <div class="col">
-                                    <label for="id_recommendation">Recommendation</label>
-                                    {{ form.recommendation|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row">
-                                <!-- Action Plan -->
-                                <div class="col">
-                                    <label for="id_action_plan">Action Plan</label>
-                                    {{ form.action_plan|add_class:"form-control" }}
-                                </div>
-        
-                                <!-- Assigned To -->
-                                <div class="col">
-                                    <label for="id_assigned_to">Assigned To</label>
-                                    {{ form.assigned_to|add_class:"form-control" }}
+                                    <label for="id_follow_up_by">FollowUp By</label>
+                                    {{ form.follow_up_by|add_class:"form-control" }}
                                 </div>
                             </div>
         
                             <div class="row">
-                                <!-- Due Date -->
-                                <div class="col">
-                                    <label for="id_due_date">Due Date</label>
-                                    {{ form.due_date|add_class:"form-control" }}
-                                </div>
-        
-                                <!-- Completion Status -->
-                                <div class="col">
-                                    <label for="id_completion_status">Completion Status</label>
-                                    {{ form.completion_status|add_class:"form-control" }}
-                                </div>
-                            </div>
-        
-                            <div class="row">
+                                 
                                 <!-- Review Date -->
                                 <div class="col">
-                                    <label for="id_review_date">Review Date</label>
-                                    {{ form.review_date|add_class:"form-control" }}
+                                    <label for="id_follow_up_date">Review Date</label>
+                                    {{ form.follow_up_date|add_class:"form-control" }}
                                 </div>
-        
-                                <!-- Effectiveness Rating -->
+                                <!-- Issues Resolved -->
                                 <div class="col">
-                                    <label for="id_effectiveness_rating">Effectiveness Rating</label>
-                                    {{ form.effectiveness_rating|add_class:"form-control" }}
+                                    <label for="id_issues_resolved">Issues Resolved</label>
+                                    {{ form.issues_resolved|add_class:"form-control" }}
                                 </div>
+                                
+                                
                             </div>
+        
+                            
         
                             <div class="row">
-                                <!-- Reviewer Comments -->
-                                <div class="col">
-                                    <label for="id_reviewer_comments">Reviewer Comments</label>
-                                    {{ form.reviewer_comments|add_class:"form-control" }}
-                                </div>
+                                
         
-                               {% comment %}  <!-- Supporting Documents -->
+                                <!-- Corrective Actions -->
                                 <div class="col">
-                                    <label for="id_supporting_documents">Supporting Documents</label>
-                                    {{ form.supporting_documents|add_class:"form-control" }}
-                                </div> {% endcomment %}
+                                    <label for="id_corrective_actions">Corrective Actions</label>
+                                    {{ form.corrective_actions|add_class:"form-control" }}
+                                </div>
+                                <!-- Comments -->
+                                <div class="col">
+                                    <label for="id_comments">Comments</label>
+                                    {{ form.comments|add_class:"form-control" }}
+                                </div>
                             </div>
+        
+                            
                         </div>
                     </div>
                 </div>
