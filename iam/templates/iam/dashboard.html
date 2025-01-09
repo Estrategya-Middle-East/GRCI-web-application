@@ -5,38 +5,48 @@
 {% endblock title %}
 
 {% block content %}
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
        
-    /* Optional: Customize specific elements */
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Garamond', serif;
-    }
-
-    .navbar, .content-wrapper{
-        font-family: 'Garamond', serif;
-        background-color: #ffffff !important;
-    }
-    .sidebar {
-        font-family: 'Garamond', serif;
-        font-size: 1 em;
-    }
+        /* Optional: Customize specific elements */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Garamond', serif;
+        }
     
-</style>
-<div class="container mt-4">
-    <h1 class="text-center">Internal Audit Management Dashboard</h1>
-    <div class="row mt-5">
-        {% for component in components %}
-        <div class="col-lg-6 col-md-6 mb-4">
-            <a href="{{ component.link }}" class="card shadow text-decoration-none" style="color: inherit;">
-                <div class="card-body d-flex align-items-center">
-                    <!-- Icon -->
-                    <i class="{{ component.icon }} fa-3x mr-3" style="color: #cc0000;"></i>
-                    <!-- Title -->
-                    <h5 class="card-title m-0 " style="font-size: 1.5rem;">{{ component.name }}</h5>
-                </div>
-            </a>
+        .navbar, .content-wrapper{
+            font-family: 'Garamond', serif;
+            background-color: #ffffff !important;
+        }
+        .sidebar {
+            font-family: 'Garamond', serif;
+            font-size: 1 em;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container mt-4 mx-auto px-8">
+        <h1 class="text-center text-[30px]">Internal Audit Management Dashboard</h1>
+        <div class="row mt-5">
+            {% for component in components %}
+            <div class="col-lg-6 col-md-6 mb-4">
+                <a href="{{ component.link }}" class="card shadow text-decoration-none" style="color: inherit;">
+                    <div class="card-body d-flex align-items-center">
+                        <!-- Icon -->
+                        <i class="{{ component.icon }} fa-3x mr-3" style="color: #cc0000;"></i>
+                        <!-- Title -->
+                        <h5 class="card-title m-0 " style="font-size: 1.5rem;">{{ component.name }}</h5>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-</div>
+</body>
+</html>
 {% endblock content %}

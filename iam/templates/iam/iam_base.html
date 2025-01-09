@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
     <!-- iCheck -->
     <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> -->
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
     <!-- overlayScrollbars -->
@@ -23,6 +26,7 @@
     <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
  
     <style>
        
@@ -102,7 +106,6 @@
                         <li>
                             <a href="{% url 'iam_dashboard' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Dashboard</a>
                         </li>
-                       
                     </ul>
                 </div>
 
@@ -311,30 +314,20 @@
             <!-- Content Wrapper. Contains page content -->
             {% if page_title != "IAM Dashboard" %}
             <!-- Content Header (Page header) -->
-            <div class="content-header  bg-white " style="border-bottom: 1px solid #38383830;" >
-                <div class="container-xxl">
-                
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0 text-dark"  style="padding-left: 20px">{% block page_title %}{% endblock page_title %}</h1>
-                        </div><!-- /.col -->
-                    </div>  
-                    
-                        
-                </div><!-- /.container-fluid -->
-            </div>
-            <script src="https://cdn.tailwindcss.com"></script>
-            <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
-                <!-- Dropdown Menu (Aligned to the right) -->
-                <div class="dropdown">
-                    <button class="dropdown-toggle  btn btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                        Actions
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="action-menu">
-                        <li><a href="" class="dropdown-item" data-toggle="modal" data-target="#addModal" data-action="edit">Add New</a></li>
-                        <li><a href="" class="dropdown-item trig" data-toggle="modal" data-target="#editModal-{{ risk.risk_id }}" data-action="edit">Edit</a></li>
-                        <li><a href="" class="dropdown-item trig"  data-action="delete">Delete</a></li>
-                    </ul>
+            <div class="flex justify-between items-center bg-white py-3 px-2">
+                        <h1 class="m-0 text-dark text-[30px]"  style="padding-left: 20px">{% block page_title %}{% endblock page_title %}</h1>
+                <div class="action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
+                    <!-- Dropdown Menu (Aligned to the right) -->
+                    <div class="dropdown">
+                        <button class="dropdown-toggle  btn btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out mr-2" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="action-menu">
+                            <li><a href="" class="dropdown-item" data-toggle="modal" data-target="#addModal" data-action="edit">Add New</a></li>
+                            <li><a href="" class="dropdown-item trig" data-toggle="modal" data-target="#editModal-{{ risk.risk_id }}" data-action="edit">Edit</a></li>
+                            <li><a href="" class="dropdown-item trig"  data-action="delete">Delete</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             {% endif %}
