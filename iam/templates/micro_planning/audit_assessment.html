@@ -4,9 +4,18 @@
 {% block page_title %}Audit Assessment{% endblock page_title %}
 
 {% block content %}
-
-
-<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+    <script src="https://kit.fontawesome.com/178e567442.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    
 <div class="container-fluid mt-4">
     <form method="POST" id="action-form">
         {% csrf_token %}
@@ -21,7 +30,35 @@
                 Add New
             </button>
         </div> {% endcomment %}
-        <div class="row">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-center items-center gap-4">
+                <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1" >
+                    <span>
+                        {% if current_sort == 'entity_name' %}
+                        SORT BY Scope
+                        {% elif current_sort == 'scope' %}
+                        SORT BY Objectives
+                        {% elif current_sort == 'assessment_id' %}
+                        SORT BY ID
+                        {% endif %}
+                    </span>
+                </div>
+            
+                <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1 ">
+                    <span>
+                        {% if current_order == 'asc' %}
+                        ORDER IS ASC
+                        {% else %}
+                        ORDER IS DES
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help">
+                        <i class="fa-regular fa-circle-question"></i>
+            </div>
+        </div>
+        <!-- <div class="row">
             <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
                 <div class="box">
                     <span>
@@ -32,7 +69,7 @@
                         {% elif current_sort == 'assessment_id' %}
                         SORT BY ID
                         {% endif %}
-                    <span>
+                    </span>
                 </div>
             </div>
         
@@ -47,27 +84,27 @@
                     </span>
                 </div>
             </div>
-            <div class="col-12" style="margin-left: 10px">
-                <!-- Search Form -->
-                <form method="get" class="form-inline mb-4">
-                    <div class="row">
-                        
-                        <div class="col-0 ">
-                            <label for="search">Filter:</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
-                            value="{{ search_query }}" placeholder="Type to filter..." />
-                        </div>
-                        
-                        <div class="col-2">
-                            <button type="submit" class="btn btn-info ml-2">Search</button>
-                        </div>
-                    </div>  
-                </form>
+        </div> -->
+        <div class="col-12" style="margin-left: 10px">
+            <!-- Search Form -->
+            <form method="get" class="form-inline mb-4">
+                <div class="row">
+                    
+                    <div class="col-0 ">
+                        <label for="search">Filter:</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                        value="{{ search_query }}" placeholder="Type to filter..." />
+                    </div>
+                    
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-info ml-2">Search</button>
+                    </div>
+                </div>  
+            </form>
+        
             
-                
-            </div>
         </div>
         
         <!-- Table -->
@@ -383,5 +420,7 @@
 
 </script>
 
+</body>
+</html>
 
 {% endblock content %}
