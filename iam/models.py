@@ -17,9 +17,53 @@ class AuditUniverse(models.Model):
         ('High', 'High'),
         ('Critical','Critical')
     ]
+    RANGE_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+    ]
     
     audit_id = models.AutoField(primary_key=True)
     entity_name = models.CharField(max_length=255)
+    entity_type = models.CharField(
+        max_length=50,
+         choices=[
+            ('Process', 'Process'),
+            ('Unit', 'Unit'),
+            ('Program', 'Program'),
+            ('Service Line', 'Service Line'),
+            ('Function', 'Function'),
+        ],
+        default='Process',
+        
+    )
+    organizational_category = models.CharField(
+        max_length=50,
+        choices=[
+            ('Department', 'Department'),
+            ('Division', 'Division'),
+            ('Business Unit', 'Business Unit'),
+        ],
+        default='Department',
+    )
+    process_category = models.CharField(
+        max_length=50,
+        choices=[
+            ('Procurement', 'Procurement'),
+            ('Asset Management', 'Asset Management'),
+            ('Financial Reporting', 'Financial Reporting'),
+        ],
+        default='Procurement',
+    )
+    location_category = models.CharField(
+        max_length=50,
+        choices=[
+            ('Headquarters', 'Headquarters'),
+            ('Regional Office', 'Regional Office'),
+            ('Local Office', 'Local Office'),
+        ],
+        default='Headquarters',
+    )
     risk_category = models.CharField(
         max_length=50,
         choices=[
@@ -30,11 +74,15 @@ class AuditUniverse(models.Model):
         ],
         default='Operational',
     )
+    risk_score = models.IntegerField(blank=True, null=True)
+    strategic_relevance  = models.CharField(max_length=50, choices=RANGE_CHOICES, default="Medium")
     priority_level = models.CharField(max_length=50, choices=PRIORITY_CHOICES, default="Medium")
+    audit_scope = models.TextField(blank=True, null=True)
     last_audit_date = models.DateField(blank=True, null=True)
     next_audit_date = models.DateField(blank=True, null=True)
     assigned_auditor = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL)
     audit_cycle_status = models.CharField(max_length=50, choices=[('Active', 'Active'), ('Inactive', 'Inactive')])
+    senior_manager_feedback = models.TextField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     
     def __str__(self):

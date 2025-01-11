@@ -11,6 +11,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .flip-card {
+        background-color: transparent;
+        width: 360px;
+        height: 250px;
+        perspective: 2000px;
+        font-family: sans-serif;
+      }
+
+      .title {
+        font-size: 1.5em;
+        font-weight: 900;
+        text-align: center;
+        margin: 0;
+      }
+
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+
+      .flip-card:hover .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .flip-card-front, .flip-card-back {
+        box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
+        position: absolute;
+        display: flex;
+        gap: 15px;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border: 0.1px solid #f01819;
+        border-radius: 1rem;
+      }
+
+      .flip-card-front {
+        background: white;
+        color: red;
+      }
+
+      .flip-card-back {
+        background: white;
+        color: red;
+        transform: rotateY(180deg);
+      }
+     </style>
     <title>PioNeer+ Dashboard</title>
 </head>
 <body>
@@ -23,21 +78,92 @@
             PioNeer+ Dashboard
             </h2>
     
-            <div
-              class="grid lg:grid-cols-3 md:grid-cols-2 gap-10 max-md:max-w-lg mx-auto"
-            >
-              {% for component in components %}
-              <a href="{{ component.link }}">
-                <div
-                class="rounded-xl group p-8 text-center h-[250px] bg-white hover:!bg-[#f01819] !text-[#f01819] hover:!text-white shadow-xl transition duration-300"
-                >
-                <i class="{{ component.icon }} text-5xl mt-3 mb-8"></i>
-                  <h3 class="!text-2xl leading-none font-semibold mb-3">
-                    {{ component.name }}
-                  </h3>
+            <div class="container mb-[50px]" id="modules">
+              <div class="row">  
+                <div class="col-4">
+                  <div class="flex justify-center items-center">
+                    
+                      <a href="{% url 'predictive_risk_analysis'%}" class="items-center text-center flex flex-col gap-6 m-4">
+                        <div class="flip-card" >
+                          <div class="flip-card-inner">
+                            <div class="flip-card-front py-2 px-2">
+                              
+                              <h3 class="text-gray-800 text-xl font-semibold mt-2">Name</h3>
+                              <p class="text-gray-600 text-sm">description</p>
+                              
+                              <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
+                                about
+                              </p>
+            
+                            </div>
+                            <div class="flip-card-back py-20 px-5">
+                              <p class="text-gray-600 text-sm leading-6 mb-3">info</p>
+                              <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
+                                <i class="fas fa-arrow-right text-lg"></i>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                  </div>
                 </div>
-              </a>
-              {% endfor %}
+                <div class="col-4">
+                  <div class="flex justify-center items-center">
+                    
+                    <a href="{% url 'predictive_risk_analysis'%}" class="items-center text-center flex flex-col gap-6 m-4">
+                      <div class="flip-card" >
+                        <div class="flip-card-inner">
+                          <div class="flip-card-front py-2 px-2">
+                            
+                            <h3 class="text-gray-800 text-xl font-semibold mt-2">Name</h3>
+                            <p class="text-gray-600 text-sm">description</p>
+                            
+                            <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
+                              about
+                            </p>
+          
+                          </div>
+                          <div class="flip-card-back py-20 px-5">
+                            <p class="text-gray-600 text-sm leading-6 mb-3">info</p>
+                            <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
+                              <i class="fas fa-arrow-right text-lg"></i>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="flex justify-center items-center">
+                    
+                    <a href="{% url 'predictive_risk_analysis'%}" class="items-center text-center flex flex-col gap-6 m-4">
+                      <div class="flip-card" >
+                        <div class="flip-card-inner">
+                          <div class="flip-card-front py-2 px-2">
+                            
+                            <h3 class="text-gray-800 text-xl font-semibold mt-2">Name</h3>
+                            <p class="text-gray-600 text-sm">description</p>
+                            
+                            <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
+                              about
+                            </p>
+          
+                          </div>
+                          <div class="flip-card-back py-20 px-5">
+                            <p class="text-gray-600 text-sm leading-6 mb-3">info</p>
+                            <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
+                              <i class="fas fa-arrow-right text-lg"></i>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>

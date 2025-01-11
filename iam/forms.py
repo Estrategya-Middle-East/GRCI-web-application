@@ -14,15 +14,25 @@ class AuditUniverseForm(forms.ModelForm):
         model = AuditUniverse
         fields = [    
             'entity_name',
+            'entity_type',
+            'organizational_category',
+            'process_category',
+            'location_category',
             'risk_category',
-            'priority_level',
+            'risk_score',
+            'strategic_relevance',
+            'audit_scope',
+            'assigned_auditor',
             'last_audit_date',
             'next_audit_date',
-            'assigned_auditor', 
+            'priority_level', 
+            'senior_manager_feedback',
             'comments',]
             
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 3}),
+            'audit_scope': forms.Textarea(attrs={'rows': 3}),
+            'senior_manager_feedback': forms.Textarea(attrs={'rows': 3}),
             'last_audit_date': forms.DateInput(attrs={'type': 'date'}),
             'next_audit_date': forms.DateInput(attrs={'type': 'date'}),
         }

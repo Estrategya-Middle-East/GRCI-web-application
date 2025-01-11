@@ -12,9 +12,9 @@
     <style>
       .flip-card {
         background-color: transparent;
-        width: 400px;
+        width: 360px;
         height: 250px;
-        perspective: 1000px;
+        perspective: 2000px;
         font-family: sans-serif;
       }
 
@@ -66,7 +66,7 @@
      </style>
   </head>
   <body>
-    <div class="font-sans px-16 mx-auto mt-[-80px]">
+    <div class="container font-sans px-16 mx-auto mt-[-40px]">
       <div class="grid md:grid-cols-2 items-center md:gap-8 gap-6">
         <div class="max-md:order-1 max-md:text-center z-50 relative">
           <h2
@@ -89,16 +89,16 @@
           <div class="mt-12">
             <div class="grid sm:grid-cols-3 gap-4 items-center">
               <div class="flex flex-col items-center text-center">
-                <h5 class="text-gray-800 font-bold text-xl mb-2">10+</h5>
-                <p class="text-gray-600">Years Experience</p>
+                <h5 class="text-gray-800 font-bold text-xl mb-2 flex justify-center items-center"><span class="text-[20px] font-semibold">+</span>100</h5>
+                <p class="text-gray-600">Organizations Secured</p>
               </div>
               <div class="flex flex-col items-center text-center">
-                <h5 class="text-gray-800 font-bold text-xl mb-2">890</h5>
-                <p class="text-gray-600">Cases Solved</p>
+                <h5 class="text-gray-800 font-bold text-xl mb-2 flex justify-center items-center"><span class="text-[20px] font-semibold">+</span>1000</h5>
+                <p class="text-gray-600">Risks Analyzed Monthly</p>
               </div>
               <div class="flex flex-col items-center text-center">
-                <h5 class="text-gray-800 font-bold text-xl mb-2">250</h5>
-                <p class="text-gray-600">Business Partners</p>
+                <h5 class="text-gray-800 font-bold text-xl mb-2 ">80%</h5>
+                <p class="text-gray-600">Threats</br> Prevented</p>
               </div>
             </div>
           </div>
@@ -117,52 +117,32 @@
           
         </div>
       </div>
-      <div class="container-fluid" id="modules" style="margin-bottom: 50px">
+      <div class="container mb-[50px]" id="modules">
         {% for group in grouped_modules %}
-        <div class="row">
+        <div class="flex justify-center items-center">
           {% for module in group %}
-          <div class="col-lg-4 col-12" >
-            <!-- <div class="max-w-6xl mx-auto font-[sans-serif] relative z-50">
-              <div
-                class="max-md:max-w-lg mx-auto gap-12"
-              >
-                <div
-                  class="p-8 flex gap-6 rounded-lg hover:shadow-md shadow-red-300 hover:scale-105 transition-all duration-300 border-2 border-red-200 bg-white  flex-col items-center text-center"
-                >
-                  <a href="{{ module.url }}" class="items-center text-center flex flex-col gap-6">
-                    <div
-                      
-                      class="rounded group text-center  hover:!bg-[#f01819] !text-[#f01819] hover:!text-white  transition duration-300"
-                      
-                    >
-                    <i class="{{ module.icon }} text-xl"></i>
-                    </div>
-                    <div>
-                      <h3 class="text-gray-800 text-xl font-semibold mb-3">{{ module.name }}</h3>
-                      <p class="text-gray-600 text-sm">{{ module.description }}</p>
-                    </div>
-                  </a>
-                </div>
-              </div>
-            </div> -->
-            
-            
-            <a href="{{ module.url }}" class="items-center text-center flex flex-col gap-6">
-              <div class="flip-card" style="padding: 30px">
+            <a href="{{ module.url }}" class="items-center text-center flex flex-col gap-6 m-4">
+              <div class="flip-card" >
                 <div class="flip-card-inner">
-                  <div class="flip-card-front">
+                  <div class="flip-card-front py-2 px-2">
                     <i class="{{ module.icon }} text-xl"></i>
-                    <h3 class="text-gray-800 text-xl font-semibold">{{ module.name }}</h3>
+                    <h3 class="text-gray-800 text-xl font-semibold mt-2">{{ module.name }}</h3>
                     <p class="text-gray-600 text-sm">{{ module.description }}</p>
+                    
+                    <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
+                      {{ module.about }}
+                    </p>
   
                   </div>
-                  <div class="flip-card-back">
-                    <p class="text-gray-600 text-sm" style="padding: 5px">{{ module.info }}</p>
+                  <div class="flip-card-back py-20 px-5">
+                    <p class="text-gray-600 text-sm leading-6 mb-3">{{ module.info }}</p>
+                    <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
+                      <i class="fas fa-arrow-right text-lg"></i>
+                    </p>
                   </div>
                 </div>
               </div>
             </a>
-          </div>
           {% endfor %}
         </div>
         {% endfor %}

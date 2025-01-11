@@ -2,8 +2,46 @@
 {% load static %}
 {% block page_title %}{{ page_title }}{% endblock page_title %}
 {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+    .swal2-icon.swal2-success {
+      border-color: #fe3232 !important; 
+    }
+    .swal2-icon.swal2-success [class^="swal2-success-line"] {
+      background-color: #fe3232 !important; 
+    }
+    .swal2-icon.swal2-success .swal2-success-ring {
+      border-color: #fe3232 !important; 
+    }
+
+    .swal2-confirm {
+      background-color: #2C2C2C !important; 
+      width: 250px;
+      color: white !important;
+      border: none !important;
+      border-radius: 8px !important; 
+      padding: 10px 20px !important;
+      font-size: 16px !important;
+      cursor: pointer !important;
+      transition: all .15s ease-in-out;
+    }
+    .swal2-confirm:hover {
+      background-color: #2C2C2C !important; 
+      transform: scale(1.1);
+    }
+    </style>
+</head>
+<body>
+    
 {% for group in grouped_modules %}
-<div class="row">
+<div class="row ">
     {% for module in group %}
     <div class="col-lg-4 col-12">
         <div class="small-box">
@@ -16,13 +54,23 @@
             </div>
             
             <!-- Button to toggle visibility or open modal -->
-            <button class="small-box-footer" style="border: 0px; border-radius: 5px; padding: 5px; "
+            <button class=" rounded-md"
                     {% if not module.visible %}data-bs-toggle="modal" data-bs-target="#subscriptionModal{{ module.id }}"{% else %}
                     onclick="toggleVisibility({{ module.id }})"{% endif %}>
                 {% if module.visible %}
-                    <i class="fas fa-toggle-on" style="color: green;"></i>
+                    <i class="fas fa-toggle-on text-[#6f6f6f] text-[20px] px-2"></i>
+                    <!-- <div class="relative inline-block w-11 h-5 mx-2">
+                        <input checked id="open-{{module.id}}" type="checkbox" class="peer appearance-none w-11 h-5 bg-slate-100 rounded-full checked:bg-red-600 cursor-pointer transition-colors duration-300" />
+                        <label for="open-{{module.id}}" class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-red-600 cursor-pointer">
+                        </label>
+                    </div> -->
                 {% else %}
-                    <i class="fas fa-toggle-off"></i>
+                    <i class="fas fa-toggle-off text-[#ddd] text-[20px] px-2"></i>
+                    <!-- <div class="relative inline-block w-11 h-5 mx-2">
+                        <input checked id="off-{{module.id}}" type="checkbox" class="peer appearance-none w-11 h-5 bg-slate-100 rounded-full  cursor-pointer transition-colors duration-300" />
+                        <label for="off-{{module.id}}" class="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 shadow-sm transition-transform duration-300 cursor-pointer">
+                        </label>
+                    </div> -->
                 {% endif %}
             </button>
         </div>
@@ -46,9 +94,9 @@
                         <input type="hidden" name="module_id" value="{{ module.id }}">
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitSubscription({{ module.id }})">Submit</button>
+                <div class="modal-footer flex justify-center items-center">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="button" class="md:w-1/2 text-white py-1 rounded-2xl bg-[#4b4b4b] hover:bg-[#2C2C2C] hover:scale-110 transition-all ease-in-out duration-150" onclick="submitSubscription({{ module.id }})">Submit</button>
                 </div>
             </div>
         </div>
@@ -82,13 +130,27 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Subscription activated successfully!");
-                location.reload();
+                // alert("Subscription activated successfully!");
+                Swal.fire({
+                    title: "Done",
+                    text: "Subscription activated successfully!",
+                    icon: "success",
+            });
+                setTimeout(() => {
+                    location.reload();
+                }, 2800);
             } else {
-                alert("Invalid subscription code. Please try again.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Invalid subscription code. Please try again."
+                });
+                // alert("Invalid subscription code, Please try again.");
             }
         })
         .catch(error => console.error("Error:", error));
     }
 </script>
+</body>
+</html>
 {% endblock content %}

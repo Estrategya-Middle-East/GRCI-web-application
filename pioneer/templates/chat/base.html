@@ -112,15 +112,15 @@
                 
                 <!-- Ask PioNeer -->
                 <div class="dropdown ml-3">
-                    {% url 'chat' as url %}
+                    {% url 'chat_dashboard' as url %}
                     <a href="#" class="btn btn-light {% if url == request.path %}active{% endif %}" id="monitoring-menu" data-bs-toggle="dropdown">
-                        Ask PioNeer
+                        PioNeer
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="monitoring-menu" style="border-radius: 0;">
                         
-                        {% url 'chat' as url %}
+                        {% url 'chat_dashboard' as url %}
                         <li>
-                            <a href="{% url 'chat'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Ask PioNeer</a>
+                            <a href="{% url 'chat_dashboard'%}" class="dropdown-item  {% if url == request.path %}active{% endif %}">Use Cases</a>
                         </li>
                     </ul>
                 </div>
@@ -246,6 +246,7 @@
         <div class="content-wrapper">
             <!-- Content Wrapper. Contains page content -->
             <!-- Content Header (Page header) -->
+            {% if page_title != "PioNeer+ Dashboard" %}
             <div class="content-header  bg-white">
                 <div class="container-xxl">
                     <div class="row mb-2">
@@ -257,6 +258,7 @@
                 </div><!-- /.container-xxl -->
             
             </div>
+            {% endif %}
             <!-- /.content-header -->
 
             <!-- Main content -->

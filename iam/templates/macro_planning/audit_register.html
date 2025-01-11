@@ -98,6 +98,10 @@
                                 {% endif %}
                             </a>
                         </th>
+                        <th>Entity Type</th>
+                        <th>Organizational Category</th>
+                        <th>Process Category</th>
+                        <th>Location Category</th>
                         <th>
                             <a href="?sort_by=risk_category&order={% if current_sort == 'risk_category' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 Risk Category
@@ -110,10 +114,14 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Priority Level</th>
+                        <th>Risk Score</th>
+                        <th>Strategic Relevance</th>
+                        <th>Audit Scope</th>
+                        <th>Assigned Auditor</th>
                         <th>Last Audit Date</th>
                         <th>Next Audit Date</th>
-                        <th>Assigned Auditor</th>
+                        <th>Priority Level</th>
+                        <th>Senior Manager Feedback</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
@@ -126,11 +134,19 @@
                         <td><input type="radio" name="selected" value="{{ audit_register.audit_id }}"></td>
                         <td>{{ forloop.counter|add:paginated_audit_registers.start_index|add:-1 }}</td>
                         <td>{{ audit_register.entity_name }}</td>
+                        <td>{{ audit_register.entity_type }}</td>
+                        <td>{{ audit_register.organizational_category }}</td>
+                        <td>{{ audit_register.process_category }}</td>
+                        <td>{{ audit_register.location_category }}</td>
                         <td>{{ audit_register.risk_category }}</td>
-                        <td>{{ audit_register.priority_level }}</td>
+                        <td>{{ audit_register.risk_score }}</td>
+                        <td>{{ audit_register.strategic_relevance }}</td>
+                        <td>{{ audit_register.audit_scope }}</td>
+                        <td>{{ audit_register.assigned_auditor }}</td>
                         <td>{{ audit_register.last_audit_date }}</td>
                         <td>{{ audit_register.next_audit_date }}</td>
-                        <td>{{ audit_register.assigned_auditor }}</td>
+                        <td>{{ audit_register.priority_level }}</td>
+                        <td>{{ audit_register.senior_manager_feedback }}</td>
                         <td>{{ audit_register.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
@@ -169,12 +185,66 @@
                                                         <input type="text" name="entity_name" id="id_entity_name-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.entity_name }}">
                                                     </div>
                                                     <div class="col">
+                                                        <label for="id_entity_type-{{ audit_register.audit_id }}">Entity Type</label>
+                                                        <input type="text" name="entity_type" id="id_entity_type-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.entity_type }}">
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="id_organizational_category-{{ audit_register.audit_id }}">Organizational Category</label>
+                                                        <select name="organizational_category" id="id_organizational_category-{{ audit_register.audit_id }}" class="form-control">
+                                                            {% for value, label in organizational_category_choices %}
+                                                                <option value="{{ value }}" {% if audit_register.organizational_category == value %}selected{% endif %}>{{ label }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_process_category-{{ audit_register.audit_id }}">Process Category</label>
+                                                        <select name="process_category" id="id_process_category-{{ audit_register.audit_id }}" class="form-control">
+                                                            {% for value, label in process_category_choices %}
+                                                                <option value="{{ value }}" {% if audit_register.process_category == value %}selected{% endif %}>{{ label }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_location_category-{{ audit_register.audit_id }}">Location Category</label>
+                                                        <select name="location_category" id="id_location_category-{{ audit_register.audit_id }}" class="form-control">
+                                                            {% for value, label in location_category_choices %}
+                                                                <option value="{{ value }}" {% if audit_register.location_category == value %}selected{% endif %}>{{ label }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
                                                         <label for="id_risk_category-{{ audit_register.audit_id }}">Risk Category</label>
                                                         <select name="risk_category" id="id_risk_category-{{ audit_register.audit_id }}" class="form-control">
                                                             {% for value, label in risk_category_choices %}
                                                                 <option value="{{ value }}" {% if audit_register.risk_category == value %}selected{% endif %}>{{ label }}</option>
                                                             {% endfor %}
                                                         </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_risk_score-{{ audit_register.audit_id }}">Risk Score</label>
+                                                        <input type="number" name="risk_score" id="id_risk_score-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.risk_score }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_strategic_relevance-{{ audit_register.audit_id }}">Strategic Relevance</label>
+                                                        <select name="strategic_relevance" id="id_strategic_relevance-{{ audit_register.audit_id }}" class="form-control">
+                                                            {% for value, label in strategic_relevance_choices %}
+                                                                <option value="{{ value }}" {% if audit_register.strategic_relevance == value %}selected{% endif %}>{{ label }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_audit_scope-{{ audit_register.audit_id }}">Audit Scope</label>
+                                                        <textarea name="audit_scope" id="id_audit_scope-{{ audit_register.audit_id }}" class="form-control">{{ audit_register.audit_scope }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2">
@@ -209,6 +279,10 @@
                                                 </div>
                                                 
                                                 <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_senior_manager_feedback-{{ audit_register.audit_id }}">Senior Manager Feedback</label>
+                                                        <textarea name="senior_manager_feedback" id="id_senior_manager_feedback-{{ audit_register.audit_id }}" class="form-control">{{ audit_register.senior_manager_feedback }}</textarea>
+                                                    </div>
                                                     <div class="col">
                                                         <label for="id_comments-{{ audit_register.audit_id }}">Comments</label>
                                                         <textarea name="comments" id="id_comments-{{ audit_register.audit_id }}" class="form-control">{{ audit_register.comments }}</textarea>
@@ -309,8 +383,43 @@
                                     {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
+                                    <label for="id_entity_type">Entity Type</label>
+                                    {{ form.entity_type|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label for="id_organizational_category">Organizational Category</label>
+                                    {{ form.organizational_category|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_process_category">Process Category</label>
+                                    {{ form.process_category|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_location_category">Location Category</label>
+                                    {{ form.location_category|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                
+                                <div class="col">
                                     <label for="id_risk_category">Risk Category</label>
                                     {{ form.risk_category|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_risk_score">Risk Score</label>
+                                    {{ form.risk_score|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_strategic_relevance">Strategic Relevance</label>
+                                    {{ form.strategic_relevance|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_audit_scope">Audit Scope</label>
+                                    {{ form.audit_scope|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -334,6 +443,10 @@
                                 </div>
                             </div>
                             <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_senior_manager_feedback">Senior Manager Feedback</label>
+                                    {{ form.senior_manager_feedback|add_class:"form-control" }}
+                                </div>
                                 <div class="col">
                                     <label for="id_comments">Comments</label>
                                     {{ form.comments|add_class:"form-control" }}
