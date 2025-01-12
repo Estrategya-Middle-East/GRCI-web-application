@@ -1,7 +1,7 @@
 {% extends "iam/iam_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Audit Program{% endblock page_title %}
+{% block page_title %}Risk And Control Matrix{% endblock page_title %}
 
 {% block content %}
 <!DOCTYPE html>
@@ -14,54 +14,70 @@
 </head>
 <body>
     <div class="container-fluid mt-4">
-        <form method="get" action="{% url 'audit_program_overview_to_excel' %}">
-            <button type="submit" class="btn btn-dark" style="margin-bottom: 20px">Export to Excel</button>
+        <form method="get" action="{% url 'export_process_overview_to_excel' %}">
+            <button type="submit" class="btn btn-dark" style="margin-bottom: 20px">Export RCM to Excel</button>
         </form>
         
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Subprocess ID</th>
-                        <th>Subprocess Name</th>
-                        <th>Subprocess Description</th>
-                        <th>Audit Test ID</th>
-                        <th>Audit Test Name</th>
-                        <th>Audit Test Description</th>
-                        <th>Procedure ID</th>
-                        <th>Procedure Name</th>
-                        <th>Procedure Description</th>
-                        <th>Requirements List ID</th>
-                        <th>Requirements Name</th>
-                        <th>Requirements Description</th>
-                        <th>Requested By</th>
-                        <th>Requested From</th>
-                        <th>Requested Date</th>
-                        <th>Date Received</th>
-                        <th>Status</th>
+                        <th>ID</th>
+                        <th>Process Name</th>
+                        <th>Process Description</th>
+                        <th>Sub-Process ID</th>
+                        <th>Sub-Process Name</th>
+                        <th>Sub-Process Description</th>
+                        <th>Activity ID</th>
+                        <th>Activity Name</th>
+                        <th>Activity Description</th>
+                        <th>Risk ID</th>
+                        <th>Risk Name</th>
+                        <th>Risk Description</th>
+                        <th>Risk Score</th>
+                        <th>Risk Type</th>
+                        <th>Control ID</th>
+                        <th>Control Name</th>
+                        <th>Control Description</th>
+                        <th>Control Objective</th>
+                        <th>Performed By</th>
+                        <th>Performed Date</th>
+                        <th>Control Location</th>
+                        <th>Control Class</th>
+                        <th>Control Type</th>
+                        <th>Final Decision</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in paginated_rows %}
-                        <tr>
-                            <td>{{ row.subprocess_id }}</td>
-                            <td>{{ row.subprocess_name }}</td>
-                            <td>{{ row.subprocess_description }}</td>
-                            <td>{{ row.audit_test_id }}</td>
-                            <td>{{ row.audit_test_name }}</td>
-                            <td>{{ row.audit_test_description }}</td>
-                            <td>{{ row.procedure_id }}</td>
-                            <td>{{ row.procedure_name }}</td>
-                            <td>{{ row.procedure_description }}</td>
-                            <td>{{ row.requirements_list_id }}</td>
-                            <td>{{ row.requirements_name }}</td>
-                            <td>{{ row.requirements_description }}</td>
-                            <td>{{ row.requested_by }}</td>
-                            <td>{{ row.requested_from }}</td>
-                            <td>{{ row.requested_date }}</td>
-                            <td>{{ row.date_received }}</td>
-                            <td>{{ row.status }}</td>
-                        </tr>
+                    <tr>
+                        <td>{{ row.process_id }}</td>
+                        <td>{{ row.process_name }}</td>
+                        <td>{{ row.process_description }}</td>
+                        <td>{{ row.subprocess_id }}</td>
+                        <td>{{ row.subprocess_name }}</td>
+                        <td>{{ row.subprocess_description }}</td>
+                        <td>{{ row.activity_id }}</td>
+                        <td>{{ row.activity_name }}</td>
+                        <td>{{ row.activity_description }}</td>
+                        <td>{{ row.risk_id }}</td>
+                        <td>{{ row.risk_name }}</td>
+                        <td>{{ row.risk_description }}</td>
+                        <td>{{ row.risk_score }}</td>
+                        <td>{{ row.risk_type }}</td>
+                        <td>{{ row.control_id }}</td>
+                        <td>{{ row.control_name }}</td>
+                        <td>{{ row.control_description }}</td>
+                        <td>{{ row.control_objective }}</td>
+                        <td>{{ row.control_performed_by }}</td>
+                        <td>{{ row.control_performed_date }}</td>
+                        <td>{{ row.control_location }}</td>
+                        <td>{{ row.control_class }}</td>
+                        <td>{{ row.control_type }}</td>
+                        <td>
+                            {{ row.control_final_decision }}
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

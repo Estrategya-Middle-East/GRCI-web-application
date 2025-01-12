@@ -133,7 +133,7 @@
 
                 <!-- Micro Planning Section -->
                 <div class="dropdown ml-3">
-                    {% url 'list_audit_assessment' as url1 %}{% url 'list_audit_notification' as url2 %}{% url 'list_entrance_meeting' as url3 %}{% url 'list_sub_risk_assessment' as url4 %}{% url 'list_entrance_meeting' as url3 %}{% url 'list_audit_program' as url5 %}
+                    {% url 'list_audit_assessment' as url1 %}{% url 'list_audit_notification' as url2 %}{% url 'list_entrance_meeting' as url3 %}{% url 'risk_control_matrix' as url4 %}{% url 'audit_program' as url5 %}
                     <a href="#" class="btn btn-light {% if url1  == request.path or url2  == request.path or url3  == request.path or url4  == request.path or url5  == request.path %}active{% endif %}" id="strategic-menu" data-bs-toggle="dropdown">
                         Micro Planning
                     </a>
@@ -150,16 +150,15 @@
                         <li>
                             <a href="{% url 'list_entrance_meeting' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Entrance Meeting</a>
                         </li>
+                        
+                        {% url 'risk_control_matrix' as url %}
                         <li>
-                            <a href="#" class="dropdown-item">Process Understanding</a>
+                            <a href="{% url 'risk_control_matrix' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk And Control Matrix</a>
                         </li>
-                        {% url 'list_sub_risk_assessment' as url %}
+                        
+                        {% url 'audit_program' as url %}
                         <li>
-                            <a href="{% url 'list_sub_risk_assessment' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Risk Aand Control Matrix</a>
-                        </li>
-                        {% url 'list_audit_program' as url %}
-                        <li>
-                            <a href="{% url 'list_audit_program' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Program</a>
+                            <a href="{% url 'audit_program'%}" class="dropdown-item {% if url == request.path %}active{% endif %}">Audit Program</a>
                         </li>
                         {% comment %} <li>
                             <a href="#" class="dropdown-item ">Reports</a>
@@ -328,6 +327,7 @@
                 </div><!-- /.container-fluid -->
             </div>
             <script src="https://cdn.tailwindcss.com"></script>
+            {% if page_title != "RCM" and  page_title != "Audit Program" %}
             <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
                 <!-- Dropdown Menu (Aligned to the right) -->
                 <div class="dropdown">
@@ -341,6 +341,39 @@
                     </ul>
                 </div>
             </div>
+            {% endif %}
+            {% if page_title == "RCM" %}
+            <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
+                <!-- Dropdown Menu (Aligned to the right) -->
+                <div class="dropdown">
+                    <button class="dropdown-toggle  btn btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                        Settings
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="action-menu">
+                        <li><a href="{% url 'list_process_understanding' %}" class="dropdown-item">Process Understanding</a></li>
+                        <li><a href="{% url 'list_sub_process' %}" class="dropdown-item">Subprocess</a></li>
+                        <li><a href="{% url 'list_activity' %}" class="dropdown-item">Activity</a></li>
+                        <li><a href="{% url 'list_process_risk' %}" class="dropdown-item">Process Risk</a></li>
+                        <li><a href="{% url 'list_control' %}" class="dropdown-item">Control</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            {% if page_title == "Audit Program" %}
+            <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
+                <!-- Dropdown Menu (Aligned to the right) -->
+                <div class="dropdown">
+                    <button class="dropdown-toggle  btn btn-sm text-white bg-[#343a40] hover:bg-[#000000d3] hover:scale-105 transition-all duration-100 ease-in-out" type="button" id="action-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                        Settings
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="action-menu">
+                        <li><a href="{% url 'list_audit_test' %}" class="dropdown-item">Audit Test</a></li>
+                        <li><a href="{% url 'list_audit_procedure' %}" class="dropdown-item">Audit Procedure</a></li>
+                        <li><a href="{% url 'list_requirements_list' %}" class="dropdown-item">List of Requirements</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
             {% endif %}
             <!-- /.content-header -->
 

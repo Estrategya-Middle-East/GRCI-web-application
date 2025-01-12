@@ -1,0 +1,367 @@
+{% extends "iam/iam_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Audit Procedure{% endblock page_title %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<div class="container-fluid mt-4">
+    <form method="POST" id="action-form">
+        {% csrf_token %}
+        {% comment %} <div class="mb-3 action_menu">
+            <select id="action-menu" class="form-control w-25 d-inline-block">
+                <option value="">Select Action</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button type="button" id="perform-action" class="btn btn-primary">Perform Action</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
+                Add New
+            </button>
+        </div> {% endcomment %}
+        <div class="row">
+            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_sort == 'name' %}
+                        SORT BY Procedure Name
+                        {% elif current_sort == 'description' %}
+                        SORT BY Description
+                        {% elif current_sort == 'id' %}
+                        SORT BY ID
+                        {% endif %}
+                    <span>
+                </div>
+            </div>
+        
+            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
+                <div class="box">
+                    <span>
+                        {% if current_order == 'asc' %}
+                        ORDER IS ASC
+                        {% else %}
+                        ORDER IS DES
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="col-12" style="margin-left: 10px">
+                <!-- Search Form -->
+                <form method="get" class="form-inline mb-4">
+                    <div class="row">
+                        
+                        <div class="col-0 ">
+                            <label for="search">Filter:</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                            value="{{ search_query }}" placeholder="Type to filter..." />
+                        </div>
+                        
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-info ml-2">Search</button>
+                        </div>
+                    </div>  
+                </form>
+            </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>
+                            <a href="?sort_by=id&order={% if current_sort == 'id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                #
+                                {% if current_sort == 'id' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>SubProcess</th>
+                        <th>
+                            <a href="?sort_by=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Procedure Name
+                                {% if current_sort == 'name' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort_by=description&order={% if current_sort == 'description' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Description
+                                {% if current_sort == 'description' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>Conducted By</th>
+                        
+                        {% comment %} <th>Actions</th> {% endcomment %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for audit_procedure in paginated_audit_procedures %}
+                    <tr>
+                        <td><input type="radio" name="selected" value="{{ audit_procedure.id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_audit_procedures.start_index|add:-1 }}</td>
+                        <td>{{ audit_procedure.subprocess_id }}</td>
+                        <td>{{ audit_procedure.name }}</td>
+                        <td>{{ audit_procedure.description }}</td>
+                        <td>{{ audit_procedure.conducted_by }}</td>
+                        
+
+                        {% comment %} <td>
+                            <!-- View Workflow Icon -->
+                            <a href="{% url 'workflow_view' audit_procedure.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td> {% endcomment %}
+                    </tr>
+
+                    <!-- Edit Modal -->
+                    {% if audit_procedure.id %}
+                    <div class="modal fade" id="editModal-{{ audit_procedure.id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_procedure.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-{{ audit_procedure.id }}">Edit</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="POST" action="{% url 'edit_audit_procedure' audit_procedure.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <!-- Tabs -->
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="general-tab-{{ audit_procedure.id }}" data-toggle="tab" href="#general-{{ audit_procedure.id }}" role="tab">General</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content mt-3">
+                                            <!-- General Tab -->
+                                            <div class="tab-pane fade show active" id="general-{{ audit_procedure.id }}" role="tabpanel">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="id_subprocess_id-{{ audit_procedure.id }}">SubProcess Name</label>
+                                                        <select name="subprocess_id" id="id_subprocess_id-{{ audit_procedure.id }}" class="form-control">
+                                                            {% for choice in sub_process_choices %}
+                                                            <option value="{{ choice.id }}" {% if audit_procedure.subprocess_id == choice.id %}selected{% endif %}>
+                                                                {{ choice }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_name-{{ audit_procedure.id }}">Test Name</label>
+                                                        <input type="text" name="name" id="id_name-{{ audit_procedure.id }}" class="form-control" value="{{ audit_procedure.name }}">
+                                                    </div>
+                                                </div>   
+                                                
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label for="id_conducted_by-{{ audit_procedure.id }}">Owner</label>
+                                                        <select name="conducted_by" id="id_conducted_by-{{ audit_procedure.id }}" class="form-control">
+                                                            {% for choice in conducted_by_choices %}
+                                                            <option value="{{ choice.id }}" {% if audit_procedure.conducted_by == choice.id %}selected{% endif %}>
+                                                                {{ choice }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    
+                                                </div>
+                                                   
+                                                <div class="row">
+                                                    
+                                                    <div class="col">
+                                                        <label for="id_description-{{ audit_procedure.id }}">Description</label>
+                                                        <textarea name="description" id="id_description-{{ audit_procedure.id }}" class="form-control">{{ audit_procedure.description }}</textarea>
+                                                        
+                                                    </div>
+                                                    
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>       
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <!-- Pagination -->
+        <div class="pagination_wrap mt-4 d-flex justify-content-between align-items-center">
+            <form method="get" class="form-inline">
+                <label for="rows-per-page" class="mr-2">Show:</label>
+                <select id="rows-per-page" name="rows_per_page" class="form-control w-auto" onchange="this.form.submit()">
+                    <option value="5" {% if rows_per_page == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if rows_per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if rows_per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="50" {% if rows_per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+                {% for key, value in request.GET.items %}
+                    {% if key != 'rows_per_page' and key != 'page' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+
+            <div>
+                Showing {{ paginated_audit_procedures.start_index }} - {{ paginated_audit_procedures.end_index }} of {{ paginated_audit_procedures.paginator.count }} Procedure
+            </div>
+            
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if paginated_audit_procedures.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_audit_procedures.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">{{ paginated_audit_procedures.number }}</span>
+                    </li>
+                    
+                    {% if paginated_audit_procedures.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ paginated_audit_procedures.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </form>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Add New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'add_audit_procedure' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="general-tab-add" data-toggle="tab" href="#general-add" role="tab">General</a>
+                        </li>
+                        
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <!-- General Tab -->
+                        <div class="tab-pane fade show active" id="general-add" role="tabpanel">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="id_subprocess_id">SubProcess</label>
+                                    {{ form.subprocess_id|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_name">Procedure Name</label>
+                                    {{ form.name|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col">
+                                    <label for="id_conducted_by">Conducted By</label>
+                                    {{ form.conducted_by|add_class:"form-control" }}
+                                </div>
+                               
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <label for="id_description">Description</label>
+                                    {{ form.description|add_class:"form-control" }}
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const actionLinks = document.querySelectorAll('.trig'); // Action items in the dropdown
+    
+        // Listen for a click on the action links
+        actionLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default behavior
+                const selectedRadio = document.querySelector('input[name="selected"]:checked');
+    
+                // Check if a Procedure is selected
+                if (!selectedRadio) {
+                    alert('Please select a Procedure.');
+                    return;
+                }
+    
+                const selectedId = selectedRadio.value; // Get the selected Procedure ID
+                const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
+    
+                if (selectedAction === 'delete') {
+                    const deleteUrl = `/iam/micro_planning/audit_procedures/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Procedure?')) {
+                        // Redirect to the delete URL
+                        window.location.href = deleteUrl;
+                    }
+                } else if (selectedAction === 'edit') {
+                    const editModal = new bootstrap.Modal(document.getElementById(`editModal-${selectedId}`));
+                    editModal.show();
+                }
+            });
+        });
+    });
+    
+
+</script>
+
+
+{% endblock content %}

@@ -188,13 +188,36 @@ class EntranceMeeting(models.Model):
     def __str__(self):
         return self.entity_name
 
+class ProcessUnderstanding(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
 
-# 7. Sub-Process Risk Assessment (ORC)	
-class SubRiskAssessment(models.Model):
-    assessment_id = models.AutoField(primary_key=True)
-    sub_process_name = models.CharField(max_length=255)
-    entity_name = models.CharField(max_length=255)
-    risk_category = models.CharField(
+    def __str__(self):
+        return self.name
+    
+# 7. Sub-Process 
+class SubProcess(models.Model):
+    process_id = models.ForeignKey(ProcessUnderstanding, blank=True, null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
+
+class Activity(models.Model):
+    subprocess_id = models.ForeignKey(SubProcess, blank=True, null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
+    
+class ProcessRisk(models.Model):
+    subprocess_id = models.ForeignKey(SubProcess, blank=True, null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    risk_score = models.IntegerField(blank=True, null=True)
+    risk_type = models.CharField(blank=True, null=True,
         max_length=50,
         choices=[
             ('Operational', 'Operational'),
@@ -203,33 +226,96 @@ class SubRiskAssessment(models.Model):
             ('Compliance', 'Compliance'),
         ],
         default='Operational',
-    )    
-    inherent_risk = models.IntegerField(blank=True, null=True)
-    residual_risk = models.IntegerField(blank=True, null=True)
-    control_effectiveness = models.TextField(blank=True, null=True)
-    assessed_by = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL)  # Replace with ForeignKey if linked to a user model
-    assessed_date = models.DateField(blank=True, null=True)
-    risk_severity = models.CharField(max_length=50, choices=[('High', 'High'), ('Medium', 'Medium'), ('Low', 'Low')])
-    comments = models.TextField(blank=True, null=True)
+    )  
     
     def __str__(self):
-        return self.sub_process_name
-   
+        return self.name
+
+class control(models.Model):
+    subprocess_id = models.ForeignKey(SubProcess, blank=True, null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    objective = models.TextField(blank=True, null=True)
+    performed_by = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL) 
+    performed_date = models.DateField(blank=True, null=True) 
+    control_location = models.TextField(max_length=255, blank=True, null=True)
+    control_class = models.CharField(blank=True, null=True,
+        max_length=50,
+        choices=[
+            ('Operational', 'Operational'),
+            ('Strategic', 'Strategic'),
+            ('Financial', 'Financial'),
+            ('Compliance', 'Compliance'),
+        ],
+        default='Operational',
+    )   
+    control_type = models.CharField(blank=True, null=True,
+        max_length=50,
+        choices=[
+            ('Preventive', 'Preventive'),
+            ('Detective', 'Detective'),
+            ('Concurrent', 'Concurrent'),
+        ],
+        default='Preventive',
+    )
+    final_decision = models.BooleanField(blank=True, null=True)
+    def __str__(self):
+        return self.name   
+
+
 
 # 8. Audit Program
-class AuditProgram(models.Model):
-    program_id = models.AutoField(primary_key=True)
-    entity_name = models.CharField(max_length=255)
-    sub_process_name = models.ForeignKey(SubRiskAssessment, blank=True, null=True, on_delete=models.SET_NULL)
-    procedures = models.TextField(blank=True, null=True)
-    tests = models.TextField(blank=True, null=True)
-    assigned_auditors = models.ManyToManyField(Staff, blank=True)
-    program_date = models.DateField(blank=True, null=True)
-    comments = models.TextField(blank=True, null=True)
+class AuditTest(models.Model):
+    STATUS_CHOICES = [
+        ('Not Started', 'Not Started'),
+        ('Partially Completed', 'Partially Completed'),
+        ('Completed', 'Completed'),
+    ]
+    name = models.CharField(max_length=255)
+    subprocess_id = models.ForeignKey(SubProcess, blank=True, null=True, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    tested_by = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL)
+    start_date = models.DateField(blank=True, null=True)
+    completion_date = models.DateField(blank=True, null=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Not Started")
+    result = models.TextField(blank=True, null=True)
     
     def __str__(self):
-        return self.entity_name
+        return self.name
 
+class AuditProcedure(models.Model):
+    name = models.CharField(max_length=255)
+    subprocess_id = models.ForeignKey(SubProcess, blank=True, null=True, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    conducted_by = models.ForeignKey(Staff, related_name= "conducted_by", blank=True, null=True, on_delete=models.SET_NULL) 
+    
+    
+    def __str__(self):
+        return self.name
+        
+# 8.1. Requirements List (LOR)
+class RequirementsList(models.Model):
+    STATUS_CHOICES = [
+        ('Not Yet Shared', 'Not Yet Shared'),
+        ('Partially Received', 'Partially Received'),
+        ('Fully Received', 'Fully Received'),
+    ]
+    test_id = models.ForeignKey(AuditTest, blank=True, null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    Description = models.TextField(blank=True, null=True)
+    requested_by = models.ForeignKey(Staff, related_name= "requested_by", blank=True, null=True,  on_delete=models.SET_NULL)
+    escalation_to = models.CharField(max_length=255,blank=True, null=True)
+    requested_from = models.CharField(max_length=255,blank=True, null=True)
+    date_requested = models.DateField(blank=True, null=True)
+    reminder_date = models.DateField(blank=True, null=True)
+    date_received = models.DateField(blank=True, null=True)
+    escalation = models.BooleanField(blank=True, null=True)
+    sla = models.IntegerField(blank=True, null=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Not Yet Shared", blank=True, null=True)
+    remarks = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
 
 # Fieldwork (Per Audit) #
 
@@ -237,10 +323,27 @@ class AuditProgram(models.Model):
 class WorkingPaper(models.Model):
     working_paper_id = models.AutoField(primary_key=True)    
     entity_name = models.CharField(max_length=255)
+    analytics = models.CharField(
+        max_length=50,
+        choices=[
+            ('Manual', 'Manual'),
+            ('CAAT', 'CAAT'),
+        ],
+        default='Manual',
+    )    
     audit_task = models.CharField(max_length=255)
+    objective = models.TextField(blank=True, null=True)
+    scope = models.TextField(blank=True, null=True)
+    sample_justification = models.TextField(blank=True, null=True)
+    owner = models.ForeignKey(Staff, related_name= "owner", blank=True, null=True, on_delete=models.SET_NULL) 
+    test_conclusion = models.TextField(blank=True, null=True)
     evidence_collected = models.TextField(blank=True, null=True)
-    performed_by = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL)  # Replace with ForeignKey if linked to a user model
+    performed_by = models.ForeignKey(Staff, related_name= "performed_by", blank=True, null=True, on_delete=models.SET_NULL) 
+    reviewed_by = models.ForeignKey(Staff, related_name= "reviewed_by", blank=True, null=True, on_delete=models.SET_NULL) 
+    task_start_date = models.DateField(blank=True, null=True)
     task_completion_date = models.DateField(blank=True, null=True)
+    observation = models.BooleanField(blank=True, null=True)
+    observation_description = models.TextField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     
     def __str__(self):

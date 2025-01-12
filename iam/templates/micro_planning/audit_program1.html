@@ -1,7 +1,7 @@
 {% extends "iam/iam_base.html" %}
 {% load static %}
 {% load form_filters %}
-{% block page_title %}Risk Aand Control Matrix{% endblock page_title %}
+{% block page_title %}Audit Program{% endblock page_title %}
 
 {% block content %}
 
@@ -27,9 +27,9 @@
                     <span>
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
-                        {% elif current_sort == 'risk_category' %}
-                        SORT BY Risk Category
-                        {% elif current_sort == 'assessment_id' %}
+                        {% elif current_sort == 'sub_process_name' %}
+                        SORT BY Sub-Process Name
+                        {% elif current_sort == 'program_id' %}
                         SORT BY ID
                         {% endif %}
                     <span>
@@ -75,9 +75,9 @@
                     <tr>
                         <th>Select</th>
                         <th>
-                            <a href="?sort_by=assessment_id&order={% if current_sort == 'assessment_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            <a href="?sort_by=program_id&order={% if current_sort == 'program_id' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 #
-                                {% if current_sort == 'assessment_id' %}
+                                {% if current_sort == 'program_id' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -86,7 +86,6 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Sub-Process Name</th>
                         <th>
                             <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 Entity Name
@@ -100,9 +99,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort_by=risk_category&order={% if current_sort == 'risk_category' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Risk Category
-                                {% if current_sort == 'risk_category' %}
+                            <a href="?sort_by=sub_process_name&order={% if current_sort == 'sub_process_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Sub-Process Name
+                                {% if current_sort == 'sub_process_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
                                     {% else %}
@@ -111,12 +110,10 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Inherent Risk</th>
-                        <th>Residual Risk</th>
-                        <th>Control Effectiveness</th>
-                        <th>Assessed By</th>
-                        <th>Assessed Date</th>
-                        <th>Risk Severity</th>
+                        <th>Procedures</th>
+                        <th>Tests</th>
+                        <th>Assigned Auditors</th>
+                        <th>Program Date</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
@@ -124,121 +121,98 @@
                 </thead>
 
                 <tbody>
-                    {% for sub_risk_assessment in paginated_sub_risk_assessments %}
+                    {% for audit_program in paginated_audit_programs %}
                     <tr >
-                        <td><input type="radio" name="selected" value="{{ sub_risk_assessment.assessment_id }}"></td>
-                        <td>{{ forloop.counter|add:paginated_sub_risk_assessments.start_index|add:-1 }}</td>
-                        <td>{{ sub_risk_assessment.sub_process_name }}</td>
-                        <td>{{ sub_risk_assessment.entity_name }}</td>
-                        <td>{{ sub_risk_assessment.risk_category }}</td>
-                        <td>{{ sub_risk_assessment.inherent_risk }}</td>
-                        <td>{{ sub_risk_assessment.residual_risk }}</td>
-                        <td>{{ sub_risk_assessment.control_effectiveness }}</td>
-                        <td>{{ sub_risk_assessment.assessed_by }}</td>
-                        <td>{{ sub_risk_assessment.assessed_date }}</td>
-                        <td>{{ sub_risk_assessment.risk_severity }}</td>
-                        <td>{{ sub_risk_assessment.comments }}</td>
+                        <td><input type="radio" name="selected" value="{{ audit_program.program_id }}"></td>
+                        <td>{{ forloop.counter|add:paginated_audit_programs.start_index|add:-1 }}</td>
+                        <td>{{ audit_program.entity_name }}</td>
+                        <td>{{ audit_program.sub_process_name }}</td>
+                        <td>{{ audit_program.procedures }}</td>
+                        <td>{{ audit_program.tests }}</td>
+                        <td>{{ audit_program.assigned_auditors.id }}</td>
+                        <td>{{ audit_program.program_date }}</td>
+                        <td>{{ audit_program.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
-                            <a href="{% url 'workflow_view' sub_risk_assessment.assessment_id %}" class="btn btn-info btn-sm">
+                            <a href="{% url 'workflow_view' audit_program.program_id %}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
                             </a>
                         </td> {% endcomment %}
                     </tr>
 
                     <!-- Edit Modal -->
-                    {% if sub_risk_assessment.assessment_id %}
-                    <div class="modal fade" id="editModal-{{ sub_risk_assessment.assessment_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ sub_risk_assessment.assessment_id }}" aria-hidden="true">
+                    {% if audit_program.program_id %}
+                    <div class="modal fade" id="editModal-{{ audit_program.program_id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ audit_program.program_id }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="editModalLabel-{{ sub_risk_assessment.assessment_id }}">Edit</h5>
+                                    <h5 class="modal-title" id="editModalLabel-{{ audit_program.program_id }}">Edit</h5>
                                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="POST" action="{% url 'edit_sub_risk_assessment' sub_risk_assessment.assessment_id %}">
+                                <form method="POST" action="{% url 'edit_audit_program' audit_program.program_id %}">
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         <!-- Tabs -->
                                         <ul class="nav nav-tabs" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="general-tab-{{ sub_risk_assessment.assessment_id }}" data-toggle="tab" href="#general-{{ sub_risk_assessment.assessment_id }}" role="tab">General</a>
+                                                <a class="nav-link active" id="general-tab-{{ audit_program.program_id }}" data-toggle="tab" href="#general-{{ audit_program.program_id }}" role="tab">General</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content mt-3">
                                             <!-- General Tab -->
-                                            <div class="tab-pane fade show active" id="general-{{ sub_risk_assessment.assessment_id }}" role="tabpanel">
+                                            <div class="tab-pane fade show active" id="general-{{ audit_program.program_id }}" role="tabpanel">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <label for="id_sub_process_name-{{ sub_risk_assessment.assessment_id }}">Sub-Process Name</label>
-                                                        <input type="text" name="sub_process_name" id="id_sub_process_name-{{ sub_risk_assessment.assessment_id }}" class="form-control" value="{{ sub_risk_assessment.sub_process_name }}">
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_entity_name-{{ sub_risk_assessment.assessment_id }}">Entity Name</label>
-                                                        <input type="text" name="entity_name" id="id_entity_name-{{ sub_risk_assessment.assessment_id }}" class="form-control" value="{{ sub_risk_assessment.entity_name }}">
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_risk_category-{{ sub_risk_assessment.assessment_id }}">Risk Category</label>
-                                                        <select name="risk_category" id="id_risk_category-{{ sub_risk_assessment.assessment_id }}" class="form-control">
-                                                            {% for value, label in risk_category_choices %}
-                                                            <option value="{{ value }}" {% if sub_risk_assessment.risk_category == value %}selected{% endif %}>
-                                                                {{ label }}
+                                                        <label for="id_sub_process_name-{{ audit_program.program_id }}">Sub-Process Name</label>
+                                                        <select name="sub_process_name" id="id_sub_process_name-{{ audit_program.program_id }}" class="form-control">
+                                                            {% for choice in sub_process_choices %}
+                                                            <option value="{{ choice.id }}" {% if audit_program.sub_process_name == choice.id %}selected{% endif %}>
+                                                                {{ choice }}
                                                             </option>
                                                             {% endfor %}
                                                         </select>
-                                                        
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="id_inherent_risk-{{ sub_risk_assessment.assessment_id }}">Inherent Risks</label>
-                                                        <input type="number" name="inherent_risk" id="id_inherent_risk-{{ sub_risk_assessment.assessment_id }}" class="form-control" value="{{ sub_risk_assessment.inherent_risk }}">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_residual_risk-{{ sub_risk_assessment.assessment_id }}">Residual Risks</label>
-                                                        <input type="number" name="residual_risk" id="id_residual_risk-{{ sub_risk_assessment.assessment_id }}" class="form-control" value="{{ sub_risk_assessment.residual_risk }}">
+                                                        <label for="id_entity_name-{{ audit_program.program_id }}">Entity Name</label>
+                                                        <input type="text" name="entity_name" id="id_entity_name-{{ audit_program.program_id }}" class="form-control" value="{{ audit_program.entity_name }}">
                                                     </div>
                                                     
                                                 </div>
+                                                
+                                                
                                                 <div class="row mt-2">
+                                                    
                                                     <div class="col">
-                                                        <label for="id_assessed_date-{{ sub_risk_assessment.assessment_id }}">Assessed Date</label>
-                                                        <input type="date" name="assessed_date" id="id_assessed_date-{{ sub_risk_assessment.assessment_id }}" class="form-control" value="{{ sub_risk_assessment.assessed_date|date:'Y-m-d' }}">
+                                                        <label for="id_procedures-{{ audit_program.program_id }}">Procedures</label>
+                                                        <textarea name="procedures" id="id_procedures-{{ audit_program.program_id }}" class="form-control">{{ audit_program.procedures }}</textarea>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_assessed_by-{{ sub_risk_assessment.assessment_id }}">Assessed By</label>
-                                                        <select name="assessed_by" id="id_assessed_by-{{ sub_risk_assessment.assessment_id }}" class="form-control">
-                                                            {% for owner in assessed_bys %}
-                                                            <option value="{{ owner.id }}" {% if sub_risk_assessment.assessed_by == owner.id %}selected{% endif %}>
+                                                        <label for="id_tests-{{ audit_program.program_id }}">Tests</label>
+                                                        <textarea name="tests" id="id_tests-{{ audit_program.program_id }}" class="form-control">{{ audit_program.tests }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col">
+                                                        <label for="id_program_date-{{ audit_program.program_id }}">Program Date</label>
+                                                        <input type="date" name="program_date" id="id_program_date-{{ audit_program.program_id }}" class="form-control" value="{{ audit_program.program_date|date:'Y-m-d' }}">
+                                                    </div>
+                                                    <div class="col">
+                                                        <label for="id_assigned_auditors-{{ audit_program.program_id }}">Assigned Auditors</label>
+                                                        <select name="assigned_auditors" id="id_assigned_auditors-{{ audit_program.program_id }}" class="form-control">
+                                                            {% for owner in owners %}
+                                                            <option value="{{ owner.id }}" {% if audit_program.assigned_auditors.id == owner.id %}selected{% endif %}>
                                                                 {{ owner }}
                                                             </option>
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                                                    
                                                 </div>
                                                 <div class="row mt-2">
                                                     <div class="col">
-                                                        <label for="id_risk_severity-{{ sub_risk_assessment.assessment_id }}">Risk Severity</label>
-                                                        <select name="risk_severity" id="id_risk_severity-{{ sub_risk_assessment.assessment_id }}" class="form-control">
-                                                            {% for value, label in risk_severity_choices %}
-                                                            <option value="{{ value }}" {% if sub_risk_assessment.risk_severity == value %}selected{% endif %}>
-                                                                {{ label }}
-                                                            </option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_control_effectiveness-{{ sub_risk_assessment.assessment_id }}">Control Effectiveness</label>
-                                                        <textarea name="control_effectiveness" id="id_control_effectiveness-{{ sub_risk_assessment.assessment_id }}" class="form-control">{{ sub_risk_assessment.control_effectiveness }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    
-                                                    <div class="col">
-                                                        <label for="id_comments-{{ sub_risk_assessment.assessment_id }}">Comments</label>
-                                                        <textarea name="comments" id="id_comments-{{ sub_risk_assessment.assessment_id }}" class="form-control">{{ sub_risk_assessment.comments }}</textarea>
+                                                        <label for="id_comments-{{ audit_program.program_id }}">Comments</label>
+                                                        <textarea name="comments" id="id_comments-{{ audit_program.program_id }}" class="form-control">{{ audit_program.comments }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -276,26 +250,26 @@
             </form>
 
             <div>
-                Showing {{ paginated_sub_risk_assessments.start_index }} - {{ paginated_sub_risk_assessments.end_index }} of {{ paginated_sub_risk_assessments.paginator.count }} Sub-Process Risk assessment
+                Showing {{ paginated_audit_programs.start_index }} - {{ paginated_audit_programs.end_index }} of {{ paginated_audit_programs.paginator.count }} Audit Program
             </div>
             
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {% if paginated_sub_risk_assessments.has_previous %}
+                    {% if paginated_audit_programs.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_sub_risk_assessments.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ paginated_audit_programs.previous_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
                     {% endif %}
                     
                     <li class="page-item active">
-                        <span class="page-link">{{ paginated_sub_risk_assessments.number }}</span>
+                        <span class="page-link">{{ paginated_audit_programs.number }}</span>
                     </li>
                     
-                    {% if paginated_sub_risk_assessments.has_next %}
+                    {% if paginated_audit_programs.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ paginated_sub_risk_assessments.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ paginated_audit_programs.next_page_number }}&rows_per_page={{ rows_per_page }}&search={{ request.GET.search }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -316,7 +290,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="POST" action="{% url 'add_sub_risk_assessment' %}">
+            <form method="POST" action="{% url 'add_audit_program' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <!-- Tabs -->
@@ -339,43 +313,30 @@
                                     <label for="id_entity_name">Entity Name</label>
                                     {{ form.entity_name|add_class:"form-control" }}
                                 </div>
+                            </div>
+                            <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_risk_category">Risk Category</label>
-                                    {{ form.risk_category|add_class:"form-control" }}
+                                    <label for="id_procedures">Procedures</label>
+                                    {{ form.procedures|add_class:"form-control" }}
+                                </div>
+                                <div class="col">
+                                    <label for="id_tests">Tests</label>
+                                    {{ form.tests|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_inherent_risk">Inherent Risks</label>
-                                    {{ form.inherent_risk|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_residual_risk">Residual Risks</label>
-                                    {{ form.residual_risk|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_assessed_date">Assessed Date</label>
-                                    {{ form.assessed_date|add_class:"form-control" }}
+                                    <label for="id_program_date">Program Date</label>
+                                    {{ form.program_date|add_class:"form-control" }}
                                 </div>
                                 
                                 <div class="col">
-                                    <label for="id_assessed_by">Assessed By</label>
-                                    {{ form.assessed_by|add_class:"form-control" }}
+                                    <label for="id_assigned_auditors">Assigned Auditors</label>
+                                    {{ form.assigned_auditors|add_class:"form-control" }}
                                 </div>
                                 
                             </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_risk_severity">Risk Severity</label>
-                                    {{ form.risk_severity|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_control_effectiveness">Control Effectiveness</label>
-                                    {{ form.control_effectiveness|add_class:"form-control" }}
-                                </div>
-                            </div>
+                            
                             <div class="row mt-2">
                                 
                                 <div class="col">
@@ -405,18 +366,18 @@
                 event.preventDefault(); // Prevent default behavior
                 const selectedRadio = document.querySelector('input[name="selected"]:checked');
     
-                // Check if a Sub-Process Risk assessment is selected
+                // Check if a Audit Program is selected
                 if (!selectedRadio) {
-                    alert('Please select a Sub-Process Risk assessment.');
+                    alert('Please select a Audit Program.');
                     return;
                 }
     
-                const selectedId = selectedRadio.value; // Get the selected Sub-Process Risk assessment ID
+                const selectedId = selectedRadio.value; // Get the selected Audit Program ID
                 const selectedAction = event.target.getAttribute('data-action'); // Get the action (edit or delete)
     
                 if (selectedAction === 'delete') {
-                    const deleteUrl = `/iam/micro_planning/sub_risk_assessments/${selectedId}/delete/`;
-                    if (confirm('Are you sure you want to delete this Sub-Process Risk assessment?')) {
+                    const deleteUrl = `/iam/micro_planning/audit_programs/${selectedId}/delete/`;
+                    if (confirm('Are you sure you want to delete this Audit Program?')) {
                         // Redirect to the delete URL
                         window.location.href = deleteUrl;
                     }

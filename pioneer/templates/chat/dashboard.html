@@ -5,170 +5,570 @@
 {% endblock title %}
 
 {% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .flip-card {
-        background-color: transparent;
-        width: 360px;
-        height: 250px;
-        perspective: 2000px;
-        font-family: sans-serif;
-      }
-
-      .title {
-        font-size: 1.5em;
-        font-weight: 900;
-        text-align: center;
-        margin: 0;
-      }
-
-      .flip-card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.8s;
-        transform-style: preserve-3d;
-      }
-
-      .flip-card:hover .flip-card-inner {
-        transform: rotateY(180deg);
-      }
-
-      .flip-card-front, .flip-card-back {
-        box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
-        position: absolute;
-        display: flex;
-        gap: 15px;
-        flex-direction: column;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        border: 0.1px solid #f01819;
-        border-radius: 1rem;
-      }
-
-      .flip-card-front {
-        background: white;
-        color: red;
-      }
-
-      .flip-card-back {
-        background: white;
-        color: red;
-        transform: rotateY(180deg);
-      }
-     </style>
-    <title>PioNeer+ Dashboard</title>
-</head>
-<body>
-    <div class="flex justify-center items-center">
-        <div class="font-[sans-serif] z-50 relative py-12 px-4">
-          <div class="bg-transparent">
-            <h2
-            class=" bg-white !text-red-500 shadow-md shadow-red-500 w-fit mx-auto py-2 px-10 rounded-xl sm:text-4xl text-2xl font-bold text-center mb-16"
+  </head>
+  <style>
+    body {
+      scroll-behavior: smooth;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <!-- start section  -->
+      <div class="flex flex-col justify-center items-center text-center gap-3">
+        <h1 class="bg-black text-white py-3 w-full text-3xl">
+          Terminal Operations Use Cases
+        </h1>
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
             >
-            PioNeer+ Dashboard
-            </h2>
-    
-            <div class="container mb-[50px]" id="modules">
-              <div class="row">  
-                <div class="col-4">
-                  <div class="flex justify-center items-center">
-                    
-                      <a href="{% url 'predictive_risk_analysis'%}" class="items-center text-center flex flex-col gap-6 m-4">
-                        <div class="flip-card" >
-                          <div class="flip-card-inner">
-                            <div class="flip-card-front py-2 px-2">
-                              
-                              <h3 class="text-gray-800 text-xl font-semibold mt-2">Name</h3>
-                              <p class="text-gray-600 text-sm">description</p>
-                              
-                              <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
-                                about
-                              </p>
-            
-                            </div>
-                            <div class="flip-card-back py-20 px-5">
-                              <p class="text-gray-600 text-sm leading-6 mb-3">info</p>
-                              <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
-                                <i class="fas fa-arrow-right text-lg"></i>
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="flex justify-center items-center">
-                    
-                    <a href="{% url 'predictive_risk_analysis'%}" class="items-center text-center flex flex-col gap-6 m-4">
-                      <div class="flip-card" >
-                        <div class="flip-card-inner">
-                          <div class="flip-card-front py-2 px-2">
-                            
-                            <h3 class="text-gray-800 text-xl font-semibold mt-2">Name</h3>
-                            <p class="text-gray-600 text-sm">description</p>
-                            
-                            <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
-                              about
-                            </p>
-          
-                          </div>
-                          <div class="flip-card-back py-20 px-5">
-                            <p class="text-gray-600 text-sm leading-6 mb-3">info</p>
-                            <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
-                              <i class="fas fa-arrow-right text-lg"></i>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="flex justify-center items-center">
-                    
-                    <a href="{% url 'predictive_risk_analysis'%}" class="items-center text-center flex flex-col gap-6 m-4">
-                      <div class="flip-card" >
-                        <div class="flip-card-inner">
-                          <div class="flip-card-front py-2 px-2">
-                            
-                            <h3 class="text-gray-800 text-xl font-semibold mt-2">Name</h3>
-                            <p class="text-gray-600 text-sm">description</p>
-                            
-                            <p class="text-xs flex justify-center items-center text-red-500 h-[30px]">
-                              about
-                            </p>
-          
-                          </div>
-                          <div class="flip-card-back py-20 px-5">
-                            <p class="text-gray-600 text-sm leading-6 mb-3">info</p>
-                            <p class="text-red-400 hover:bg-red-500 hover:text-white w-[70px] h-[40px] m-auto rounded-full flex justify-center items-center transition-all duration-500 ease-in-out" >
-                              <i class="fas fa-arrow-right text-lg"></i>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
+              Passenger Flow Monitoring (Tracks passenger congestion points and
+              queue lengths at security, check-in, and boarding gates)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Flight Delay Analysis (Tracks delays caused by terminal processes
+              like boarding, check-in, or baggage handling)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Unauthorized Access Monitoring (Tracks access attempts to
+              restricted areas within the terminal)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Baggage Handling Accuracy (Tracks misdirected or delayed baggage
+              incidents)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Customer Feedback Monitoring (Tracks feedback scores from
+              passengers related to terminal facilities and services)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Passenger Assistance Compliance (Tracks assistance requests and
+              response times for passengers with disabilities or special needs)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Boarding Gate Utilization Monitoring (Tracks average wait times
+              and compliance with security procedures)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Retail Concession Compliance (Tracks compliance with concession
+              agreements and revenue sharing policies)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Luggage Handling SLA Monitoring (Tracks average luggage delivery
+              times for arriving passengers)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Security Checkpoint Compliance (Tracks average wait times and
+              compliance with security procedures)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Terminal Facility Maintenance Monitoring (Tracks facility
+              maintenance requests, completion times, and overdue issues)
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Flight Information Display System (FIDS) Accuracy (Tracks
+              discrepancies between FIDS and actual flight schedules)
+            </a>
           </div>
         </div>
       </div>
-    
-</body>
+      <!-- ###### end section ######## -->
+      <div
+        class="flex flex-col justify-center items-center text-center gap-3 "
+      >
+        <h1 class="bg-black text-white py-3 w-full text-3xl">
+          Aviation Logistics Services Use Cases
+        </h1>
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks discrepancies in cargo handling, including misplaced or
+              damaged shipments.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks deviations from optimal routing plans for cargo shipments.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks discrepancies in cargo-related documentation (e.g.,
+              manifests, bills of lading).
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks cargo volume against terminal and storage capacity.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks incidents of non-compliance with customs declarations and
+              procedures.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks maintenance schedules and incidents of cargo handling
+              equipment’s failure.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks incidents involving improper handling of dangerous goods.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks forecasting accuracy for air cargo capacity requirements.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks delivery times for perishable goods to prevent spoilage.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks incidents of non-compliance by freight forwarders.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks incidents of temperature deviations for sensitive cargo.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              Tracks incidents of cargo weight exceeding allowed limits.
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- ###### end section ######## -->
+      <div
+        class="flex flex-col justify-center items-center text-center gap-3 "
+      >
+        <h1 class="bg-black text-white py-3 w-full text-3xl">
+          Airside Operations Use Cases
+        </h1>
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Tracks runway inspection schedules, findings, and follow-up actions.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of Ground Handling Compliance
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of Aircraft Turnaround Time
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Tracks aircraft parking schedules and utilization rates.
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Fueling Operations Analysis
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of delayed or inaccurate weather reporting.
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Tracks FOD incidents and clearance times
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of Airside Access Control
+            </a>
+          </div>
+          
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Tracks incidents of non-compliance with apron safety protocols.
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of maintenance schedules and incidents of equipment failures.
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              ----------------------
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            ----------------------
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- ###### end section ######## -->
+      <div
+        class="flex flex-col justify-center items-center text-center gap-3 "
+      >
+        <h1 class="bg-black text-white py-3 w-full text-3xl">
+          Operations Planning Use Cases
+        </h1>
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Capacity Forecasting Accuracy
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Seasonal Traffic Planning
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Passenger Flow Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Flight Scheduling Efficiency
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of traffic congestion points and resolution times
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of allocation of gates, counters, and other critical resources
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Delay Cause Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Terminal Layout Optimization
+          </a>
+          </div>
+          
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Utilization rates for key infrastructure elements, such as terminals and runways
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            ----------------------
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+              ----------------------
+            </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            ----------------------
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- ###### end section ######## -->
+      <div
+        class="flex flex-col justify-center items-center text-center gap-3 "
+      >
+        <h1 class="bg-black text-white py-3 w-full text-3xl">
+          Traffic Developement Use Cases
+        </h1>
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Passenger Growth Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Market Demand Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Passenger Satisfaction Metrics
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Traffic Mix Analysis (the balance of domestic, international, and cargo traffic)
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Competitor Traffic Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Traffic Forecasting Model Validation
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Analysis of growth in cargo traffic and alignment with market trends
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Seasonal Traffic Forecasting
+          </a>
+          </div>
+          
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Revenue Diversification Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Revenue Contribution Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            Bilateral Agreement Analysis
+          </a>
+          </div>
+          <div class="h-36">
+            <a
+              href=""
+              class="text-[18px] flex justify-center items-center w-full h-full hover:!bg-red-500 hover:!text-white border-[1px] border-red-500 bg-white px-6 transition-all duration-[400ms] ease-in-out"
+            >
+            ----------------------
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- ###### end section ######## -->
+    </div>
+  </body>
 </html>
 {% endblock content %}

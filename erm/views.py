@@ -211,7 +211,7 @@ def risk_intelligence_dashboard(request):
     }
     return render(request, 'risk_intelligence/dashboard.html', context)
 
-""" 
+
 def export_all_to_excel(request):
     # Create an Excel writer
     with pd.ExcelWriter('all_data.xlsx', engine='openpyxl') as writer:
@@ -260,7 +260,7 @@ def export_all_to_excel(request):
         response = HttpResponse(f.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="all_data.xlsx"'
         return response
- """
+ 
  
 def export_risks_to_excel(request):
     # Create a new workbook

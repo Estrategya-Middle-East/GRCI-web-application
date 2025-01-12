@@ -60,17 +60,57 @@ urlpatterns = [
     path('micro_planning/entrance_meetings/<int:meeting_id>/edit/', views.edit_entrance_meeting, name='edit_entrance_meeting'),
     path('micro_planning/entrance_meetings/<int:meeting_id>/delete/', views.delete_entrance_meeting, name='delete_entrance_meeting'),
 
-    # Sub-Process Risk Assessment
-    path('micro_planning/sub_risk_assessments/', views.list_sub_risk_assessment, name='list_sub_risk_assessment'),
-    path('micro_planning/sub_risk_assessments/add/', views.add_sub_risk_assessment, name='add_sub_risk_assessment'),
-    path('micro_planning/sub_risk_assessments/<int:assessment_id>/edit/', views.edit_sub_risk_assessment, name='edit_sub_risk_assessment'),
-    path('micro_planning/sub_risk_assessments/<int:assessment_id>/delete/', views.delete_sub_risk_assessment, name='delete_sub_risk_assessment'),
+    path('micro_planning/risk_control_matrix/', views.process_overview, name='risk_control_matrix'),
+    path('micro_planning/risk_control_matrix/export/', views.export_process_overview_to_excel, name='export_process_overview_to_excel'),
+    # Process
+    path('micro_planning/process_understandings/', views.list_process_understanding, name='list_process_understanding'),
+    path('micro_planning/process_understandings/add/', views.add_process_understanding, name='add_process_understanding'),
+    path('micro_planning/process_understandings/<int:id>/edit/', views.edit_process_understanding, name='edit_process_understanding'),
+    path('micro_planning/process_understandings/<int:id>/delete/', views.delete_process_understanding, name='delete_process_understanding'),
+   
+    # SubProcess
+    path('micro_planning/sub_processs/', views.list_sub_process, name='list_sub_process'),
+    path('micro_planning/sub_processs/add/', views.add_sub_process, name='add_sub_process'),
+    path('micro_planning/sub_processs/<int:id>/edit/', views.edit_sub_process, name='edit_sub_process'),
+    path('micro_planning/sub_processs/<int:id>/delete/', views.delete_sub_process, name='delete_sub_process'),
 
-    # Audit Program
-    path('micro_planning/audit_programs/', views.list_audit_program, name='list_audit_program'),
-    path('micro_planning/audit_programs/add/', views.add_audit_program, name='add_audit_program'),
-    path('micro_planning/audit_programs/<int:program_id>/edit/', views.edit_audit_program, name='edit_audit_program'),
-    path('micro_planning/audit_programs/<int:program_id>/delete/', views.delete_audit_program, name='delete_audit_program'),
+    # Activity
+    path('micro_planning/activitys/', views.list_activity, name='list_activity'),
+    path('micro_planning/activitys/add/', views.add_activity, name='add_activity'),
+    path('micro_planning/activitys/<int:id>/edit/', views.edit_activity, name='edit_activity'),
+    path('micro_planning/activitys/<int:id>/delete/', views.delete_activity, name='delete_activity'),
+
+    # Process Risk
+    path('micro_planning/process_risks/', views.list_process_risk, name='list_process_risk'),
+    path('micro_planning/process_risks/add/', views.add_process_risk, name='add_process_risk'),
+    path('micro_planning/process_risks/<int:id>/edit/', views.edit_process_risk, name='edit_process_risk'),
+    path('micro_planning/process_risks/<int:id>/delete/', views.delete_process_risk, name='delete_process_risk'),
+
+    # Control
+    path('micro_planning/controls/', views.list_control, name='list_control'),
+    path('micro_planning/controls/add/', views.add_control, name='add_control'),
+    path('micro_planning/controls/<int:id>/edit/', views.edit_control, name='edit_control'),
+    path('micro_planning/controls/<int:id>/delete/', views.delete_control, name='delete_control'),
+
+    path('micro_planning/audit_program/', views.audit_program_overview, name='audit_program'),
+    path('micro_planning/audit_program/export/', views.export_audit_program_overview_to_excel, name='audit_program_overview_to_excel'),
+    # Audit Test
+    path('micro_planning/audit_tests/', views.list_audit_test, name='list_audit_test'),
+    path('micro_planning/audit_tests/add/', views.add_audit_test, name='add_audit_test'),
+    path('micro_planning/audit_tests/<int:id>/edit/', views.edit_audit_test, name='edit_audit_test'),
+    path('micro_planning/audit_tests/<int:id>/delete/', views.delete_audit_test, name='delete_audit_test'),
+
+    # Audit Procedure
+    path('micro_planning/audit_procedures/', views.list_audit_procedure, name='list_audit_procedure'),
+    path('micro_planning/audit_procedures/add/', views.add_audit_procedure, name='add_audit_procedure'),
+    path('micro_planning/audit_procedures/<int:id>/edit/', views.edit_audit_procedure, name='edit_audit_procedure'),
+    path('micro_planning/audit_procedures/<int:id>/delete/', views.delete_audit_procedure, name='delete_audit_procedure'),
+
+    # Requirements List
+    path('micro_planning/requirements_lists/', views.list_requirements_list, name='list_requirements_list'),
+    path('micro_planning/requirements_lists/add/', views.add_requirements_list, name='add_requirements_list'),
+    path('micro_planning/requirements_lists/<int:id>/edit/', views.edit_requirements_list, name='edit_requirements_list'),
+    path('micro_planning/requirements_lists/<int:id>/delete/', views.delete_requirements_list, name='delete_requirements_list'),
 
     # Working Paper
     path('fieldwork/working_papers/', views.list_working_paper, name='list_working_paper'),

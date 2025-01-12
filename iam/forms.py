@@ -145,39 +145,61 @@ class EntranceMeetingForm(forms.ModelForm):
         }
 
 
-# 7. Sub-Process Risk Assessment (ORC)	
-class SubRiskAssessmentForm(forms.ModelForm):
+# 7.Process Understanding	
+class ProcessUnderstandingForm(forms.ModelForm):
     class Meta:
-        model = SubRiskAssessment
+        model = ProcessUnderstanding
         fields = [
-                    'sub_process_name',
-                    'entity_name',
-                    'risk_category',
-                    'inherent_risk',
-                    'residual_risk',
-                    'control_effectiveness',
-                    'assessed_by',
-                    'assessed_date',
-                    'risk_severity',
-                    'comments',]
+                    'name',
+                    'description',]
             
         widgets = {
-            'control_effectiveness': forms.Textarea(attrs={'rows': 3}),
-            'comments': forms.Textarea(attrs={'rows': 3}),
-            'assessed_date': forms.DateInput(attrs={'type': 'date'}),
+            'description': forms.Textarea(attrs={'rows': 3}),
         }
-   
 
-# 8. Audit Program
+class SubProcessForm(forms.ModelForm):
+    class Meta:
+        model = SubProcess
+        fields = '__all__'
+
+class ActivityForm(forms.ModelForm):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+
+class ProcessRiskForm(forms.ModelForm):
+    class Meta:
+        model = ProcessRisk
+        fields = '__all__'
+
+class ControlForm(forms.ModelForm):
+    class Meta:
+        model = control
+        fields = '__all__'
+ 
+class AuditTestForm(forms.ModelForm):
+    class Meta:
+        model = AuditTest
+        fields = '__all__'
+
+class AuditProcedureForm(forms.ModelForm):
+    class Meta:
+        model = AuditProcedure
+        fields = '__all__'
+        
+class RequirementsListForm(forms.ModelForm):
+    class Meta:
+        model = RequirementsList
+        fields = '__all__'
+        
+""" # 8. Audit Program
 class AuditProgramForm(forms.ModelForm):
     class Meta:
         model = AuditProgram
         fields = [
             'entity_name',
-            'sub_process_name',
             'procedures',
             'tests',
-            'assigned_auditors',
             'program_date',
             'comments']
     
@@ -187,7 +209,7 @@ class AuditProgramForm(forms.ModelForm):
         'tests': forms.Textarea(attrs={'rows': 3}),
         'program_date': forms.DateInput(attrs={'type': 'date'}),
         }
-
+ """
 
 # Fieldwork (Per Audit) #
 
