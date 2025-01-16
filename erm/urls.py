@@ -26,7 +26,7 @@ urlpatterns = [
     path("continuous_monitoring/", views.continuous_monitoring_dashboard, name="continuous_monitoring_dashboard"),  # Default dashboard for ERM
     path("risk_intelligence/", views.risk_intelligence_dashboard, name="risk_intelligence_dashboard"),  # Default dashboard for ERM
     
- 
+    path('upload/', views.upload_iam_data, name='upload_iam_data'),  # URL for the form
     path('export/', views.export_all_to_excel, name='export_all_to_excel'),
     #workflow Risk 
     path('risks/', views.list_risks, name='list_risks'),

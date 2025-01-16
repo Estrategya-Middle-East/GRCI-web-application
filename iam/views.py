@@ -1678,7 +1678,7 @@ def audit_program_overview(request):
                     row['requirements_list_id'] = f"{subprocess_count}.{audit_test_count}.{i + 1}"
                     row['requirements_name'] = requirement.name
                     row['requirements_description'] = requirement.Description
-                    row['requested_by'] = requirement.requested_by.name if requirement.requested_by else ''
+                    row['requested_by'] = requirement.requested_by if requirement.requested_by else ''
                     row['requested_from'] = requirement.requested_from
                     row['requested_date'] = requirement.date_requested
                     row['date_received'] = requirement.date_received

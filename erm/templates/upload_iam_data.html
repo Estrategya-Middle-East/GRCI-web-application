@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload IAM Data</title>
+</head>
+<body>
+    <h1>Upload IAM Data</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="file">Choose an Excel file to upload:</label>
+        <input type="file" name="file" id="file" accept=".xlsx,.xls" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    
+    {% if success %}
+    <p style="color: green;">{{ success }}</p>
+    {% endif %}
+</body>
+</html>

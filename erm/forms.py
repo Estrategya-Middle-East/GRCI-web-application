@@ -10,7 +10,8 @@ class RiskForm(forms.ModelForm):
         model = Risk
         fields = ['name', 'description', ]
 
-
+class ExcelUploadForm(forms.Form):
+    file = forms.FileField()
 
 class RiskDefineForm(forms.ModelForm):
     class Meta:

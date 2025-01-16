@@ -9,6 +9,7 @@ from .models import *
 from .filters import RiskFilter
 from django.db.models import Count,F,Q,Sum
 from main_app.models import *
+from iam.models import *
 import pandas as pd
 from django.http import HttpResponse,JsonResponse
 from reportlab.pdfgen import canvas
@@ -20,6 +21,8 @@ from django.views.generic import TemplateView
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
+from django.views.decorators.csrf import csrf_exempt
+from django.db import IntegrityError
 
 # ERM Dashboard View
 def dashboard(request):
@@ -217,18 +220,18 @@ def export_all_to_excel(request):
     with pd.ExcelWriter('all_data.xlsx', engine='openpyxl') as writer:
         # Get all models in the app
         app_models = apps.get_models()
-        
+
         for model in app_models:
             # Fetch all records of the model
             queryset = model.objects.all()
-            
+
             # If there are no records, skip this model
             if not queryset.exists():
                 continue
-            
+
             # Get the model name
             model_name = model.__name__
-            
+
             # Serialize the data into a list of dictionaries
             data = []
             for obj in queryset:
@@ -236,31 +239,32 @@ def export_all_to_excel(request):
                 for field in model._meta.fields:
                     field_name = field.name
                     value = getattr(obj, field_name)
-                    
+
                     # Handle foreign key relationships
                     if field.is_relation and value:
                         related_field = field.related_model._meta.verbose_name
-                        value = str(value)  # Convert related object to string (or name field if needed)
-                    
+                        value = str(value)  # Store related field as its string representation (e.g., its default string method)
+
                     # Handle timezone-aware datetimes
                     if isinstance(value, datetime) and value.tzinfo is not None:
                         value = value.astimezone(None).strftime('%Y-%m-%d %H:%M:%S')
-                    
+
+                    # Add the value to the record, using the field's verbose name as the key
                     record[field.verbose_name] = value
+
                 data.append(record)
-            
+
             # Convert to a DataFrame
             df = pd.DataFrame(data)
-            
+
             # Write to Excel (each model gets a separate sheet)
             df.to_excel(writer, index=False, sheet_name=model_name[:30])  # Sheet names max 31 chars
-            
+
     # Prepare the file for download
     with open('all_data.xlsx', 'rb') as f:
         response = HttpResponse(f.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="all_data.xlsx"'
-        return response
- 
+        return response 
  
 def export_risks_to_excel(request):
     # Create a new workbook
@@ -360,7 +364,87 @@ def export_risks_to_excel(request):
     wb.save(response)
     return response
 
+def upload_iam_data(request):
+    """
+    View for rendering the file upload form.
+    """
+    if request.method == 'POST' and request.FILES['file']:
+        # Call the import function
+        response = import_all_data_from_excel(request)
+        return response
+    else:
+        # Render upload form if GET request
+        return render(request, 'upload_iam_data.html')
 
+@csrf_exempt  # Allow CSRF exemption for testing; ideally handle CSRF in production
+def import_all_data_from_excel(request):
+    file = request.FILES.get('file')
+    if not file:
+        return JsonResponse({'error': 'No file uploaded'}, status=400)
+
+    try:
+        # Load the Excel file into a DataFrame
+        excel_data = pd.ExcelFile(file)
+        
+        # Process each sheet in the uploaded Excel file
+        for sheet_name in excel_data.sheet_names:
+            try:
+                model = apps.get_model('your_app_name', sheet_name)  # Replace 'your_app_name' with the actual app name
+            except LookupError:
+                continue  # Skip if model not found for this sheet in the app
+
+            if not model:
+                continue  # Skip if model not found
+
+            # Get the field names of the model
+            model_fields = [field.name for field in model._meta.get_fields()]
+
+            # Process the data for the current model's sheet
+            df = pd.read_excel(excel_data, sheet_name=sheet_name)
+
+            # Normalize column names to match model field names (if needed)
+            df.columns = [col.strip().replace(' ', '_').lower() for col in df.columns]
+
+            # Loop through each row in the DataFrame
+            for _, row in df.iterrows():
+                obj_id = row.get('id')  # Get the object ID (primary key)
+                
+                # Skip the row if the record already exists
+                if obj_id and model.objects.filter(id=obj_id).exists():
+                    continue  # Skip the record if it exists
+
+                # Prepare the data for importing
+                obj_data = {}
+                for field_name, value in row.items():
+                    if field_name == 'assigned_auditor':  # Special handling for the 'assigned_auditor' field
+                        if isinstance(value, str):  # Check if the value is a string (auditor's name or username)
+                            # Lookup staff by username or the correct field in the Staff model
+                            staff_instance = None
+                            try:
+                                staff_instance = Staff.objects.filter(username=value).first()  # Replace 'username' with the correct field
+                            except Staff.DoesNotExist:
+                                pass
+                            
+                            if staff_instance:
+                                obj_data[field_name] = staff_instance
+                            else:
+                                obj_data[field_name] = None  # Or handle this case differently
+                        else:
+                            obj_data[field_name] = value  # If it's already a valid Staff instance or ID
+                    elif field_name in model_fields:
+                        obj_data[field_name] = value  # Handle normal fields
+
+                try:
+                    model.objects.create(**obj_data)  # Create the object in the database
+                except IntegrityError:
+                    # Handle integrity errors (e.g., unique constraints)
+                    pass
+
+        return JsonResponse({'success': 'All data imported successfully'}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
 class RiskWorkflowView(TemplateView):
     template_name = 'erm/workflow.html'
 
