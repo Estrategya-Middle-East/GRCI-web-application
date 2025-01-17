@@ -21,9 +21,9 @@
                 Add New
             </button>
         </div> {% endcomment %}
-        <div class="row">
-            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
-                <div class="box">
+        <div class="flex justify-between items-center mb-4"> 
+            <div class="flex justify-center items-center gap-4">
+                <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1" >
                     <span>
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
@@ -32,12 +32,10 @@
                         {% elif current_sort == 'follow_up_id' %}
                         SORT BY ID
                         {% endif %}
-                    <span>
+                    </span>
                 </div>
-            </div>
-        
-            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
-                <div class="box">
+            
+                <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1 ">
                     <span>
                         {% if current_order == 'asc' %}
                         ORDER IS ASC
@@ -47,25 +45,58 @@
                     </span>
                 </div>
             </div>
-            <div class="col-12" style="margin-left: 10px">
-                <!-- Search Form -->
-                <form method="get" class="form-inline mb-4">
-                    <div class="row">
-                        
-                        <div class="col-0 ">
-                            <label for="search">Filter:</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
-                            value="{{ search_query }}" placeholder="Type to filter..." />
-                        </div>
-                        
-                        <div class="col-2">
-                            <button type="submit" class="btn btn-info ml-2">Search</button>
-                        </div>
-                    </div>  
-                </form>
+            <a class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:!text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help" href="#popup1">
+                <i class="fa-regular fa-circle-question"></i>
+            </a>
+            <div id="popup1" class="overlay">
+                <div class="popup">
+                    <a class="close" href="#">&times;</a>
+                    <ul class="flex justify-center items-center gap-4 list-none mt-6">
+                        <li class="flex flex-col items-center justify-center text-center w-1/3">
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Input</span> Final Audit Report, Action plans from auditees.
+                        </li>
+                        <li class="flex flex-col items-center justify-center text-center w-1/3">
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Processing</span> Verify implementation of corrective actions and evaluate their effectiveness.
+                        </li>
+                        <li class="flex flex-col items-center justify-center text-center w-1/3">
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Output</span> Follow-Up Audit Report with status updates on corrective actions.
+                        </li>
+                    </ul>
+                    <h1 class="w-full py-2 rounded-sm bg-[#6f6f6f] text-white text-xl text-center mt-8 mb-3">Instructions</h1>
+                    <ol class="flex flex-col gap-2 ml-2 list-disc">
+                        <li>Review the Final Audit Report and list all corrective actions agreed upon.</li>
+                        <li>Schedule a follow-up audit to verify the implementation of these actions.</li>
+                        <li>Request evidence of corrective actions from the auditee (e.g., updated processes, new controls).</li>
+                        <li>Reassess the identified risks to determine if they have been mitigated.</li>
+                        <li>Verify the effectiveness of implemented corrective actions through testing.</li>
+                        <li>Document any unresolved issues or new risks identified during the follow-up audit.</li>
+                        <li>Share preliminary findings with the auditee for their review and feedback.</li>
+                        <li>Prepare a Follow-Up Audit Report summarizing the status of corrective actions.</li>
+                        <li>Submit the report to senior management for review and approval.</li>
+                        <li>Record the findings in the Follow-Up Audit Report Form.</li>
+                    </ol>
+                </div>
             </div>
+            
+        </div>
+        <div class="col-12" style="margin-left: 10px">
+            <!-- Search Form -->
+            <form method="get" class="form-inline mb-4">
+                <div class="row">
+                    
+                    <div class="col-0 ">
+                        <label for="search">Filter:</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                        value="{{ search_query }}" placeholder="Type to filter..." />
+                    </div>
+                    
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-info ml-2">Search</button>
+                    </div>
+                </div>  
+            </form>
         </div>
         
         <!-- Table -->

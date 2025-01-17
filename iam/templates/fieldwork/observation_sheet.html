@@ -21,9 +21,10 @@
                 Add New
             </button>
         </div> {% endcomment %}
-        <div class="row">
-            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
-                <div class="box">
+        
+        <div class="flex justify-between items-center mb-4"> 
+            <div class="flex justify-center items-center gap-4">
+                <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1" >
                     <span>
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
@@ -32,12 +33,10 @@
                         {% elif current_sort == 'observation_id' %}
                         SORT BY ID
                         {% endif %}
-                    <span>
+                    </span>
                 </div>
-            </div>
-        
-            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
-                <div class="box">
+            
+                <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1 ">
                     <span>
                         {% if current_order == 'asc' %}
                         ORDER IS ASC
@@ -47,25 +46,58 @@
                     </span>
                 </div>
             </div>
-            <div class="col-12" style="margin-left: 10px">
-                <!-- Search Form -->
-                <form method="get" class="form-inline mb-4">
-                    <div class="row">
-                        
-                        <div class="col-0 ">
-                            <label for="search">Filter:</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
-                            value="{{ search_query }}" placeholder="Type to filter..." />
-                        </div>
-                        
-                        <div class="col-2">
-                            <button type="submit" class="btn btn-info ml-2">Search</button>
-                        </div>
-                    </div>  
-                </form>
+            <a class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:!text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help" href="#popup1">
+                <i class="fa-regular fa-circle-question"></i>
+            </a>
+            <div id="popup1" class="overlay">
+                <div class="popup">
+                    <a class="close" href="#">&times;</a>
+                    <ul class="flex justify-center items-center gap-4 list-none mt-6">
+                        <li class="flex flex-col items-center justify-center text-center w-1/3">
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Input</span> Findings from audit tasks, Risk mitigation actions.
+                        </li>
+                        <li class="flex flex-col items-center justify-center text-center w-1/3">
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Processing</span> Document significant findings, associated risks, and recommended corrective actions.
+                        </li>
+                        <li class="flex flex-col items-center justify-center text-center w-1/3">
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Output</span> Observation Sheet with findings, risks, recommendations, and assigned responsibilities.
+                        </li>
+                    </ul>
+                    <h1 class="w-full py-2 rounded-sm bg-[#6f6f6f] text-white text-xl text-center mt-8 mb-3">Instructions</h1>
+                    <ol class="flex flex-col gap-2 ml-2 list-disc">
+                        <li>Review findings from the Working Papers and identify significant issues or deviations.</li>
+                        <li>Document each finding with clear details, including the area/process reviewed.</li>
+                        <li>Identify risks associated with each finding and assess their potential impact.</li>
+                        <li>Develop corrective actions for each finding to mitigate the associated risks.</li>
+                        <li>Assign responsibility for implementing corrective actions to specific stakeholders.</li>
+                        <li>Define a timeline for implementing corrective actions based on the urgency of the issue.</li>
+                        <li>Validate findings and recommendations with the audit team to ensure accuracy.</li>
+                        <li>Share findings with the auditee for review and feedback.</li>
+                        <li>Incorporate auditee feedback into the observation details if applicable.</li>
+                        <li>Record all finalized observations in the Observation Sheet Form.</li>
+                    </ol>
+                </div>
             </div>
+            
+        </div>
+        <div class="col-12" style="margin-left: 10px">
+            <!-- Search Form -->
+            <form method="get" class="form-inline mb-4">
+                <div class="row">
+                    
+                    <div class="col-0 ">
+                        <label for="search">Filter:</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" id="search" style="margin-bottom: 10px" name="search" class="form-control" 
+                        value="{{ search_query }}" placeholder="Type to filter..." />
+                    </div>
+                    
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-info ml-2">Search</button>
+                    </div>
+                </div>  
+            </form>
         </div>
         
         <!-- Table -->

@@ -1,42 +1,228 @@
-{% extends 'iam/iam_base.html' %}
-
-{% block title %}
-    {{ page_title }}
-{% endblock title %}
+{% extends "iam/iam_base.html" %}
+{% load static %}
+{% load form_filters %}
+{% block page_title %}Internal Audit Dashboard{% endblock page_title %}
 
 {% block content %}
 <style>
-       
-    /* Optional: Customize specific elements */
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Garamond', serif;
+   
+    .chart-container {
+        padding: 20px;
+        border-radius: 8px;
+        //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 10px auto;
+        height: 300px; /* Adjust height */
+        width: 60%; /* Adjust width to make room for other charts */
+        display: inline-block; /* Allow charts to sit next to each other */
+        vertical-align: top; /* Align the charts at the top */
     }
 
-    .navbar, .content-wrapper{
-        font-family: 'Garamond', serif;
-        background-color: #ffffff !important;
+    #chart_data_inherent {
+        width: 100%;
+        height: 100%;
     }
-    .sidebar {
-        font-family: 'Garamond', serif;
-        font-size: 1 em;
+    #chart_data_residual {
+        width: 100%;
+        height: 100%;
+    }
+    #heatmap {
+        width: 100%;
+        height: 100%;
+    }
+    #residual_heatmap {
+        width: 100%;
+        height: 100%;
+    }
+    #inherent_gauge_chart_data {
+        width: 100%;
+        height: 100%;
+    }
+    #residual_gauge_chart {
+        width: 100%;
+        height: 100%;
+    }
+    #department_chart {
+        width: 100%;
+        height: 100%;
     }
     
+    #inherent_risks_chart {
+        width: 100%;
+        height: 100%;
+    }
+    #residual_risks_chart {
+        width: 100%;
+        height: 100%;
+    }
+
 </style>
-<div class="container mt-4">
-    <h1 class="text-center">Internal Audit Management Dashboard</h1>
-    <div class="row mt-5">
-        {% for component in components %}
-        <div class="col-lg-6 col-md-6 mb-4">
-            <a href="{{ component.link }}" class="card shadow text-decoration-none" style="color: inherit;">
-                <div class="card-body d-flex align-items-center">
-                    <!-- Icon -->
-                    <i class="{{ component.icon }} fa-3x mr-3" style="color: #cc0000;"></i>
-                    <!-- Title -->
-                    <h5 class="card-title m-0 " style="font-size: 1.5rem;">{{ component.name }}</h5>
+<section class="content">
+    {% comment %} <h1 class="text-center">Risk Management Dashboard</h1> {% endcomment %}
+    <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+            {% comment %} <!-- Total Departments -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box">
+                    <div class="inner text-left">
+                        <h3>{{ total_department }}</h3>
+                        <p>Total Departments</p>
+                    </div>
+                    <div class="icon text-left">
+                        <i class="nav-icon fas fa-cog" style="color: #cc0000; font-size: 50px;"></i>
+                    </div>
+                    <a href="{% url 'manage_department' %}" class="small-box-footer bg-dark">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
                 </div>
-            </a>
+            </div>
+            <!-- Placeholder -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box">
+                    <div class="inner text-left">
+                        <h3>#</h3>
+                        <p>###</p>
+                    </div>
+                    <div class="icon text-left">
+                        <i class="nav-icon fas fa-list" style="color: #cc0000; font-size: 50px;"></i>
+                    </div>
+                    <a href="#" class="small-box-footer bg-dark">
+                        More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>{% endcomment %}
         </div>
-        {% endfor %}
+        <!-- /.row --> 
+
+        <!-- Additional Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-light">
+                    <div class="card-header">
+                        <h3 class="card-title">#</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <div id="department_chart" style="width: 450px; height: 400px;"></div>
+                            {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-light">
+                    <div class="card-header">
+                        <h3 class="card-title">#</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div id="residual_department_chart_data" style="width: 450px; height: 400px; margin: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Rows -->
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Total inherent risks -->
+                <div class="col hover:scale-[1.025] transition-all duration-150 ease-in-out">
+                    <div class="small-box hover:bg-[#f8f8f8]">
+                        <div class="inner text-left">
+                            <h3>{{ total_inherent_risks }}</h3>
+                            <p>Total</p>
+                        </div>
+                        {% comment %} <div class="icon text-left">
+                            <i class="nav-icon fas fa-user" style="color: #cc0000; font-size: 50px;"></i>
+                        </div>
+                        <a href="{% url 'manage_user' %}" class="small-box-footer bg-dark">
+                            More info <i class="fas fa-arrow-circle-right"></i>
+                        </a> {% endcomment %}
+                    </div>
+                </div>
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">#</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div class="chart-container">
+                            <div id="chart_data_inherent"></div>
+                            {% comment %} <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Total residual risks -->
+                <div class="col hover:scale-[1.025] transition-all duration-150 ease-in-out">
+                    <div class="small-box hover:bg-[#f8f8f8]">
+                        <div class="inner text-left">
+                            <h3>{{ total_residual_risks }}</h3>
+                            <p>Total</p>
+                        </div>
+                        {% comment %} <div class="icon text-left">
+                            <i class="nav-icon fas fa-users" style="color: #cc0000; font-size: 50px;"></i>
+                        </div>
+                        <a href="{% url 'manage_staff' %}" class="small-box-footer bg-dark">
+                            More info <i class="fas fa-arrow-circle-right"></i>
+                        </a> {% endcomment %}
+                    </div>
+                </div>
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">#</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div class="chart-container">
+                            <div id="chart_data_residual"></div>
+                            {% comment %} <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- /.row -->
+  
     </div>
-</div>
+    
+    
+</section>
+
+       
+        
+<script src="{% static 'dist/js/echarts.min.js'%}"></script>
+
+
 {% endblock content %}

@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
     <!-- iCheck -->
     <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> -->
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
     <!-- overlayScrollbars -->
@@ -23,9 +26,11 @@
     <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
- 
+    <script src="https://kit.fontawesome.com/178e567442.js" crossorigin="anonymous"></script>
+
+    
     <style>
-       
+        
         /* Optional: Customize specific elements */
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Garamond', serif;
@@ -36,7 +41,7 @@
         }
         .sidebar {
             font-family: 'Garamond', serif;
-            font-size: 1 em;
+            font-size: 1em;
         }
         .dropdown-item.active {
             font-weight: bold;
@@ -53,7 +58,58 @@
             color: rgb(255, 255, 255) !important;
             background-color: #f97d6d !important;
         }
-        
+
+        .overlay {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 30px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        width: 100%;
+        transition: opacity 500ms;
+        visibility: hidden;
+        opacity: 0;
+        z-index: 2;
+        }
+        .overlay:target {
+        visibility: visible;
+        opacity: 1;
+        }
+
+        .popup {
+        margin: 70px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 5px;
+        width: 80%;
+        height: 80%;
+        position: relative;
+        transition: all 5s ease-in-out;
+        }
+
+        .popup h2 {
+        margin-top: 0;
+        color: #333;
+        font-family: Tahoma, Arial, sans-serif;
+        }
+        .popup .close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        transition: all 200ms;
+        font-size: 30px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #333;
+        }
+        .popup .close:hover {
+        color: black;
+        }
+        .popup .content {
+        max-height: 30%;
+        overflow: auto;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -72,10 +128,11 @@
             });
         });
     </script>
+
+        <script src="https://cdn.tailwindcss.com"></script>
     {% block custom_css %}
     {% endblock custom_css %}
 </head>
-
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
 
@@ -312,7 +369,7 @@
         {% include "main_app/sidebar_template.html" with user=user %}
         <div class="content-wrapper">
             <!-- Content Wrapper. Contains page content -->
-            {% if page_title != "IAM Dashboard" %}
+            
             <!-- Content Header (Page header) -->
             <div class="content-header  bg-white " style="border-bottom: 1px solid #38383830;" >
                 <div class="container-xxl">
@@ -326,6 +383,7 @@
                         
                 </div><!-- /.container-fluid -->
             </div>
+            {% if page_title != "IAM Dashboard" %}
             <script src="https://cdn.tailwindcss.com"></script>
             {% if page_title != "RCM" and  page_title != "Audit Program" %}
             <div class="mb-3 action_menu d-flex justify-content-end align-items-center bg-white" style="border-bottom: 1px solid #38383850;">
