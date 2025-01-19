@@ -41,16 +41,16 @@
         width: 100%;
         height: 100%;
     }
-    #department_chart {
+    #category_chart {
         width: 100%;
         height: 100%;
     }
     
-    #inherent_risks_chart {
+    #risk_score_chart {
         width: 100%;
         height: 100%;
     }
-    #residual_risks_chart {
+    #entity_type_chart {
         width: 100%;
         height: 100%;
     }
@@ -99,6 +99,72 @@
             <div class="col-md-6">
                 <div class="card card-light">
                     <div class="card-header">
+                        <h3 class="card-title">Audit Universe by Entity Type</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <div id="entity_type_chart" style="width: 450px; height: 400px;"></div>
+                            {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-light">
+                    <div class="card-header">
+                        <h3 class="card-title">Audit Universe Risk Score</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div id="risk_score_chart" style="width: 600px; height: 400px; margin: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Rows -->
+        <div class="row">
+            <div class="col-md-6">
+                
+                <div class="card card-dark">
+                    <div class="card-header">
+                        <h3 class="card-title">Company-Wide Risk Assessment</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <div id="category_chart" style="width: 450px; height: 400px;"></div>
+                            {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                
+                <div class="card card-dark">
+                    <div class="card-header">
                         <h3 class="card-title">#</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -111,102 +177,8 @@
                     </div>
                     <div class="card-body">
                         <div class="chart">
-                            <div id="department_chart" style="width: 450px; height: 400px;"></div>
+                            <div id="" style="width: 450px; height: 400px;"></div>
                             {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card card-light">
-                    <div class="card-header">
-                        <h3 class="card-title">#</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
-                        <div id="residual_department_chart_data" style="width: 450px; height: 400px; margin: auto;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chart Rows -->
-        <div class="row">
-            <div class="col-md-6">
-                <!-- Total inherent risks -->
-                <div class="col hover:scale-[1.025] transition-all duration-150 ease-in-out">
-                    <div class="small-box hover:bg-[#f8f8f8]">
-                        <div class="inner text-left">
-                            <h3>{{ total_inherent_risks }}</h3>
-                            <p>Total</p>
-                        </div>
-                        {% comment %} <div class="icon text-left">
-                            <i class="nav-icon fas fa-user" style="color: #cc0000; font-size: 50px;"></i>
-                        </div>
-                        <a href="{% url 'manage_user' %}" class="small-box-footer bg-dark">
-                            More info <i class="fas fa-arrow-circle-right"></i>
-                        </a> {% endcomment %}
-                    </div>
-                </div>
-                <div class="card card-dark">
-                    <div class="card-header">
-                        <h3 class="card-title">#</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
-                        <div class="chart-container">
-                            <div id="chart_data_inherent"></div>
-                            {% comment %} <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <!-- Total residual risks -->
-                <div class="col hover:scale-[1.025] transition-all duration-150 ease-in-out">
-                    <div class="small-box hover:bg-[#f8f8f8]">
-                        <div class="inner text-left">
-                            <h3>{{ total_residual_risks }}</h3>
-                            <p>Total</p>
-                        </div>
-                        {% comment %} <div class="icon text-left">
-                            <i class="nav-icon fas fa-users" style="color: #cc0000; font-size: 50px;"></i>
-                        </div>
-                        <a href="{% url 'manage_staff' %}" class="small-box-footer bg-dark">
-                            More info <i class="fas fa-arrow-circle-right"></i>
-                        </a> {% endcomment %}
-                    </div>
-                </div>
-                <div class="card card-dark">
-                    <div class="card-header">
-                        <h3 class="card-title">#</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
-                        <div class="chart-container">
-                            <div id="chart_data_residual"></div>
-                            {% comment %} <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
                         </div>
                     </div>
                 </div>
@@ -223,6 +195,79 @@
        
         
 <script src="{% static 'dist/js/echarts.min.js'%}"></script>
+<script>
+    var categoryChartData = {{ category_chart_data|safe }};
 
+    var chartDom = document.getElementById('category_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        color: ['#CC0000', '#f97d6d'], // Red for inherent, orange for residual
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+        },
+        legend: { data: ['Inherent Risk', 'Residual Risk'] },
+        xAxis: {
+            type: 'category',
+            data: categoryChartData.categories // Risk categories
+        },
+        yAxis: {
+            type: 'value',
+            name: 'Risks',
+            axisLine: { lineStyle: { color: '#333' } }
+        },
+        series: [
+            {
+                name: 'Inherent Risk',
+                type: 'bar',
+                data: categoryChartData.inherent_risks // Total inherent risks
+            },
+            {
+                name: 'Residual Risk',
+                type: 'bar',
+                data: categoryChartData.residual_risks // Total residual risks
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
+<script>
+    var riskChartData = {{ risk_chart_data|safe }};
+    var chartDom = document.getElementById('risk_score_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        color: ['#f97d6d'],
+        xAxis: { type: 'category', data: riskChartData.risk_scores, name: 'Score' },
+        yAxis: { type: 'value', name: 'Entities' },
+        series: [{ name: 'Entities', type: 'bar', data: riskChartData.counts }]
+    };
+
+    myChart.setOption(option);
+</script>
+
+<script>
+    var entityTypeChartData = {{ entity_type_chart_data|safe }};
+    var chartDom = document.getElementById('entity_type_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        tooltip: { trigger: 'item' },
+        legend: { top: '5%', left: 'center' },
+        series: [{
+            name: 'Entity Type',
+            type: 'pie',
+            radius: '50%',
+            data: entityTypeChartData.entity_types.map((type, index) => ({
+                value: entityTypeChartData.counts[index],
+                name: type
+            }))
+        }]
+    };
+
+    myChart.setOption(option);
+</script>
 
 {% endblock content %}

@@ -47,13 +47,8 @@ class AuditUniverse(models.Model):
         default='Department',
     )
     process_category = models.CharField(
-        max_length=50,
-        choices=[
-            ('Procurement', 'Procurement'),
-            ('Asset Management', 'Asset Management'),
-            ('Financial Reporting', 'Financial Reporting'),
-        ],
-        default='Procurement',
+        max_length=250,
+        blank=True, null=True
     )
     location_category = models.CharField(
         max_length=50,
@@ -79,10 +74,10 @@ class AuditUniverse(models.Model):
     priority_level = models.CharField(max_length=50, choices=PRIORITY_CHOICES, default="Medium")
     audit_scope = models.TextField(blank=True, null=True)
     last_audit_date = models.DateField(blank=True, null=True)
-    next_audit_date = models.DateField(blank=True, null=True)
+    #next_audit_date = models.DateField(blank=True, null=True)
     assigned_auditor = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL)
     audit_cycle_status = models.CharField(max_length=50, choices=[('Active', 'Active'), ('Inactive', 'Inactive')])
-    senior_manager_feedback = models.TextField(blank=True, null=True)
+    #senior_manager_feedback = models.TextField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     
     def __str__(self):
@@ -104,7 +99,15 @@ class RiskAssessment(models.Model):
     )    
     inherent_risk = models.IntegerField(blank=True, null=True)
     residual_risk = models.IntegerField(blank=True, null=True)
-    control_effectiveness = models.TextField(blank=True, null=True)
+    controls = models.TextField(blank=True, null=True)
+    control_effectiveness = models.CharField(
+        max_length=50,
+        choices=[
+            ('Effective', 'Effective'),
+            ('Not Effective', 'Not Effective'),
+        ],
+        default='Effective',
+    )    
     assessed_by = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.SET_NULL)  # Replace with ForeignKey if linked to a user model
     assessed_date = models.DateField(blank=True, null=True)
     risk_severity = models.CharField(max_length=50, choices=[('High', 'High'), ('Medium', 'Medium'), ('Low', 'Low')])
@@ -124,21 +127,22 @@ class AuditPlan(models.Model):
         ('Critical','Critical')
     ]
     FREQUENCY_CHOICES = [
-    ('DAILY', 'Daily'),
-    ('WEEKLY', 'Weekly'),
-    ('MONTHLY', 'Monthly'),
-    ('QUARTERLY', 'Quarterly'),
-    ('ANNUALLY', 'Annually'),
+    ('1 Time', '1 Time'),
+    ('2 Times', '2 Times'),
+    ('3 Times', '3 Times'),
 ]
     
     plan_id = models.AutoField(primary_key=True)
     audit_year = models.IntegerField(blank=True, null=True)
     entity_name = models.CharField(max_length=255)
-    audit_frequency = models.CharField(max_length=50, choices=FREQUENCY_CHOICES, blank=True, null=True)
+    scope = models.TextField(blank=True, null=True)
+    objectives = models.TextField(blank=True, null=True)
+    audit_frequency = models.CharField(max_length=50, choices=FREQUENCY_CHOICES, blank=True, null=True, default="1 Time")
     priority_level = models.CharField(max_length=50, choices=PRIORITY_CHOICES, default="Medium")
     allocated_resources = models.TextField(blank=True, null=True)
     audit_schedule = models.TextField(blank=True, null=True)
-    assigned_team = models.ManyToManyField(Staff, blank=True)  
+    assigned_team = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.CASCADE)
+    team_members = models.IntegerField(blank=True, null=True) 
     comments = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -151,7 +155,8 @@ class AuditPlan(models.Model):
 class AuditAssessment(models.Model):
     assessment_id = models.AutoField(primary_key=True)
     entity_name = models.CharField(max_length=255)
-    assigned_team = models.ManyToManyField(Staff, blank=True) 
+    assigned_team = models.ForeignKey(Staff, blank=True, null=True, on_delete=models.CASCADE) 
+    team_members = models.IntegerField(blank=True, null=True) 
     scope = models.TextField(blank=True, null=True)
     objectives = models.TextField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
@@ -180,7 +185,7 @@ class AuditNotification(models.Model):
 class EntranceMeeting(models.Model):
     meeting_id = models.AutoField(primary_key=True)
     entity_name = models.CharField(max_length=255)
-    participants = models.ManyToManyField(Staff, blank=True)  
+    participants = models.IntegerField(blank=True, null=True)  
     discussion_points = models.TextField(blank=True, null=True)
     meeting_date = models.DateField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
@@ -395,7 +400,7 @@ class DraftReport(models.Model):
 class ExitMeeting(models.Model):
     meeting_id = models.AutoField(primary_key=True)
     entity_name = models.CharField(max_length=255)
-    participants = models.ManyToManyField(Staff, blank=True)  
+    participants = models.IntegerField(blank=True, null=True)  
     discussion_points = models.TextField(blank=True, null=True)
     agreed_actions = models.TextField(blank=True, null=True)
     meeting_date = models.DateField(blank=True, null=True)

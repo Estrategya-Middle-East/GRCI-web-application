@@ -150,9 +150,7 @@
                         <th>Audit Scope</th>
                         <th>Assigned Auditor</th>
                         <th>Last Audit Date</th>
-                        <th>Next Audit Date</th>
                         <th>Priority Level</th>
-                        <th>Senior Manager Feedback</th>
                         <th>Comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
@@ -175,9 +173,7 @@
                         <td>{{ audit_register.audit_scope }}</td>
                         <td>{{ audit_register.assigned_auditor }}</td>
                         <td>{{ audit_register.last_audit_date }}</td>
-                        <td>{{ audit_register.next_audit_date }}</td>
                         <td>{{ audit_register.priority_level }}</td>
-                        <td>{{ audit_register.senior_manager_feedback }}</td>
                         <td>{{ audit_register.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
@@ -232,11 +228,7 @@
                                                     </div>
                                                     <div class="col">
                                                         <label for="id_process_category-{{ audit_register.audit_id }}">Process Category</label>
-                                                        <select name="process_category" id="id_process_category-{{ audit_register.audit_id }}" class="form-control">
-                                                            {% for value, label in process_category_choices %}
-                                                                <option value="{{ value }}" {% if audit_register.process_category == value %}selected{% endif %}>{{ label }}</option>
-                                                            {% endfor %}
-                                                        </select>
+                                                        <input type="text" name="process_category" id="id_process_category-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.process_category }}">
                                                     </div>
                                                     <div class="col">
                                                         <label for="id_location_category-{{ audit_register.audit_id }}">Location Category</label>
@@ -268,9 +260,7 @@
                                                                 <option value="{{ value }}" {% if audit_register.strategic_relevance == value %}selected{% endif %}>{{ label }}</option>
                                                             {% endfor %}
                                                         </select>
-                                                    </div>
-                                                    
-                                                    
+                                                    </div> 
                                                 </div>
                                                 <div class="row mt-2">
                                                     <div class="col">
@@ -303,17 +293,17 @@
                                                         <label for="id_last_audit_date-{{ audit_register.audit_id }}">Last Audit Date</label>
                                                         <input type="date" name="last_audit_date" id="id_last_audit_date-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.last_audit_date|date:'Y-m-d' }}">
                                                     </div>
-                                                    <div class="col">
+                                                   {% comment %}  <div class="col">
                                                         <label for="id_next_audit_date-{{ audit_register.audit_id }}">Next Audit Date</label>
                                                         <input type="date" name="next_audit_date" id="id_next_audit_date-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.next_audit_date|date:'Y-m-d' }}">
-                                                    </div>
+                                                    </div> {% endcomment %}
                                                 </div>
                                                 
                                                 <div class="row mt-2">
-                                                    <div class="col">
+                                                    {% comment %} <div class="col">
                                                         <label for="id_senior_manager_feedback-{{ audit_register.audit_id }}">Senior Manager Feedback</label>
                                                         <textarea name="senior_manager_feedback" id="id_senior_manager_feedback-{{ audit_register.audit_id }}" class="form-control">{{ audit_register.senior_manager_feedback }}</textarea>
-                                                    </div>
+                                                    </div> {% endcomment %}
                                                     <div class="col">
                                                         <label for="id_comments-{{ audit_register.audit_id }}">Comments</label>
                                                         <textarea name="comments" id="id_comments-{{ audit_register.audit_id }}" class="form-control">{{ audit_register.comments }}</textarea>
@@ -466,18 +456,18 @@
                             <div class="row mt-2">
                                 <div class="col">
                                     <label for="id_last_audit_date">Last Audit Date</label>
-                                    {{ form.last_audit_date|add_class:"form-control" }}
+                                    <input type="date" name="last_audit_date" id="id_last_audit_date-{{ audit_register.audit_id }}" class="form-control" value="{{ audit_register.last_audit_date|date:'Y-m-d' }}">
                                 </div>
-                                <div class="col">
+                                {% comment %} <div class="col">
                                     <label for="id_next_audit_date">Next Audit Date</label>
                                     {{ form.next_audit_date|add_class:"form-control" }}
-                                </div>
+                                </div> {% endcomment %}
                             </div>
                             <div class="row mt-2">
-                                <div class="col">
+                                {% comment %} <div class="col">
                                     <label for="id_senior_manager_feedback">Senior Manager Feedback</label>
                                     {{ form.senior_manager_feedback|add_class:"form-control" }}
-                                </div>
+                                </div> {% endcomment %}
                                 <div class="col">
                                     <label for="id_comments">Comments</label>
                                     {{ form.comments|add_class:"form-control" }}

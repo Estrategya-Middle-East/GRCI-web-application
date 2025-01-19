@@ -24,16 +24,12 @@ class AuditUniverseForm(forms.ModelForm):
             'audit_scope',
             'assigned_auditor',
             'last_audit_date',
-            'next_audit_date',
             'priority_level', 
-            'senior_manager_feedback',
             'comments',]
             
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 3}),
             'audit_scope': forms.Textarea(attrs={'rows': 3}),
-            'senior_manager_feedback': forms.Textarea(attrs={'rows': 3}),
-            'last_audit_date': forms.DateInput(attrs={'type': 'date'}),
             'next_audit_date': forms.DateInput(attrs={'type': 'date'}),
         }
         
@@ -47,6 +43,7 @@ class RiskAssessmentForm(forms.ModelForm):
             'inherent_risk',
             'residual_risk',
             'control_effectiveness',
+            'controls',
             'assessed_by',
             'assessed_date',
             'risk_severity',
@@ -55,7 +52,7 @@ class RiskAssessmentForm(forms.ModelForm):
         
         widgets = {
         'comments': forms.Textarea(attrs={'rows': 3}),
-        'control_effectiveness': forms.Textarea(attrs={'rows': 3}),
+        'controls': forms.Textarea(attrs={'rows': 3}),
         'assessed_date': forms.DateInput(attrs={'type': 'date'}),
         }  
 
@@ -67,13 +64,16 @@ class AuditPlanForm(forms.ModelForm):
         model = AuditPlan
         fields = [
 
-            'audit_year',
+            #'audit_year',
             'entity_name',
+            'scope',
+            'objectives',
             'audit_frequency',
             'priority_level',
             'allocated_resources',
             'audit_schedule',
             'assigned_team',
+            'team_members', 
             'comments']
 
         widgets = {
@@ -90,7 +90,8 @@ class AuditAssessmentForm(forms.ModelForm):
         model = AuditAssessment
         fields = [
             'entity_name',
-            'assigned_team', 
+            'assigned_team',
+            'team_members', 
             'scope',
             'objectives',
             'start_date',

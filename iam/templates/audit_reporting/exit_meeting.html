@@ -199,13 +199,8 @@
                                                     </div>
                                                     <div class="col">
                                                         <label for="id_participants-{{ exit_meeting_resource.meeting_id }}">Participants</label>
-                                                        <select name="participants" id="id_participants-{{ exit_meeting_resource.meeting_id }}" class="form-control">
-                                                            {% for engagement in engagements %}
-                                                                <option value="{{ engagement.id }}" {% if exit_meeting.participants == engagement.participants %}selected{% endif %}>
-                                                                    {{ engagement }}
-                                                                </option>
-                                                            {% endfor %}
-                                                        </select>
+                                                        <input type="number" name="participants" id="id_participants-{{ exit_meeting_resource.meeting_id }}" class="form-control" value="{{ exit_meeting_resource_resource.participants }}">
+                                                         
                                                     </div>
                                                     
                                                 </div>

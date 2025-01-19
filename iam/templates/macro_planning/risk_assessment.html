@@ -91,7 +91,7 @@
                         {% if current_sort == 'entity_name' %}
                         SORT BY Entity Name
                         {% elif current_sort == 'risk_type' %}
-                        SORT BY Risk Type
+                        SORT BY Risk Category
                         {% elif current_sort == 'risk_id' %}
                         SORT BY ID
                         {% endif %}
@@ -119,10 +119,10 @@
                             <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Input</span> Historical audit findings, control documentation, regulatory requirements.
                         </li>
                         <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Processing</span> Assess risks and control effectiveness, prioritize entities for audits.
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Processing</span> Assess risks and Key Controls Implemented, prioritize entities for audits.
                         </li>
                         <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Output</span> Risk Assessment Form with residual risks and control effectiveness.
+                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Output</span> Risk Assessment Form with residual risks and Key Controls Implemented.
                         </li>
                     </ul>
                     <h1 class="w-full py-2 rounded-sm bg-[#6f6f6f] text-white text-xl text-center mt-8 mb-3">Instructions</h1>
@@ -131,7 +131,7 @@
                         <li>Review existing control documentation to understand mitigation measures.</li>
                         <li>Use a risk matrix to evaluate inherent risk (likelihood x impact).</li>
                         <li>Assess the effectiveness of each identified control using test results.</li>
-                        <li>Calculate residual risk by subtracting control effectiveness from inherent risk.</li>
+                        <li>Calculate residual risk by subtracting Key Controls Implemented from inherent risk.</li>
                         <li>Assign risk scores (High, Medium, Low) based on the residual risk.</li>
                         <li>Prepare a summary report highlighting critical risks requiring immediate action.</li>
                         <li>Share the risk assessment with the audit team for review and input.</li>
@@ -194,7 +194,7 @@
                         </th>
                         <th>
                             <a href="?sort_by=risk_type&order={% if current_sort == 'risk_type' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Risk Type
+                                Risk Category
                                 {% if current_sort == 'risk_type' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
@@ -207,6 +207,7 @@
                         <th>Inherent Risk</th>
                         <th>Residual Risk</th>
                         <th>Control Effectiveness</th>
+                        <th>Key Controls Implemented</th>
                         <th>Assessed By</th>
                         <th>Assessed Date</th>
                         <th>Risk Severity</th>
@@ -226,6 +227,7 @@
                         <td>{{ risk_assessment.inherent_risk }}</td>
                         <td>{{ risk_assessment.residual_risk }}</td>
                         <td>{{ risk_assessment.control_effectiveness }}</td>
+                        <td>{{ risk_assessment.controls }}</td>
                         <td>{{ risk_assessment.assessed_by }}</td>
                         <td>{{ risk_assessment.assessed_date }}</td>
                         <td>{{ risk_assessment.risk_severity }}</td>
@@ -267,7 +269,7 @@
                                                         <input type="text" name="entity_name" id="id_entity_name-{{ risk_assessment.risk_id }}" class="form-control" value="{{ risk_assessment.entity_name }}">
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_risk_type-{{ risk_assessment.risk_id }}">Risk Type</label>
+                                                        <label for="id_risk_type-{{ risk_assessment.risk_id }}">Risk Category</label>
                                                         <select name="risk_type" id="id_risk_type-{{ risk_assessment.risk_id }}" class="form-control">
                                                             {% for value, label in risk_type_choices %}
                                                             <option value="{{ value }}" {% if risk_assessment.risk_type == value %}selected{% endif %}>
@@ -319,11 +321,20 @@
                                                     </div>
                                                     <div class="col">
                                                         <label for="id_control_effectiveness-{{ risk_assessment.risk_id }}">Control Effectiveness</label>
-                                                        <textarea name="control_effectiveness" id="id_control_effectiveness-{{ risk_assessment.risk_id }}" class="form-control">{{ risk_assessment.control_effectiveness }}</textarea>
+                                                        <select name="control_effectiveness" id="id_control_effectiveness-{{ risk_assessment.risk_id }}" class="form-control">
+                                                            {% for value, label in control_effectiveness_choices %}
+                                                            <option value="{{ value }}" {% if risk_assessment.control_effectiveness == value %}selected{% endif %}>
+                                                                {{ label }}
+                                                            </option>
+                                                            {% endfor %}
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2">
-                                                    
+                                                    <div class="col">
+                                                        <label for="id_controls-{{ risk_assessment.risk_id }}">Key Controls Implemented</label>
+                                                        <textarea name="controls" id="id_controls-{{ risk_assessment.risk_id }}" class="form-control">{{ risk_assessment.controls }}</textarea>
+                                                    </div>
                                                     <div class="col">
                                                         <label for="id_comments-{{ risk_assessment.risk_id }}">Comments</label>
                                                         <textarea name="comments" id="id_comments-{{ risk_assessment.risk_id }}" class="form-control">{{ risk_assessment.comments }}</textarea>
@@ -424,7 +435,7 @@
                                     {{ form.entity_name|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_risk_type">Risk Type</label>
+                                    <label for="id_risk_type">Risk Category</label>
                                     {{ form.risk_type|add_class:"form-control" }}
                                 </div>
                             </div>
@@ -461,7 +472,10 @@
                                 </div>
                             </div>
                             <div class="row mt-2">
-                                
+                                <div class="col">
+                                    <label for="id_controls">Key Controls Implemented</label>
+                                    {{ form.controls|add_class:"form-control" }}
+                                </div>
                                 <div class="col">
                                     <label for="id_comments">Comments</label>
                                     {{ form.comments|add_class:"form-control" }}

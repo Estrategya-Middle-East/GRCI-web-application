@@ -13,22 +13,44 @@ from django.http import HttpResponse,JsonResponse
 from django.apps import apps
 from datetime import datetime
 from django.views.generic import TemplateView
-
+from django.db.models import Sum,Count
 # Create your views here.
 # IAM Dashboard View
 def dashboard(request):
-    components = [
-        {"name": "Macro Planning", "icon": "fas fa-gavel", "link": "macro_planning/audit_plans/"},
-        {"name": "Micro Planning", "icon": "fas fa-tasks", "link": "micro_planning/audit_assessments/"},
-        {"name": "FieldWork", "icon": "fas fa-chart-pie", "link": "fieldwork/working_papers/"},
-        {"name": "Reporting", "icon": "fas fa-check-circle", "link": "#"},
-        {"name": "Feedback", "icon": "fas fa-sync-alt", "link": "#"},
-        {"name": "Audit Follow-Up", "icon": "fas fa-file-alt", "link": "#"},
-        
-    ]
+
+    # Aggregate inherent and residual risks by category
+    category_totals = RiskAssessment.objects.values('risk_type').annotate(
+        total_inherent_risk=Sum('inherent_risk'),
+        total_residual_risk=Sum('residual_risk')
+    )
+
+    # Format data for the chart
+    category_chart_data = {
+        'categories': [cat['risk_type'] for cat in category_totals],
+        'inherent_risks': [cat['total_inherent_risk'] or 0 for cat in category_totals],
+        'residual_risks': [cat['total_residual_risk'] or 0 for cat in category_totals],
+    }
+
+    risk_score_data = AuditUniverse.objects.values('risk_score').annotate(count=Count('audit_id'))
+
+    # Format data for ECharts
+    risk_chart_data = {
+        'risk_scores': [item['risk_score'] for item in risk_score_data],
+        'counts': [item['count'] for item in risk_score_data]
+    }
+    entity_type_data = AuditUniverse.objects.values('entity_type').annotate(count=Count('audit_id'))
+
+    entity_type_chart_data = {
+        'entity_types': [item['entity_type'] for item in entity_type_data],
+        'counts': [item['count'] for item in entity_type_data]
+    }
+
+
     context = {
         'page_title': "IAM Dashboard",
-        'components': components,
+        'category_chart_data': category_chart_data,
+        'risk_chart_data': risk_chart_data, 
+        'entity_type_chart_data': entity_type_chart_data, 
     }
     return render(request, 'iam/dashboard.html', context)
 
@@ -211,6 +233,7 @@ def list_risk_assessment(request):
         'form': form,
         'risk_severity_choices': RiskAssessment._meta.get_field('risk_severity').choices,
         'risk_type_choices': RiskAssessment._meta.get_field('risk_type').choices,
+        'control_effectiveness_choices': RiskAssessment._meta.get_field('control_effectiveness').choices,
         'assessed_bys': Staff.objects.all(),
     }
     return render(request, 'macro_planning/risk_assessment.html', context)

@@ -155,6 +155,7 @@
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Assigned Team</th>
+                        <th>Team Members</th>
                         <th>comments</th>
                         
                         {% comment %} <th>Actions</th> {% endcomment %}
@@ -170,7 +171,8 @@
                         <td>{{ audit_assessment.objectives }}</td>
                         <td>{{ audit_assessment.start_date }}</td>
                         <td>{{ audit_assessment.end_date }}</td>
-                        <td>{{ audit_assessment.assigned_team.id }}</td>
+                        <td>{{ audit_assessment.assigned_team }}</td>
+                        <td>{{ audit_assessment.team_members }}</td>
                         <td>{{ audit_assessment.comments }}</td>
                         {% comment %} <td>
                             <!-- View Workflow Icon -->
@@ -236,12 +238,15 @@
                                                         </select>
                                                     </div>
                                                     <div class="col">
-                                                        <label for="id_objectives-{{ audit_assessment.assessment_id }}">Objectives</label>
-                                                        <textarea name="objectives" id="id_objectives-{{ audit_assessment.assessment_id }}" class="form-control">{{ audit_assessment.objectives }}</textarea>
+                                                        <label for="id_team_members-{{ audit_assessment.assessment_id }}">Team Members</label>
+                                                        <input type="number" name="team_members" id="id_team_members-{{ audit_assessment.assessment_id }}" class="form-control" value="{{ audit_assessment.team_members }}">
                                                     </div>
                                                 </div>    
                                                 <div class="row mt-2">
-                                                    
+                                                    <div class="col">
+                                                        <label for="id_objectives-{{ audit_assessment.assessment_id }}">Objectives</label>
+                                                        <textarea name="objectives" id="id_objectives-{{ audit_assessment.assessment_id }}" class="form-control">{{ audit_assessment.objectives }}</textarea>
+                                                    </div>
                                                     <div class="col">
                                                         <label for="id_comments-{{ audit_assessment.assessment_id }}">comments</label>
                                                         <textarea name="comments" id="id_comments-{{ audit_assessment.assessment_id }}" class="form-control">{{ audit_assessment.comments }}</textarea>
@@ -362,12 +367,16 @@
                                     {{ form.assigned_team|add_class:"form-control" }}
                                 </div>
                                 <div class="col">
-                                    <label for="id_objectives">Objectives</label>
-                                    {{ form.objectives|add_class:"form-control" }}
+                                    <label for="id_team_members">Team Members</label>
+                                    {{ form.team_members|add_class:"form-control" }}
                                 </div>
                             </div>
                             
                             <div class="row mt-2">
+                                <div class="col">
+                                    <label for="id_objectives">Objectives</label>
+                                    {{ form.objectives|add_class:"form-control" }}
+                                </div>
                                 
                                 <div class="col">
                                     <label for="id_comments">comments</label>
