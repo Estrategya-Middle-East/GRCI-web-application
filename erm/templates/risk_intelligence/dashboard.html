@@ -45,7 +45,11 @@
         width: 100%;
         height: 100%;
     }
-    
+    #department_residual_chart {
+        width: 100%;
+        height: 100%;
+    }
+
     #inherent_risks_chart {
         width: 100%;
         height: 100%;
@@ -131,7 +135,7 @@
                         </div>
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center">
-                        <div id="residual_department_chart_data" style="width: 450px; height: 400px; margin: auto;"></div>
+                        <div id="department_residual_chart" style="width: 450px; height: 400px; margin: auto;"></div>
                     </div>
                 </div>
             </div>
@@ -169,7 +173,7 @@
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center">
                         <div class="chart-container">
-                            <div id="chart_data_inherent"></div>
+                            <div id="chart_data_inherent" style="width: 300px; height: 300px; margin: 0 auto;"></div>
                             {% comment %} <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
                         </div>
                     </div>
@@ -205,7 +209,7 @@
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center">
                         <div class="chart-container">
-                            <div id="chart_data_residual"></div>
+                            <div id="chart_data_residual" style="width: 300px; height: 300px; margin: 0 auto;"></div>
                             {% comment %} <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
                         </div>
                     </div>
@@ -356,6 +360,7 @@
         var option;
 
         option = {
+            color: ['#f97d6d', '#ffbab5', '#ffeae0', '#630010', '#990931', '#f01819', ],
             title: {
                 text: 'Inhernt Risks',  // Add the chart label here
                 left: 'center',
@@ -377,7 +382,7 @@
                 {
                     name: 'Risks by Category',
                     type: 'pie',
-                    top: '10%',
+                    top: '0%',
                     radius: ['40%', '60%'],
                     avoidLabelOverlap: false,
                     padAngle: 5,
@@ -409,6 +414,7 @@
         var residualChartDom = document.getElementById('chart_data_residual');
         var residualChart = echarts.init(residualChartDom);
         var residualOption = {
+            color: ['#f97d6d', '#ffbab5', '#ffeae0','#630010', '#990931', '#f01819', ],
             title: {
                 text: 'Residual Risks',
                 left: 'center',
@@ -425,7 +431,7 @@
                 {
                     name: 'Residual Risks',
                     type: 'pie',
-                    top: '10%',
+                    top: '0%',
                     radius: ['40%', '60%'],
                     avoidLabelOverlap: false,
                     padAngle: 5,
@@ -891,7 +897,7 @@
         yAxis: [
             {
                 type: 'value',
-                name: 'Impact & Likelihood',
+                name: 'Impact & Likelihood              ',
                 position: 'right',
                 axisLine: { lineStyle: { color: '#630010' } }
             },
@@ -925,5 +931,60 @@
     myChart.setOption(option);
 </script>
   
+<script>
+    var departmentResidualChartData = {{ department_residual_data|safe }};
+
+    var chartDom = document.getElementById('department_residual_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        color: ['#630010', '#f97d6d', '#f01819'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+        },
+        legend: { 
+            data: ['Impact Rating', 'Likelihood Rating', 'Residual Risk Score'] 
+        },
+        xAxis: {
+            type: 'category',
+            data: departmentResidualChartData.departments // Department names
+        },
+        yAxis: [
+            {
+                type: 'value',
+                name: 'Impact & Likelihood              ',
+                position: 'right',
+                axisLine: { lineStyle: { color: '#400810' } }
+            },
+            {
+                type: 'value',
+                name: 'Residual Risk',
+                position: 'left',
+                axisLine: { lineStyle: { color: '#990931' } }
+            }
+        ],
+        series: [
+            {
+                name: 'Impact',
+                type: 'bar',
+                data: departmentResidualChartData.impact_totals
+            },
+            {
+                name: 'Likelihood',
+                type: 'bar',
+                data: departmentResidualChartData.likelihood_totals
+            },
+            {
+                name: 'Residual Risk',
+                type: 'line',
+                yAxisIndex: 1,
+                data: departmentResidualChartData.residual_risk_scores
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
 
 {% endblock content %}

@@ -45,12 +45,49 @@ def dashboard(request):
         'counts': [item['count'] for item in entity_type_data]
     }
 
+    # Aggregate audits per frequency
+    entity_type_data = AuditPlan.objects.values('audit_frequency').annotate(count=Count('plan_id'))
+
+    # Aggregate priority levels for each audit frequency
+    priority_data = AuditPlan.objects.values('audit_frequency', 'priority_level').annotate(count=Count('plan_id'))
+
+    # Aggregate total team members per audit frequency
+    team_size_data = AuditPlan.objects.values('audit_frequency').annotate(total_team_members=Sum('team_members'))
+
+    # Define expected frequency levels
+    frequency_levels = ['1 Time', '2 Times', '3 Times']
+    priority_levels = ['Low', 'Medium', 'High', 'Critical']
+
+    # Ensure frequencies are sorted properly
+    entity_types = [freq for freq in frequency_levels if freq in {item['audit_frequency'] for item in entity_type_data}]
+
+    # Organizing priority levels in a stacked format
+    priority_chart_data = {freq: {level: 0 for level in priority_levels} for freq in entity_types}
+    for item in priority_data:
+        if item['audit_frequency'] in priority_chart_data:
+            priority_chart_data[item['audit_frequency']][item['priority_level']] = item['count']
+
+    # Ensuring correct frequency order and mapping counts
+    audit_count_map = {item['audit_frequency']: item['count'] for item in entity_type_data}
+    team_size_map = {item['audit_frequency']: item['total_team_members'] for item in team_size_data}
+
+    # Preparing data for the chart
+    chart_data = {
+        'entity_types': entity_types,  # Sorted audit frequencies
+        'total_audits': [audit_count_map.get(freq, 0) for freq in entity_types],  # Match frequency order
+        'priority_data': {
+            level: [priority_chart_data[freq][level] for freq in entity_types] for level in priority_levels
+        },
+        'team_members': [team_size_map.get(freq, 0) for freq in entity_types]
+    }
+
 
     context = {
         'page_title': "IAM Dashboard",
         'category_chart_data': category_chart_data,
         'risk_chart_data': risk_chart_data, 
         'entity_type_chart_data': entity_type_chart_data, 
+        'audit_chart_data': chart_data
     }
     return render(request, 'iam/dashboard.html', context)
 

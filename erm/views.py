@@ -197,7 +197,22 @@ def risk_intelligence_dashboard(request):
         'risk_scores': [dept['total_risk_score'] or 0 for dept in department_totals],
     }
     
- 
+    
+    # Aggregate residual risk scores, impact ratings, and likelihood ratings for each department
+    department_residual_totals = RiskDefine.objects.values('department__name').annotate(
+        total_impact=Sum('risk__residual_step__impact_rating'),  # Impact Rating from RiskResidualAss
+        total_likelihood=Sum('risk__residual_step__likelihood_rating'),  # Likelihood Rating from RiskResidualAss
+        total_risk_score=Sum('risk__residual_step__risk_score')  # Residual Risk Score from RiskResidualAss
+    )
+
+    # Format data for the chart
+    department_residual_data = {
+        'departments': [dept['department__name'] or 'Unknown' for dept in department_residual_totals],
+        'impact_totals': [dept['total_impact'] or 0 for dept in department_residual_totals],
+        'likelihood_totals': [dept['total_likelihood'] or 0 for dept in department_residual_totals],
+        'residual_risk_scores': [dept['total_risk_score'] or 0 for dept in department_residual_totals],
+    }
+
 
     
     context = {
@@ -211,6 +226,7 @@ def risk_intelligence_dashboard(request):
         'residual_heatmap_data': residual_formatted_data,
         'residual_gauge_chart_data': residual_gauge_chart_data,
         'department_chart_data': department_data,
+        'department_residual_data': department_residual_data,
     }
     return render(request, 'risk_intelligence/dashboard.html', context)
 

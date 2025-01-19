@@ -157,7 +157,7 @@
                         <td><input type="radio" name="selected" value="{{ exit_meeting.meeting_id }}"></td>
                         <td>{{ forloop.counter|add:paginated_exit_meetings.start_index|add:-1 }}</td>
                         <td>{{ exit_meeting.entity_name }}</td>
-                        <td>{{ exit_meeting.participants.id }}</td>
+                        <td>{{ exit_meeting.participants }}</td>
                         <td>{{ exit_meeting.discussion_points }}</td>
                         <td>{{ exit_meeting.meeting_date }}</td>
                         <td>{{ exit_meeting.comments }}</td>

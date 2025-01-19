@@ -17,7 +17,7 @@
         vertical-align: top; /* Align the charts at the top */
     }
 
-    #chart_data_inherent {
+    #audit_dashboard_chart {
         width: 100%;
         height: 100%;
     }
@@ -165,7 +165,7 @@
                 
                 <div class="card card-dark">
                     <div class="card-header">
-                        <h3 class="card-title">#</h3>
+                        <h3 class="card-title">Audit Plan Overview by Audit Frequency</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -177,7 +177,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart">
-                            <div id="" style="width: 450px; height: 400px;"></div>
+                            <div id="audit_dashboard_chart" style="width: 450px; height: 400px;"></div>
                             {% comment %} <canvas id="barChart2" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas> {% endcomment %}
                         </div>
                     </div>
@@ -254,6 +254,7 @@
     var myChart = echarts.init(chartDom);
 
     var option = {
+        color: ['#400810', '#630010', '#990931', '#f01819', '#f97d6d', '#ffbab5', '#ffeae0'],
         tooltip: { trigger: 'item' },
         legend: { top: '5%', left: 'center' },
         series: [{
@@ -269,5 +270,94 @@
 
     myChart.setOption(option);
 </script>
+<script>
+    var auditChartData = {{ audit_chart_data|safe }};
+    var chartDom = document.getElementById('audit_dashboard_chart');
+    var myChart = echarts.init(chartDom);
+
+    var option = {
+        color: ['#400810', '#630010', '#990931', '#f01819', '#f97d6d', '#ffbab5', '#ffeae0'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+        },
+        legend: {
+            top: '0%', // Adds space between legend and chart
+            data: ['Total Audits', 'Low', 'Medium', 'High', 'Critical', 'Total Team Members']
+        },
+        grid: {
+            top: '20%',  // Adjusted space for legend
+            left: '10%',
+            right: '10%',
+            bottom: '10%'
+        },
+        xAxis: {
+            type: 'category',
+            data: auditChartData.entity_types, // Corrected audit frequencies
+            axisTick: { alignWithLabel: true }
+        },
+        yAxis: [
+            {
+                type: 'value',
+                name: 'Audit Count',
+                position: 'left',
+                axisLine: { lineStyle: { color: '#400810' } }
+            },
+            {
+                type: 'value',
+                name: 'Members Count',
+                position: 'right',
+                axisLine: { lineStyle: { color: '#630010' } }
+            }
+        ],
+        series: [
+            {
+                name: 'Total Audits',
+                type: 'bar',
+                barGap: '10%',  // Space between bars
+                itemStyle: { color: '#990931' },
+                data: auditChartData.total_audits
+            },
+            {
+                name: 'Low',
+                type: 'bar',
+                stack: 'Priority',
+                itemStyle: { color: '#f01819' },
+                data: auditChartData.priority_data['Low']
+            },
+            {
+                name: 'Medium',
+                type: 'bar',
+                stack: 'Priority',
+                itemStyle: { color: '#f97d6d' },
+                data: auditChartData.priority_data['Medium']
+            },
+            {
+                name: 'High',
+                type: 'bar',
+                stack: 'Priority',
+                itemStyle: { color: '#ffbab5' },
+                data: auditChartData.priority_data['High']
+            },
+            {
+                name: 'Critical',
+                type: 'bar',
+                stack: 'Priority',
+                itemStyle: { color: '#ffeae0' },
+                data: auditChartData.priority_data['Critical']
+            },
+            {
+                name: 'Total Team Members',
+                type: 'line',
+                yAxisIndex: 1,
+                itemStyle: { color: '#630010' },
+                data: auditChartData.team_members
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
+
 
 {% endblock content %}

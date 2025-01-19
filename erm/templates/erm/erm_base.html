@@ -139,9 +139,9 @@
                         <li>
                             <a href="{% url 'list_talent_management' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Talent Management</a>
                         </li>
-                        <li>
+                        {% comment %} <li>
                             <a href="#" class="dropdown-item ">Reports</a>
-                        </li>
+                        </li> {% endcomment %}
                     </ul>
                 </div>
 
@@ -168,9 +168,9 @@
                         <li>
                             <a href="{% url 'list_objective' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Objectives</a>
                         </li>
-                        <li>
+                        {% comment %} <li>
                             <a href="#" class="dropdown-item ">Reports</a>
-                        </li>
+                        </li> {% endcomment %}
                     </ul>
                 </div>
                 
@@ -193,9 +193,9 @@
                         <li>
                             <a href="{% url 'list_improvement_action' %}" class="dropdown-item {% if url == request.path %}active{% endif %}">Continuous Improvement</a>
                         </li>
-                        <li>
+                        {% comment %} <li>
                             <a href="#" class="dropdown-item ">Reports</a>
-                        </li>
+                        </li> {% endcomment %}
                     </ul>
                 </div>
 
