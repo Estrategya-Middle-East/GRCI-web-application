@@ -158,7 +158,7 @@ MODULES = [
         "url": "/iam/",
         "action_text": "Initiate and Oversee Your Audits Today",
         "code": "SUBSCRIBE2024",
-        "visible": False,
+        "visible": True,
         "info": "Streamline your audit processes and ensure transparency in governance.",
     },
     {
@@ -532,7 +532,7 @@ def edit_department(request, department_id):
             org_chart_level = form.cleaned_data.get('org_chart_level')
             parent = form.cleaned_data.get('parent')
             introduction_section = form.cleaned_data.get('introduction_section')
-            primary_responsibilities_section = form.cleaned_data.get(' primary_responsibilities_section')
+            primary_responsibilities_section = form.cleaned_data.get('primary_responsibilities_section')
             team_section = form.cleaned_data.get('team_section')
             governance_section  = form.cleaned_data.get('governance_section')
             policies_section = form.cleaned_data.get('policies_section')

@@ -39,23 +39,27 @@
         }
     </style>
     <div class="container-fluid mt-4">
-        <h1>Dashboard Filters</h1>
+        <h1 class="text-lg font-semibold">Dashboard Filters</h1>
         <form method="post">
             {% csrf_token %}
-            <label for="id_main_category"></label>
-            {{ form.main_category }}
-        
-            <div id="subcategory_sales_ledger_container" style="display: none; padding-bottom: 10px">
-                <label for="id_subcategory_sales_ledger"></label>
-                {{ form.subcategory_sales_ledger }}
+            <div class="row">
+                <div class="col">
+                    <label for="id_main_category"></label>
+                    {{ form.main_category|add_class:"form-control"  }}
+                </div>
+                <div class="col" id="subcategory_sales_ledger_container" style="display: none; padding-bottom: 10px">
+                    <label for="id_subcategory_sales_ledger"></label>
+                    {{ form.subcategory_sales_ledger|add_class:"form-control" }}
+                </div>
+            
+                <div class="col" id="subcategory_purchase_order_container" style="display: none;  padding-bottom: 10px">
+                    <label for="id_subcategory_purchase_order"></label>
+                    {{ form.subcategory_purchase_order|add_class:"form-control" }}
+                </div>
+                <div class="col">
+                    <button class="btn btn-info" style="margin-top: 25px;" type="submit">Submit</button>
+                </div>
             </div>
-        
-            <div id="subcategory_purchase_order_container" style="display: none;  padding-bottom: 10px">
-                <label for="id_subcategory_purchase_order"></label>
-                {{ form.subcategory_purchase_order }}
-            </div>
-        
-            <button class="btn btn-info" type="submit">Submit</button>
         </form>
         
 

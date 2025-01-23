@@ -1,12 +1,12 @@
-{% extends "chat/base.html" %}
+{% comment %} {% extends "chat/base.html" %} {% endcomment %}
 
 {% load static %}  <!-- Load static files -->
 
-{% block page_title %}
+{% comment %} {% block page_title %}
 PioNeer+
 {% endblock page_title %}
 
-
+ {% endcomment %}
 
 {% block custom_css %}
 
@@ -36,7 +36,7 @@ PioNeer+
     }
 
     #chat-box {
-        height: 400px;
+        height: 300px;
         overflow-y: auto;
         background-color: #f8f9fa;
         padding: 15px;
@@ -88,8 +88,8 @@ PioNeer+
         </ul>
     </div> {% endcomment %}
 </div>
-<div class="container mt-3">
-    <a href="#chat" data-bs-toggle="collapse" class="fas fa fa-cogs" style= "margin-bottom: 30px"></a>
+<div class=" mt-3">
+   {% comment %}  <a href="#chat" data-bs-toggle="collapse" class="fas fa fa-cogs" style= "margin-bottom: 30px"></a> {% endcomment %}
     
     <div id="chat">
         <div id="chat-box" >

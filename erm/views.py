@@ -98,6 +98,7 @@ def risk_intelligence_dashboard(request):
         RiskResidualAss.objects.filter(risk_score__gt=0)
         .values("risk__define_step__category")
         .annotate(count=Count("risk__define_step__category"))
+        .order_by("risk__define_step__category")
     )
    
     # Calculate total residual risks
@@ -183,12 +184,14 @@ def risk_intelligence_dashboard(request):
             {"value": round((residual_risk_appetite_count / residual_gauge_risks) * 100, 2), "name": "Risk Appetite"},
         ]
     
-    department_totals = RiskDefine.objects.values('department__name').annotate(
-    total_impact=Sum('impact'),
-    total_likelihood=Sum('likelihood'),
-    total_risk_score=Sum('risk_score')
+    department_totals = (RiskDefine.objects.values('department__name').annotate(
+    total_impact=Sum('risk__assessment_step__impact_rating'),  # Impact Rating from RiskAss
+    total_likelihood=Sum('risk__assessment_step__likelihood_rating'),  # Likelihood Rating from RiskAss
+    total_risk_score=Sum('risk__assessment_step__risk_score')  #  Risk Score from RiskResidualAss
     )
-
+    .order_by('department__name') 
+    )
+   
     # Format data for the chart
     department_data = {
         'departments': [dept['department__name'] or 'Unknown' for dept in department_totals],
@@ -199,11 +202,14 @@ def risk_intelligence_dashboard(request):
     
     
     # Aggregate residual risk scores, impact ratings, and likelihood ratings for each department
-    department_residual_totals = RiskDefine.objects.values('department__name').annotate(
+    department_residual_totals = (RiskDefine.objects.values('department__name').annotate(
         total_impact=Sum('risk__residual_step__impact_rating'),  # Impact Rating from RiskResidualAss
         total_likelihood=Sum('risk__residual_step__likelihood_rating'),  # Likelihood Rating from RiskResidualAss
         total_risk_score=Sum('risk__residual_step__risk_score')  # Residual Risk Score from RiskResidualAss
     )
+    .order_by('department__name') 
+    )
+    
 
     # Format data for the chart
     department_residual_data = {

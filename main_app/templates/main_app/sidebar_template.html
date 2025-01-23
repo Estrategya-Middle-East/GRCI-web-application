@@ -128,12 +128,14 @@
                     </li>{% endcomment %}
                     <!-- Dynamic Module Links -->
                     {% for module in visible_modules %}
-                    <li class="nav-item">
-                        <a href="{{ module.url }}" class="nav-link {% if module.url == request.path %} active {% endif %}">
-                            <i class="{{ module.icon }} nav-icon" ></i>
-                            <p>{{ module.name }}</p>
-                        </a>
-                    </li>
+                    {% if module.id != 9 %}
+                        <li class="nav-item">
+                            <a href="{{ module.url }}" class="nav-link {% if module.url == request.path %} active {% endif %}">
+                                <i class="{{ module.icon }} nav-icon" ></i>
+                                <p>{{ module.name }}</p>
+                            </a>
+                        </li>
+                    {% endif %}
                     {% endfor %}
                     
                     <!-- Apps Link -->
@@ -481,12 +483,14 @@
                                 </li>{% endcomment %}
                                 <!-- Dynamic Module Links -->
                                 {% for module in visible_modules %}
-                                <li class="nav-item">
-                                    <a href="{{ module.url }}" class="nav-link {% if module.url == request.path %} active {% endif %}" >
-                                        <i class="{{ module.icon }} nav-icon" ></i>
-                                        <p>{{ module.name }}</p>
-                                    </a>
-                                </li>
+                                {% if module.id != 9 %}
+                                    <li class="nav-item">
+                                        <a href="{{ module.url }}" class="nav-link {% if module.url == request.path %} active {% endif %}" >
+                                            <i class="{{ module.icon }} nav-icon" ></i>
+                                            <p>{{ module.name }}</p>
+                                        </a>
+                                    </li>
+                                {% endif %}
                                 {% endfor %}
 
                                 <!-- Apps Link -->

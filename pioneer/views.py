@@ -19,7 +19,7 @@ import mpld3
 import io
 import base64
 import datetime
-from datetime import datetime, timedelta
+from datetime import timedelta
 from sklearn.ensemble import IsolationForest
 
 
@@ -53,7 +53,7 @@ def generate_response(prompt):
         # Make the API request to the model
         response = requests.post(
             "http://127.0.0.1:11434/api/generate",
-            json={"model": "llama3.2:1b", "prompt": full_prompt}, # llama3.1:8b
+            json={"model": "deepseek-r1:1.5b", "prompt": full_prompt}, # llama3.1:8b # deepseek-r1:1.5b # llama3.2:1b
             headers={"Content-Type": "application/json"},
             stream=True,
         )
@@ -91,6 +91,8 @@ def format_response(response):
     response = re.sub(r'(\d+\.)', r'<br>\1', response)
     
     response = re.sub(r'(\* )', r'<br>\1', response)
+    response = re.sub(r'(DeepSeek\.)', r'ESG Company.', response)
+    response = re.sub(r'(DeepSeek-R1)', r'PioNeer+', response)
 
     lines = response.split('<br>')  # Split response into lines
     formatted_lines = []

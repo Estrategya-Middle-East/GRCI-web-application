@@ -283,7 +283,7 @@
         },
         legend: {
             top: '0%', // Adds space between legend and chart
-            data: ['Total Audits', 'Low', 'Medium', 'High', 'Critical', 'Total Team Members']
+            data: ['Low', 'Medium', 'High', 'Critical', 'Total Team Members', 'Total Audits']
         },
         grid: {
             top: '20%',  // Adjusted space for legend
@@ -305,7 +305,7 @@
             },
             {
                 type: 'value',
-                name: 'Members Count',
+                name: 'Members Count  ',
                 position: 'right',
                 axisLine: { lineStyle: { color: '#630010' } }
             }
@@ -322,28 +322,28 @@
                 name: 'Low',
                 type: 'bar',
                 stack: 'Priority',
-                itemStyle: { color: '#f01819' },
+                itemStyle: { color: '#ffeae0' },
                 data: auditChartData.priority_data['Low']
             },
             {
                 name: 'Medium',
                 type: 'bar',
                 stack: 'Priority',
-                itemStyle: { color: '#f97d6d' },
+                itemStyle: { color: '#ffbab5' },
                 data: auditChartData.priority_data['Medium']
             },
             {
                 name: 'High',
                 type: 'bar',
                 stack: 'Priority',
-                itemStyle: { color: '#ffbab5' },
+                itemStyle: { color: '#f97d6d' },
                 data: auditChartData.priority_data['High']
             },
             {
                 name: 'Critical',
                 type: 'bar',
                 stack: 'Priority',
-                itemStyle: { color: '#ffeae0' },
+                itemStyle: { color: '#f01819' },
                 data: auditChartData.priority_data['Critical']
             },
             {
