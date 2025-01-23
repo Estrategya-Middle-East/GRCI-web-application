@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     'https://coherent-better-piranha.ngrok-free.app',
+    'https://saving-factual-ferret.ngrok-free.app',
 ]
 
 # Application definition
