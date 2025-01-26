@@ -14,58 +14,6 @@
     <link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
     <script src="https://kit.fontawesome.com/178e567442.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-         .overlay {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: rgba(0, 0, 0, 0.7);
-                transition: opacity 500ms;
-                visibility: hidden;
-                opacity: 0;
-                z-index: 2;
-                }
-                .overlay:target {
-                visibility: visible;
-                opacity: 1;
-                }
-        
-                .popup {
-                margin: 70px auto;
-                padding: 20px;
-                background: #fff;
-                border-radius: 5px;
-                width: 80%;
-                height: 80%;
-                position: relative;
-                transition: all 5s ease-in-out;
-                }
-        
-                .popup h2 {
-                margin-top: 0;
-                color: #333;
-                font-family: Tahoma, Arial, sans-serif;
-                }
-                .popup .close {
-                position: absolute;
-                top: 20px;
-                right: 30px;
-                transition: all 200ms;
-                font-size: 30px;
-                font-weight: bold;
-                text-decoration: none;
-                color: #333;
-                }
-                .popup .close:hover {
-                color: black;
-                }
-                .popup .content {
-                max-height: 30%;
-                overflow: auto;
-            }
-    </style>
 </head>
 <body>
     
@@ -114,24 +62,34 @@
             <div id="popup1" class="overlay">
                 <div class="popup">
                     <a class="close" href="#">&times;</a>
-                        <h2 class="text-lg font-bold mb-4">Info & Documents you Need:</h2>
-                        <ul class="list-disc list-inside mb-6 text-gray-700">
-                          <li>Organizational charts, process maps, departmental records.</li>
-                        </ul>
-                        <h2 class="text-lg font-bold mb-4">How to update this page?</h2>
-                        <ul class="list-disc list-inside mb-6 text-gray-700 space-y-2">
-                          <li>Collect all available organizational data, including process maps, charts, and departmental records.</li>
-                          <li>Identify all departments, systems, processes, and locations that can be audited.</li>
-                          <li>Categorize entities into groups such as operational, financial, IT, and compliance.</li>
-                          <li>Assign risk levels to each entity using historical findings and criticality to business objectives.</li>
-                          <li>Validate identified entities by consulting department heads or stakeholders.</li>
-                          <li>Ensure no significant entity is missed by cross-referencing organizational documents.</li>
-                          <li>Schedule audits based on risk levels and organizational priorities.</li>
-                        </ul>
-                        <h2 class="text-lg font-bold mb-4">Expected results:</h2>
-                        <ul class="list-disc list-inside text-gray-700">
-                          <li>Comprehensive list of auditable entities with risk levels and schedules.</li>
-                        </ul>
+                    <h2 class="text-lg font-bold mb-4">Info & Documents you Need:</h2>
+                    <ul class="list-disc list-inside mb-6 text-gray-700">
+                        <li>Historical audit findings and reports.</li>
+                        <li>Control documentation and test results.</li>
+                        <li>Regulatory requirements and compliance guidelines.</li>
+                        <li>Risk matrix templates and scoring criteria.</li>
+                    </ul>
+                    <h2 class="text-lg font-bold mb-4">How to update this page?</h2>
+                    <ul class="list-disc list-inside mb-6 text-gray-700 space-y-2">
+                        <li>List all potential risks for each auditable entity based on historical findings and risk categories.</li>
+                        <li>Review existing control documentation to understand mitigation measures.</li>
+                        <li>Use a risk matrix to evaluate inherent risk (likelihood x impact).</li>
+                        <li>Assess the effectiveness of each identified control using test results.</li>
+                        <li>Calculate residual risk by subtracting control effectiveness from inherent risk.</li>
+                        <li>Assign risk scores (High, Medium, Low) based on the residual risk.</li>
+                        <li>Prepare a summary report highlighting critical risks requiring immediate action.</li>
+                        <li>Share the risk assessment with the audit team for review and input.</li>
+                        <li>Use software tools to document and track risk assessment results.</li>
+                        <li>Record findings in the Risk Assessment Form.</li>
+                    </ul>
+                    <h2 class="text-lg font-bold mb-4">Expected results:</h2>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>A comprehensive Risk Assessment Form with residual risks and control effectiveness.</li>
+                        <li>Clear prioritization of entities for audits based on risk scores.</li>
+                        <li>Identification of critical risks requiring immediate action.</li>
+                        <li>Improved understanding of control effectiveness and gaps.</li>
+                        <li>Documentation of risk assessment results for future reference and tracking.</li>
+                    </ul>
                 </div>
             </div>
             

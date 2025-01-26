@@ -103,22 +103,8 @@ def list_audit_register(request):
     except EmptyPage:
         paginated_audit_registers = paginator.page(paginator.num_pages)
 
-    IAM_POPUP = [
-    {
-        "id": 1,
-        "name": "Audit Universe Register",
-        "info": "Organizational charts, process maps, departmental records.",
-        "update":[
-            'Collect all available organizational data, including process maps, charts, and departmental records.',
-            'Identify all departments, systems, processes, and locations that can be audited.'
-        ],
-        "results": "Comprehensive list of auditable entities with risk levels and schedules.",
-    },
-]
-
-    # Pass necessary context to the template
-    data = [m for m in IAM_POPUP if m["id"] == 1]
     
+    # Pass necessary context to the template
     context = {
         'page_title': "Audit Universe Register",
         'audit_registers':audit_registers, 
@@ -135,13 +121,12 @@ def list_audit_register(request):
         'risk_category_choices': AuditUniverse._meta.get_field('risk_category').choices,
         'priority_level_choices': AuditUniverse._meta.get_field('priority_level').choices,
         'assigned_auditors': Staff.objects.all(),
-        'data': data
     }
     return render(request, 'macro_planning/audit_register.html', context)
 
 
-
 # Add Oversigh 
+
 def add_audit_register(request):
     form = AuditUniverseForm(request.POST or None)
     if request.method == 'POST':
