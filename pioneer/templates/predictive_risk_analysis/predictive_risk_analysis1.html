@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+{% extends 'chat/base.html' %}
+{% load static %}
+{% load form_filters %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Risk Analysis</title>
+</head>
+<link rel="stylesheet" href="{% static 'css/table_styles.css' %}">
+<body>
+    <style>
+        .container-fluid{
+            min-height: 500px;
+            background-color: #ffffff !important;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto; 
+            margin-top: 20px; 
+            margin-bottom: 20px;   
+        }
+        .btn-info {
+            color: #ffffff;
+            background-color: #cc0000;
+            border: None;
+        }
+        .btn-info:hover {
+            color: #ffffff;
+            background-color: gray;
+            border: None;
+        }
+        .btn-info:focus {
+            color: #ffffff;
+            background-color: gray !important;
+            border: None;
+        }
+    </style>
+    <div class="container-fluid mt-4">
+        <h1 class="text-lg font-semibold">Dashboard Filters</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    <label for="id_main_category"></label>
+                    {{ form.main_category|add_class:"form-control"  }}
+                </div>
+                <div class="col" id="subcategory_sales_ledger_container" style="display: none; padding-bottom: 10px">
+                    <label for="id_subcategory_sales_ledger"></label>
+                    {{ form.subcategory_sales_ledger|add_class:"form-control" }}
+                </div>
+            
+                <div class="col" id="subcategory_purchase_order_container" style="display: none;  padding-bottom: 10px">
+                    <label for="id_subcategory_purchase_order"></label>
+                    {{ form.subcategory_purchase_order|add_class:"form-control" }}
+                </div>
+                <div class="col">
+                    <button class="btn btn-info" style="margin-top: 25px;" type="submit" name="submit_type" value="generate_graphs">Perform Analytics</button>
+                    <button class="btn btn-info" style="margin-top: 25px;" type="submit" name="submit_type" value="generate_response">PioNeer Insights</button>
+                </div>
+            </div>
+        </form>
+        
+
+        <!-- Include the graph_2.html -->
+        {% if subcategory_sales_ledger == 'duplicate_invoices'%}
+        <h2>duplicate invoices analysis</h2>
+        {% elif subcategory_sales_ledger == 'net_amount'%}
+        <h2>net amount analysis</h2>
+        {% endif %}
+        {% include 'chat/graph_2.html' %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to the main category and subcategory fields
+            var mainCategoryField = document.getElementById('id_main_category');
+            var subcategorySalesLedgerContainer = document.getElementById('subcategory_sales_ledger_container');
+            var subcategoryPurchaseOrderContainer = document.getElementById('subcategory_purchase_order_container');
+    
+            // Function to toggle visibility of subcategory fields
+            function toggleSubcategory() {
+                if (mainCategoryField.value === 'sales_ledger') {
+                    subcategorySalesLedgerContainer.style.display = 'block';
+                    subcategoryPurchaseOrderContainer.style.display = 'none';
+                } else if (mainCategoryField.value === 'purchase_order') {
+                    subcategorySalesLedgerContainer.style.display = 'none';
+                    subcategoryPurchaseOrderContainer.style.display = 'block';
+                } else {
+                    subcategorySalesLedgerContainer.style.display = 'none';
+                    subcategoryPurchaseOrderContainer.style.display = 'none';
+                }
+            }
+    
+            // Run on page load and on change of the main category field
+            toggleSubcategory();
+            mainCategoryField.addEventListener('change', toggleSubcategory);
+        });
+    </script>
+    
+    
+</body>
+</html>
+{% endblock content %}

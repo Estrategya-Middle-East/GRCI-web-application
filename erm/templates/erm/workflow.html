@@ -78,7 +78,7 @@
             <div class="tab-pane {% if current_step == 'define' %}active{% endif %}" id="define">
                 <!-- <h3 class="m-auto w-[500px]">Risk Identification</h3> -->
                 <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Centralizes the identification and documentation of risks <br>that could impact objectives. Provides a unified platform to categorize risks <br>by type, source, and impact, ensuring a comprehensive understanding of the organization's risk landscape.</h6>
-                <form method="post" class="w-[60%]">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <b>Risk: {{risk.name}}</b>
@@ -201,7 +201,7 @@
             <div class="tab-pane {% if current_step == 'assessment' %}active{% endif %}" id="assessment">
                 <!-- <h3>Risk Assessment</h3> -->
                 <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
-                <form method="post" class="w-[60%]">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <b>Risk: {{risk.name}}</b>
@@ -297,7 +297,7 @@
             <div class="tab-pane {% if current_step == 'prioritization' %}active{% endif %}" id="prioritization">
                 <!-- <h3>Risk Prioritization</h3> -->
                 <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Ranks identified risks based on their severity, impact, and strategic importance. <br>Enables organizations to focus on high-priority risks and allocate resources effectively, <br>ensuring that mitigation efforts align with overall business goals.</h6>
-                <form method="post" class="w-[60%]">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <b>Risk: {{risk.name}}</b>
@@ -394,7 +394,7 @@
             <div class="tab-pane {% if current_step == 'response' %}active{% endif %}" id="response">
                 <!-- <h3>Risk Response</h3> -->
                 <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Develops actionable plans to mitigate, avoid, transfer, or accept risks. <br>Provides detailed workflows for implementing responses, assigns responsibilities, <br>and tracks progress to ensure timely and effective risk management actions.</h6>
-                <form method="post" class="w-[60%]">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <b>Risk: {{risk.name}}</b>
@@ -487,7 +487,7 @@
             <div class="tab-pane {% if current_step == 'residual' %}active{% endif %}" id="residual">
                 <!-- <h3>Residual Risk</h3> -->
                 <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
-                <form method="post" class="w-[60%]">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <b>Risk: {{risk.name}}</b>
@@ -583,7 +583,7 @@
             <div class="tab-pane {% if current_step == 'close' %}active{% endif %}" id="close">
                 <!-- <h3>Risk close</h3> -->
                 <h6 class="mb-3 mt-2 text-justify w-[60%] text-[20px]">Evaluates the severity of risks by assessing likelihood and impact <br>through quantitative and qualitative methods. Produces risk scores, heatmaps, and detailed analyses <br>to prioritize risks and guide mitigation strategies effectively.</h6>
-                <form method="post" class="w-[60%]">
+                <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <b>Risk: {{risk.name}}</b>

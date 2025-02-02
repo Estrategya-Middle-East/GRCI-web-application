@@ -133,8 +133,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 350px;
-            max-height: 500px;
+            width: 450px;
+            max-height: 600px;
             overflow: hidden;
             background: white;
             border: 1px solid #ccc;
@@ -145,7 +145,7 @@
         
         
         #chat-content {
-            height: 400px;
+            /* height: 400px; */
             overflow-y: auto;
             background: #f9f9f9;
         }
@@ -511,13 +511,15 @@
             </button>
 
             <!-- Chat Popup -->
-            <div id="chat-popup" class="fixed bottom-20 right-6 w-96 shadow-lg border rounded-lg hidden">
-                <div class="p-3 border-b flex justify-between items-center bg-[#cc0000] text-white rounded-t-lg">
-                    <h2 class="text-lg font-semibold text-white">PioNeer+</h2>
-                    <button id="chat-close" class="text-white text-lg">&times;</button>
-                </div>
-                <div id="chat-content" class="p-4">
-                    {% include "chat/chat.html" %}
+            <div id="chat-popup" class="fixed bottom-20 right-5 shadow-lg border hidden resize-x rotate-180">
+                <div class="rotate-180 h-full w-full overflow-y-auto">
+                    <div class="p-3 border-b flex justify-between items-center bg-[#cc0000] text-white ">
+                        <h2 class="text-lg font-semibold text-white">PioNeer+</h2>
+                        <button id="chat-close" class="text-white text-lg">&times;</button>
+                    </div>
+                    <div id="chat-content" class="p-4">
+                        {% include "chat/chat.html" %}
+                    </div>
                 </div>
             </div>
 
