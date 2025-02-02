@@ -25,8 +25,9 @@ COPY . .
 
 # 6. Install requirements
 # Upgrade pip and install dependencies with higher timeout and retries
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel --timeout 300 --retries 5 -i https://pypi.org/simple
-RUN pip install --no-cache-dir -r requirements.txt --timeout 300 --retries 5
+RUN pip install --upgrade pip setuptools wheel --timeout 300 --retries 5 -i https://pypi.org/simple
+RUN pip install --no-cache-dir -r requirements.txt --timeout 600 --retries 10 -i https://pypi.org/simple
+
 
 # Default command to run the Django development server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

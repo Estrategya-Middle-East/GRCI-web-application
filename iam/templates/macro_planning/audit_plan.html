@@ -26,8 +26,9 @@
             <div class="flex justify-center items-center gap-4">
                 <div class="w-[250px] bg-[#e9e9e9] rounded-2xl text-center py-1" >
                     <span>
-                        
-                        {% if current_sort == 'entity_name' %}
+                        {% if current_sort == 'audit_year' %}
+                        SORT BY Audit Year
+                        {% elif current_sort == 'entity_name' %}
                         SORT BY Summary
                         {% elif current_sort == 'plan_id' %}
                         SORT BY ID
@@ -45,25 +46,22 @@
                     </span>
                 </div>
             </div>
-            <a class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:!text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help" href="#popup1">
+            <!-- <a class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:!text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help" href="#popup1">
                 <i class="fa-regular fa-circle-question"></i>
-            </a>
+            </a> -->
             <div id="popup1" class="overlay">
                 <div class="popup">
                     <a class="close" href="#">&times;</a>
-                    <ul class="flex justify-center items-center gap-4 list-none mt-6">
-                        <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Input</span> Audit Universe, Risk Assessment results.
-                        </li>
-                        <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Processing</span> Develop an annual plan based on priorities and resource availability.
-                        </li>
-                        <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Output</span> Annual Audit Plan Form with audit schedules and team assignments.
-                        </li>
+                    <h2 class="text-lg font-bold mb-4">Info & Documents you Need:</h2>
+                    <ul class="list-disc list-inside mb-6 text-gray-700">
+                        <li>Finalized Audit Universe with risk levels.</li>
+                        <li>Risk Assessment results and residual risk scores.</li>
+                        <li>Organizational goals and strategic priorities.</li>
+                        <li>Auditor availability and resource allocation details.</li>
+                        <li>Templates for documenting the Annual Audit Plan.</li>
                     </ul>
-                    <h1 class="w-full py-2 rounded-sm bg-[#6f6f6f] text-white text-xl text-center mt-8 mb-3">Instructions</h1>
-                    <ol class="flex flex-col gap-2 ml-2 list-disc">
+                    <h2 class="text-lg font-bold mb-4">How to update this page?</h2>
+                    <ul class="list-disc list-inside mb-6 text-gray-700 space-y-2">
                         <li>Review the finalized Audit Universe and prioritize audits based on residual risks.</li>
                         <li>Consult with department heads and stakeholders to align the plan with organizational goals.</li>
                         <li>Define audit objectives for each entity or process identified.</li>
@@ -74,39 +72,21 @@
                         <li>Revise the plan based on feedback and finalize it.</li>
                         <li>Use templates to document the Annual Audit Plan for clarity and consistency.</li>
                         <li>Record the finalized plan in the Annual Audit Plan Form.</li>
-                    </ol>
+                    </ul>
+                    <h2 class="text-lg font-bold mb-4">Expected results:</h2>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>A finalized Annual Audit Plan Form with clear audit schedules and team assignments.</li>
+                        <li>Alignment of the audit plan with organizational goals and priorities.</li>
+                        <li>Efficient allocation of auditors and resources based on expertise and availability.</li>
+                        <li>A contingency plan for unforeseen audits or investigations.</li>
+                        <li>Documentation of the plan for reference, tracking, and reporting purposes.</li>
+                    </ul>
                 </div>
             </div>
             
             
         </div>
-        <!-- <div class="row">
-            <div class="col-2" style="background-color: #e9e9e9; padding: 1px; margin-left: 10px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
-                <div class="box">
-                    <span>
-                        {% if current_sort == 'audit_year' %}
-                        SORT BY Audit Year
-                        {% elif current_sort == 'entity_name' %}
-                        SORT BY Summary
-                        {% elif current_sort == 'plan_id' %}
-                        SORT BY ID
-                        {% endif %}
-                    <span>
-                </div>
-            </div>
         
-            <div class="col-2" style= "background-color: #e9e9e9; padding: 1px; margin-right: 5px; margin-bottom: 15px; text-align: center; border-radius: 10px">
-                <div class="box">
-                    <span>
-                        {% if current_order == 'asc' %}
-                        ORDER IS ASC
-                        {% else %}
-                        ORDER IS DES
-                        {% endif %}
-                    </span>
-                </div>
-            </div>
-        </div> -->
         <div class="col-12" style="margin-left: 10px">
             <!-- Search Form -->
             <form method="get" class="form-inline mb-4">
@@ -145,10 +125,21 @@
                                 {% endif %}
                             </a>
                         </th>
-
+                        <th>
+                            <a href="?sort_by=audit_year&order={% if current_sort == 'audit_year' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Audit Year
+                                {% if current_sort == 'audit_year' %}
+                                    {% if current_order == 'asc' %}
+                                        &#x2191;
+                                    {% else %}
+                                        &#x2193;
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
                         <th>
                             <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Audit Name
+                                Entry Name
                                 {% if current_sort == 'entity_name' %}
                                     {% if current_order == 'asc' %}
                                         &#x2191;
@@ -158,14 +149,11 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>Detailed Scope</th>
-                        <th>Audit Objective</th>
-                        <th>Audit Frequency (3-Year Cycle)</th>
+                        <th>Audit Frequency</th>
                         <th>Priority Level</th>
-                        <th>Allocated Resources (Hours/3 Years)</th>
+                        <th>Allocated Resources</th>
                         <th>Audit Schedule</th>
                         <th>Assigned Team</th>
-                        <th>Team Members</th>
                         <th>Comments</th>
 
                         
@@ -178,15 +166,13 @@
                     <tr >
                         <td><input type="radio" name="selected" value="{{ audit_plan.plan_id }}"></td>
                         <td>{{ forloop.counter|add:paginated_audit_plans.start_index|add:-1 }}</td>
+                        <td>{{ audit_plan.audit_year }}</td>
                         <td>{{ audit_plan.entity_name }}</td>
-                        <td>{{ audit_plan.scope }}</td>
-                        <td>{{ audit_plan.objectives }}</td>
                         <td>{{ audit_plan.audit_frequency }}</td>
                         <td>{{ audit_plan.priority_level }}</td>
                         <td>{{ audit_plan.allocated_resources }}</td>
                         <td>{{ audit_plan.audit_schedule }}</td>
-                        <td>{{ audit_plan.assigned_team }}</td>
-                        <td>{{ audit_plan.team_members }}</td>
+                        <td>{{ audit_plan.assigned_team.id }}</td>
                         <td>{{ audit_plan.comments }}</td>
                         
                         {% comment %} <td>
@@ -221,28 +207,18 @@
                                             <!-- General Tab -->
                                             <div class="tab-pane fade show active" id="general-{{ audit_plan.plan_id }}" role="tabpanel">
                                                 <div class="row">
-                                                    {% comment %} <div class="col">
+                                                    <div class="col">
                                                         <label for="id_audit_year-{{ audit_plan.plan_id }}">Audit Year</label>
                                                         <input type="text" name="audit_year" id="id_audit_year-{{ audit_plan.plan_id }}" class="form-control" value="{{ audit_plan.audit_year }}">
-                                                    </div> {% endcomment %}
+                                                    </div>
                                                     <div class="col">
-                                                        <label for="id_entity_name-{{ audit_plan.plan_id }}">Audit Name</label>
+                                                        <label for="id_entity_name-{{ audit_plan.plan_id }}">Entry Name</label>
                                                         <textarea name="entity_name" id="id_entity_name-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.entity_name }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <label for="id_scope-{{ audit_plan.plan_id }}">Detailed Scope</label>
-                                                        <textarea name="scope" id="id_scope-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.scope }}</textarea>
-                                                    </div>
-                                                    <div class="col">
-                                                        <label for="id_objectives-{{ audit_plan.plan_id }}">Audit Objective</label>
-                                                        <textarea name="objectives" id="id_objectives-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.objectives }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="row mt-2">
                                                     <div class="col">
-                                                        <label for="id_audit_frequency-{{ audit_plan.plan_id }}">Audit Frequency (3-Year Cycle)</label>
+                                                        <label for="id_audit_frequency-{{ audit_plan.plan_id }}">Audit Frequency</label>
                                                         <select name="audit_frequency" id="id_audit_frequency-{{ audit_plan.plan_id }}" class="form-control">
                                                             {% for value, label in audit_frequency_choices %}
                                                             <option value="{{ value }}" {% if audit_plan.audit_frequency == value %}selected{% endif %}>
@@ -251,6 +227,12 @@
                                                             {% endfor %}
                                                         </select>
                                                     </div>
+                                                    <div class="col">
+                                                        <label for="id_allocated_resources-{{ audit_plan.plan_id }}">Allocated Resources</label>
+                                                        <textarea name="allocated_resources" id="id_allocated_resources-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.allocated_resources }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
                                                     <div class="col">
                                                         <label for="id_priority_level-{{ audit_plan.plan_id }}">Priority Level</label>
                                                         <select name="priority_level" id="id_priority_level-{{ audit_plan.plan_id }}" class="form-control">
@@ -261,13 +243,6 @@
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col">
-                                                        <label for="id_allocated_resources-{{ audit_plan.plan_id }}">Allocated Resources (Hours/3 Years)</label>
-                                                        <textarea name="allocated_resources" id="id_allocated_resources-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.allocated_resources }}</textarea>
-                                                    </div>
-                                                    
                                                     <div class="col">
                                                         <label for="id_audit_schedule-{{ audit_plan.plan_id }}">Audit Schedule</label>
                                                         <textarea name="audit_schedule" id="id_audit_schedule-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.audit_schedule }}</textarea>
@@ -278,10 +253,7 @@
                                                         <label for="id_assigned_team-{{ audit_plan.plan_id }}">Assigned Team</label>
                                                         {{ form.assigned_team|add_class:"form-control" }}
                                                     </div>
-                                                    <div class="col">
-                                                        <label for="id_team_members-{{ audit_plan.plan_id }}">Team Members</label>
-                                                        <input type="number" name="team_members" id="id_team_members-{{ audit_plan.plan_id }}" class="form-control" value="{{ audit_plan.team_members }}">
-                                                    </div>
+                                                    
                                                 </div>
                                                 <div class="row mt-2">
                                                     
@@ -380,41 +352,30 @@
                         <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             <div class="row">
-                                {% comment %} <div class="col">
+                                <div class="col">
                                     <label for="id_audit_year">Audit Year</label>
                                     {{ form.audit_year|add_class:"form-control" }}
-                                </div> {% endcomment %}
+                                </div>
                                 <div class="col">
-                                    <label for="id_entity_name">Audit Name</label>
+                                    <label for="id_entity_name">Entry Name</label>
                                     {{ form.entity_name|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="row">
-                               <div class="col">
-                                    <label for="id_scope">Detailed Scope</label>
-                                    {{ form.scope|add_class:"form-control" }}
-                                </div>
-                                <div class="col">
-                                    <label for="id_objectives">Audit Objective</label>
-                                    {{ form.objectives|add_class:"form-control" }}
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col">
-                                    <label for="id_audit_frequency">Audit Frequency (3-Year Cycle)</label>
+                                    <label for="id_audit_frequency">Audit Frequency</label>
                                     {{ form.audit_frequency|add_class:"form-control" }}
                                 </div>
+                                <div class="col">
+                                    <label for="id_allocated_resources">Allocated Resources</label>
+                                    {{ form.allocated_resources|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
                                 <div class="col">
                                     <label for="id_priority_level">Priority Level</label>
                                     {{ form.priority_level|add_class:"form-control" }}
                                 </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <label for="id_allocated_resources">Allocated Resources (Hours/3 Years)</label>
-                                    {{ form.allocated_resources|add_class:"form-control" }}
-                                </div>
-                                
                                 <div class="col">
                                     <label for="id_audit_schedule">Audit Schedule</label>
                                     {{ form.audit_schedule|add_class:"form-control" }}
@@ -425,10 +386,7 @@
                                     <label for="id_assigned_team">Assigned Team</label>
                                     {{ form.assigned_team|add_class:"form-control" }}
                                 </div>
-                                <div class="col">
-                                    <label for="id_team_members">Team Members</label>
-                                    {{ form.team_members|add_class:"form-control" }}
-                                </div>
+                                
                             </div>
                             <div class="row mt-2">
                                 

@@ -91,41 +91,80 @@ def dashboard(request):
     }
     return render(request, 'iam/dashboard.html', context)
 
-def macro_planning_dashboard(request):
-    components = [
-        {"name": "Audit Planning", "icon": "fas fa-calendar-alt", "link": "audit_plannings"},  # Calendar for planning
-        {"name": "Audit Universe Register", "icon": "fas fa-database", "link": "audit_registers"},  # Database for register
-    ]
-    context = {
-        'page_title': "Audit Governance and Oversight",
-        'components': components,
-    }
-    return render(request, 'macro_planning/dashboard.html', context)
-
-
-def micro_planning_dashboard(request):
-    components = [
-        {"name": "Audit Assessment", "icon": "fas fa-tasks", "link": "audit_assessments"},  # Tasks for planning engagement
-        {"name": "Audit Notification Planner", "icon": "fas fa-users-cog", "link": "audit_notifications"},  # Users and cog for resource management
-    ]
-    context = {
-        'page_title': "Audit Engagement Management",
-        'components': components,
-    }
-    return render(request, 'micro_planning/dashboard.html', context)
-
-
-def audit_testing_dashboard(request):
-    components = [
-        {"name": "Audit Test", "icon": "fas fa-file-alt", "link": "audit_tests"},  # File for reporting
-        {"name": "Working Paper", "icon": "fas fa-chart-line", "link": "working_papers"},  # Chart line for trends report
-    ]
-    context = {
-        'page_title': "Audit Testing",
-        'components': components,
-    }
-    return render(request, 'audit_testing/dashboard.html', context)
-
+IAM_POPUP = [
+    {
+        "id": 1,
+        "name": "Audit Universe",
+        "info": "Organizational charts and process maps, departmental records and historical audit findings, risk assessment frameworks and compliance guidelines, stakeholder contact information.",
+        "update": [
+            "Collect all available organizational data, including process maps, charts, and departmental records.",
+            "Identify all departments, systems, processes, and locations that can be audited.",
+            "Categorize entities into groups such as operational, financial, IT, and compliance.",
+            "Assign risk levels to each entity based on historical findings and criticality to business objectives.",
+            "Validate identified entities by consulting department heads or stakeholders.",
+            "Ensure no significant entity is missed by cross-referencing organizational documents.",
+            "Schedule audits based on risk levels and organizational priorities.",
+            "Use software or templates to document entities and assign priorities.",
+            "Prepare a draft of the Audit Universe and circulate it for feedback.",
+            "Finalize the Audit Universe and record it in the Audit Universe Form."
+        ],
+        "results": "A comprehensive list of auditable entities with assigned risk levels, a clear audit schedule aligned with organizational priorities, validated and categorized entities ready for audit planning, improved alignment between audit activities and business objectives."
+    },
+    {
+        "id": 2,
+        "name": "Risk Assessment",
+        "info": "Historical audit findings and reports, control documentation and test results, regulatory requirements and compliance guidelines, risk matrix templates and scoring criteria.",
+        "update": [
+            "List all potential risks for each auditable entity based on historical findings and risk categories.",
+            "Review existing control documentation to understand mitigation measures.",
+            "Use a risk matrix to evaluate inherent risk (likelihood x impact).",
+            "Assess the effectiveness of each identified control using test results.",
+            "Calculate residual risk by subtracting control effectiveness from inherent risk.",
+            "Assign risk scores (High, Medium, Low) based on the residual risk.",
+            "Prepare a summary report highlighting critical risks requiring immediate action.",
+            "Share the risk assessment with the audit team for review and input.",
+            "Use software tools to document and track risk assessment results.",
+            "Record findings in the Risk Assessment Form."
+        ],
+        "results": "A comprehensive Risk Assessment Form with residual risks and control effectiveness, clear prioritization of entities for audits based on risk scores, identification of critical risks requiring immediate action, improved understanding of control effectiveness and gaps, documentation of risk assessment results for future reference and tracking."
+    },
+    {
+        "id": 3,
+        "name": "Annual Audit Plan",
+        "info": "Finalized Audit Universe with risk levels, Risk Assessment results and residual risk scores, organizational goals and strategic priorities, auditor availability and resource allocation details, templates for documenting the Annual Audit Plan.",
+        "update": [
+            "Review the finalized Audit Universe and prioritize audits based on residual risks.",
+            "Consult with department heads and stakeholders to align the plan with organizational goals.",
+            "Define audit objectives for each entity or process identified.",
+            "Allocate auditors and resources based on expertise and availability.",
+            "Develop a detailed timeline for each planned audit.",
+            "Include contingency time for unforeseen audits (e.g., fraud investigations).",
+            "Obtain feedback from senior management or the audit committee.",
+            "Revise the plan based on feedback and finalize it.",
+            "Use templates to document the Annual Audit Plan for clarity and consistency.",
+            "Record the finalized plan in the Annual Audit Plan Form."
+        ],
+        "results": "A finalized Annual Audit Plan Form with clear audit schedules and team assignments, alignment of the audit plan with organizational goals and priorities, efficient allocation of auditors and resources based on expertise and availability, a contingency plan for unforeseen audits or investigations, documentation of the plan for reference, tracking, and reporting purposes."
+    },
+    {
+        "id": 4,
+        "name": "Audit Assignment",
+        "info": "Annual Audit Plan with scheduled audits, entity details and prior audit reports, auditor availability and expertise records, relevant documentation (e.g., process maps, templates).",
+        "update": [
+            "Select an audit from the Annual Audit Plan based on its scheduled date.",
+            "Define the scope and objectives of the audit to ensure alignment with organizational goals.",
+            "Assign auditors based on their expertise, workload, and availability.",
+            "Communicate expectations to the audit team, including deliverables and timelines.",
+            "Ensure the team understands their roles (e.g., Lead Auditor, Reviewer).",
+            "Share any relevant documentation, including prior audit reports and process maps.",
+            "Define milestones for the audit, such as fieldwork completion and draft report submission.",
+            "Confirm resource availability (e.g., tools, templates) for the audit team.",
+            "Document the assignment in the Audit Assignment Form.",
+            "Share the assignment details with stakeholders for transparency."
+        ],
+        "results": "A completed Audit Assignment Form with assigned auditors and defined scope, clear communication of roles, responsibilities, and expectations to the audit team, alignment of audit objectives with organizational goals, availability of necessary resources and documentation for the audit team, transparent sharing of assignment details with stakeholders."
+    },
+]
 
 #### Macro Planning ####
 
@@ -162,7 +201,7 @@ def list_audit_register(request):
     except EmptyPage:
         paginated_audit_registers = paginator.page(paginator.num_pages)
 
-    
+    data = IAM_POPUP[0]
     # Pass necessary context to the template
     context = {
         'page_title': "Audit Universe Register",
@@ -180,6 +219,7 @@ def list_audit_register(request):
         'risk_category_choices': AuditUniverse._meta.get_field('risk_category').choices,
         'priority_level_choices': AuditUniverse._meta.get_field('priority_level').choices,
         'assigned_auditors': Staff.objects.all(),
+        'data': data,
     }
     return render(request, 'macro_planning/audit_register.html', context)
 

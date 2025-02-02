@@ -45,36 +45,40 @@
                     </span>
                 </div>
             </div>
-            <a class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:!text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help" href="#popup1">
+            <!-- <a class="flex justify-center items-center text-[22px] bg-[#e9e9e9] hover:bg-[#f1f1f1] hover:!text-red-500 rounded-full w-12 h-12 cursor-pointer hover:scale-110 transition-all duration-150 ease-in-out" title="Help" href="#popup1">
                 <i class="fa-regular fa-circle-question"></i>
-            </a>
+            </a> -->
             <div id="popup1" class="overlay">
                 <div class="popup">
                     <a class="close" href="#">&times;</a>
-                    <ul class="flex justify-center items-center gap-4 list-none mt-6">
-                        <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Input</span> Historical audit findings, control documentation, regulatory requirements.
-                        </li>
-                        <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Processing</span> Assess risks and control effectiveness, prioritize entities for audits.
-                        </li>
-                        <li class="flex flex-col items-center justify-center text-center w-1/3">
-                            <span class="text-[18px] bg-[#6f6f6f] w-1/3 mb-3 rounded-md text-white">Output</span> Risk Assessment Form with residual risks and control effectiveness.
-                        </li>
+                    <h2 class="text-lg font-bold mb-4">Info & Documents you Need:</h2>
+                    <ul class="list-disc list-inside mb-6 text-gray-700">
+                        <li>Notification Letter and Audit Scope.</li>
+                        <li>Agenda template and participant details.</li>
+                        <li>Audit timeline and key milestones.</li>
+                        <li>Documentation or resources requested from the auditee.</li>
                     </ul>
-                    <h1 class="w-full py-2 rounded-sm bg-[#6f6f6f] text-white text-xl text-center mt-8 mb-3">Instructions</h1>
-                    <ol class="flex flex-col gap-2 ml-2 list-disc">
-                        <li>List all potential risks for each auditable entity based on historical findings and risk categories.</li>
-                        <li>Review existing control documentation to understand mitigation measures.</li>
-                        <li>Use a risk matrix to evaluate inherent risk (likelihood x impact).</li>
-                        <li>Assess the effectiveness of each identified control using test results.</li>
-                        <li>Calculate residual risk by subtracting control effectiveness from inherent risk.</li>
-                        <li>Assign risk scores (High, Medium, Low) based on the residual risk.</li>
-                        <li>Prepare a summary report highlighting critical risks requiring immediate action.</li>
-                        <li>Share the risk assessment with the audit team for review and input.</li>
-                        <li>Use software tools to document and track risk assessment results.</li>
-                        <li>Record findings in the Risk Assessment Form.</li>
-                    </ol>
+                    <h2 class="text-lg font-bold mb-4">How to update this page?</h2>
+                    <ul class="list-disc list-inside mb-6 text-gray-700 space-y-2">
+                        <li>Schedule the meeting at a convenient time for all stakeholders.</li>
+                        <li>Prepare an agenda covering the audit objectives, scope, process, and deliverables.</li>
+                        <li>Introduce the audit team and their roles during the meeting.</li>
+                        <li>Explain the audit timeline and key milestones.</li>
+                        <li>Address any concerns raised by the auditee and provide clarifications.</li>
+                        <li>Request additional documentation or resources needed for the audit.</li>
+                        <li>Summarize the key points discussed and agreed upon during the meeting.</li>
+                        <li>Document participant details, discussion points, and follow-up actions.</li>
+                        <li>Share the meeting notes with participants for review and confirmation.</li>
+                        <li>Record the finalized notes in the Entrance Meeting Notes Form.</li>
+                    </ul>
+                    <h2 class="text-lg font-bold mb-4">Expected results:</h2>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>A completed Entrance Meeting Notes Form with documented discussion points and agreements.</li>
+                        <li>Clear alignment of expectations between the audit team and the auditee.</li>
+                        <li>Resolution of concerns or clarifications requested by the auditee.</li>
+                        <li>Confirmation of additional documentation or resources needed for the audit.</li>
+                        <li>Proper documentation and sharing of meeting outcomes for reference.</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -155,7 +159,7 @@
                         <td><input type="radio" name="selected" value="{{ entrance_meeting.meeting_id }}"></td>
                         <td>{{ forloop.counter|add:paginated_entrance_meetings.start_index|add:-1 }}</td>
                         <td>{{ entrance_meeting.entity_name }}</td>
-                        <td>{{ entrance_meeting.participants }}</td>
+                        <td>{{ entrance_meeting.participants.id }}</td>
                         <td>{{ entrance_meeting.discussion_points }}</td>
                         <td>{{ entrance_meeting.meeting_date }}</td>
                         <td>{{ entrance_meeting.comments }}</td>
@@ -197,8 +201,13 @@
                                                     </div>
                                                     <div class="col">
                                                         <label for="id_participants-{{ entrance_meeting_resource.meeting_id }}">Participants</label>
-                                                        <input type="number" name="participants" id="id_participants-{{ entrance_meeting_resource.meeting_id }}" class="form-control" value="{{ entrance_meeting_resource.participants }}">
-                                                        
+                                                        <select name="participants" id="id_participants-{{ entrance_meeting_resource.meeting_id }}" class="form-control">
+                                                            {% for engagement in engagements %}
+                                                                <option value="{{ engagement.id }}" {% if entrance_meeting.participants == engagement.participants %}selected{% endif %}>
+                                                                    {{ engagement }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
                                                     </div>
                                                     
                                                 </div>

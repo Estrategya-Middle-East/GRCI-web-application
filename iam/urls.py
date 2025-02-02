@@ -20,8 +20,6 @@ from . import views
 
 urlpatterns = [
     path("", views.dashboard, name="iam_dashboard"),  # Default dashboard for IAM
-    path("macro_planning/", views.macro_planning_dashboard, name="macro_planning_dashboard"),  # Default dashboard 
-    path("micro_planning/", views.micro_planning_dashboard, name="micro_planning_dashboard"),  # Default dashboard
     #path("audit_reporting/", views.audit_reporting_dashboard, name="audit_reporting_dashboard"),  # Default dashboard
     
     # Audit Plan

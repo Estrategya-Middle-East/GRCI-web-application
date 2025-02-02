@@ -21,9 +21,9 @@ services:
       - PYTHONUNBUFFERED=1
     depends_on:
       - db
+      - ollama
     networks:
       - main_net
-  
   db:
     container_name: database
     image: postgres:15
@@ -40,8 +40,22 @@ services:
     networks:
       - main_net
 
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    networks:
+      - main_net
+    volumes:
+      - ollama_data:/root/.ollama # Persist Ollama data
+    command: ["ollama", "run", "deepseek-r1:1.5b"] # Proper way to pass the command
+
+    
+
 volumes:
   postgres_data:
+  ollama_data:
 
 networks:
   main_net:

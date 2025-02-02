@@ -79,19 +79,28 @@
         .popup {
         overflow: hidden;
         background: #fff;
-        /* border-radius: 4px ; */
+        padding: 30px 10px 10px 20px;
         position: absolute;
         top: 0;
         right: -100%;
-        width: 75%;
+        width: 58%;
         height: 100%;
-        transition: all .45s ease-in-out;
+        transition: all .8s ease-out;
+        opacity: .5;
+        overflow-y: scroll;
         scrollbar-width: thin;
         scrollbar-color: #1F2937 #F9FAFB ;
         }
-
+        .popup li {
+            font-size: 20px;
+        }
+        .popup li::marker {
+            color: black;
+            font-weight: bolder;
+        }
         .overlay:target .popup {
             right: 0px;
+            opacity: 1;
         }
         .popup h2 {
         margin-top: 0;
@@ -115,6 +124,10 @@
         .popup .close:hover {
         color: black;
         background-color: #E5E7EB;
+        }
+        ::selection{
+            color: white;
+            background-color: rgba(0, 0, 0, 0.621);
         }
         #chat-popup {
             position: fixed;
