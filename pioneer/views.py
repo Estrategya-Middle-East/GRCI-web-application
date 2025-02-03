@@ -20,7 +20,7 @@ import io
 import base64
 from datetime import timedelta, datetime
 from sklearn.ensemble import IsolationForest
-
+from django.utils.decorators import method_decorator
 
 # ERM Dashboard View
 def dashboard(request):
@@ -900,34 +900,125 @@ class PredictiveRiskOptionsAPI(View):
         }
         return JsonResponse({"status": "success", "data": options})
     
+
+@method_decorator(csrf_exempt, name='dispatch')
 class PredictiveRiskAnalysisAPI(View):
     def post(self, request, *args, **kwargs):
         try:
-            data = json.loads(request.body)
+            print("🔍 Headers:", request.headers)
+            print("🔍 Raw request body (decoded):", request.body.decode("utf-8"))
+
+            # Parse JSON request body
+            data = json.loads(request.body.decode("utf-8"))
+
+            # Extract parameters
             main_category = data.get("main_category")
             subcategory = data.get("subcategory")
-            submit_type = data.get("submit_type")  # "generate_graphs" or "generate_response"
+            submit_type = data.get("submit_type")
 
-            if not main_category or not submit_type:
-                return JsonResponse({"status": "error", "message": "Missing required fields"}, status=400)
+            # Validate input
+            if not main_category or not subcategory or not submit_type:
+                return JsonResponse({"error": "Missing required parameters"}, status=400)
 
-            response_data = {}
+            # Create an instance of the existing class to reuse its methods
+            risk_analysis = PredictiveRiskAnalysisView()
 
-            if main_category == 'sales_ledger':
-                if subcategory == 'duplicate_invoices':
+            chart = chart2 = chart3 = chart4 = None
+            name = name2 = name3 = name4 = None
+            response = None
+
+            # Sales Ledger Cases
+            if main_category == "sales_ledger":
+                if subcategory == "duplicate_invoices":
                     if submit_type == "generate_graphs":
-                        response_data["charts"] = PredictiveRiskAnalysisView().generate_duplicate_invoices_graph()
+                        chart, chart2, chart3, name, name2, name3 = risk_analysis.generate_duplicate_invoices_graph()
                     elif submit_type == "generate_response":
-                        response_data["analysis"] = PredictiveRiskAnalysisView().generate_duplicate_invoices_response()
+                        response = risk_analysis.generate_duplicate_invoices_response()
 
-            elif main_category == 'purchase_order':
-                if subcategory == 'delayed_po_approvals':
+                elif subcategory == "negative_amount":
                     if submit_type == "generate_graphs":
-                        response_data["charts"] = PredictiveRiskAnalysisView().generate_delayed_po_approvals_graphs()
+                        chart, name = risk_analysis.generate_net_amount_graphs()
                     elif submit_type == "generate_response":
-                        response_data["analysis"] = PredictiveRiskAnalysisView().generate_delayed_po_approvals_response()
+                        response = risk_analysis.generate_net_amount_response()
 
-            return JsonResponse({"status": "success", "data": response_data})
+                elif subcategory == "invalid_invoices":
+                    if submit_type == "generate_graphs":
+                        chart, name = risk_analysis.generate_invalid_invoices_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_invalid_invoices_response()
+
+                elif subcategory == "mismatched_subtotals":
+                    if submit_type == "generate_graphs":
+                        chart, name = risk_analysis.generate_mismatched_subtotals_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_mismatched_subtotals_response()
+
+                elif subcategory == "high_cash_transactions":
+                    if submit_type == "generate_graphs":
+                        chart, name = risk_analysis.generate_high_cash_transactions_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_high_cash_transactions_response()
+
+                elif subcategory == "unusual_prices":
+                    if submit_type == "generate_graphs":
+                        chart, name = risk_analysis.generate_unusual_prices_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_unusual_prices_response()
+
+            # Purchase Order Cases
+            elif main_category == "purchase_order":
+                if subcategory == "delayed_po_approvals":
+                    if submit_type == "generate_graphs":
+                        chart, chart3, name, name3 = risk_analysis.generate_delayed_po_approvals_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_delayed_po_approvals_response()
+
+                elif subcategory == "open_pos":
+                    if submit_type == "generate_graphs":
+                        chart, name = risk_analysis.generate_open_pos_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_open_pos_response()
+
+                elif subcategory == "quantity_mistmatch":
+                    if submit_type == "generate_graphs":
+                        chart, name = risk_analysis.generate_quantity_mismatch_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_quantity_mismatch_response()
+
+                elif subcategory == "vendor_performance_risk":
+                    if submit_type == "generate_graphs":
+                        chart4, name4 = risk_analysis.generate_vendor_performance_risk_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_vendor_performance_risk_response()
+
+                elif subcategory == "vendor_status":
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = risk_analysis.generate_vendor_status_graphs()
+                    elif submit_type == "generate_response":
+                        response = risk_analysis.generate_vendor_status_response()
+
+            # Return JSON response
+            if submit_type == "generate_graphs":
+                return JsonResponse({
+                    "charts": {
+                        "chart1": chart,
+                        "chart2": chart2,
+                        "chart3": chart3,
+                        "chart4": chart4
+                    },
+                    "names": {
+                        "chart1_name": name,
+                        "chart2_name": name2,
+                        "chart3_name": name3,
+                        "chart4_name": name4
+                    },
+                    "message": f"{subcategory.replace('_', ' ').title()} graphs generated successfully"
+                })
+
+            elif submit_type == "generate_response":
+                return JsonResponse({"analysis": response})
+
+            return JsonResponse({"error": "Invalid request parameters"}, status=400)
 
         except json.JSONDecodeError:
-            return JsonResponse({"status": "error", "message": "Invalid JSON format"}, status=400)
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)

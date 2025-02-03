@@ -1,4 +1,5 @@
 from django.urls import path
+from django.urls import get_resolver
 from . import views
 from .views import PredictiveRiskAnalysisView, PredictiveRiskOptionsAPI, PredictiveRiskAnalysisAPI
 
@@ -20,5 +21,5 @@ urlpatterns = [
      
     #api
     path('api/predictive-risk/options/', PredictiveRiskOptionsAPI.as_view(), name='predictive-risk-options'),
-    path('api/predictive-risk/analyze/', PredictiveRiskAnalysisAPI.as_view(), name='predictive-risk-analyze'),
+    path('api/risk-analysis/', PredictiveRiskAnalysisAPI.as_view(), name='risk-analysis-api'),
 ]
