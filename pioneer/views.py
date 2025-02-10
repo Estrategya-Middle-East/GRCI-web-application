@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import seaborn as sns
 import plotly.offline as plot
+import numpy as np
 import mpld3
 import io
 import base64
@@ -192,7 +193,8 @@ class PredictiveRiskAnalysisView(View):
                 "page_title": "Predictive Risk",
                 'main_category_choices': RiskAnalysisForm.OPTIONS,
                 'sales_ledger_choices': RiskAnalysisForm.suboptions_sales_ledger,
-                'purchase_order_choices': RiskAnalysisForm.suboptions_purchase_order,})
+                'purchase_order_choices': RiskAnalysisForm.suboptions_purchase_order,
+                'gl_choices': RiskAnalysisForm.suboptions_gl,})
 
     def post(self, request, *args, **kwargs):
         form = RiskAnalysisForm(request.POST)
@@ -205,6 +207,7 @@ class PredictiveRiskAnalysisView(View):
             main_category = form.cleaned_data['main_category']
             subcategory_sales_ledger = form.cleaned_data.get('subcategory_sales_ledger')
             subcategory_purchase_order = form.cleaned_data.get('subcategory_purchase_order')
+            subcategory_gl = form.cleaned_data.get('subcategory_gl')
 
             chart = chart2 = chart3 = chart4 = None
             name = name2 = name3 = name4 = None
@@ -268,6 +271,43 @@ class PredictiveRiskAnalysisView(View):
                         chart, chart2, name, name2 = self.generate_vendor_status_graphs()
                     elif submit_type == "generate_response":
                         response = self.generate_vendor_status_response()
+                        
+            if main_category == 'general_ledger': 
+                if subcategory_gl == 'reconciliation_and_balancing':
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = self.plot_discrepancies()
+                    elif submit_type == "generate_response":
+                        response = self.generate_gl_discrepancies_response()
+                elif subcategory_gl == 'high_risk_transactions':
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = self.plot_high_risk_transactions()
+                    elif submit_type == "generate_response":
+                        response = self.generate_high_risk_transactions_response()
+                elif subcategory_gl == 'benfords_law':
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = self.plot_benfords_law()
+                    elif submit_type == "generate_response":
+                        response = self.generate_benfords_law_response()
+                elif subcategory_gl == 'cash_flow':
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = self.plot_cash_flow()
+                    elif submit_type == "generate_response":
+                        response = self.generate_cash_flow_response()
+                elif subcategory_gl == 'approval_delays':
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = self.plot_approval_delays()
+                    elif submit_type == "generate_response":
+                        response = self.generate_approval_delays_response()
+                elif subcategory_gl == 'department_expenses':
+                    if submit_type == "generate_graphs":
+                        chart2, name2 = self.plot_department_expenses()
+                    elif submit_type == "generate_response":
+                        response = self.generate_department_expenses_response()
+                elif subcategory_gl == 'duplicate_transactions':
+                    if submit_type == "generate_graphs":
+                        chart, chart2, name, name2 = self.plot_duplicate_transactions()
+                    elif submit_type == "generate_response":
+                        response = self.generate_duplicate_transaction_response()
 
             # Pass the graphs or response to the template
             return render(request, 'predictive_risk_analysis/predictive_risk_analysis.html', {
@@ -285,6 +325,7 @@ class PredictiveRiskAnalysisView(View):
                 'main_category_choices': RiskAnalysisForm.OPTIONS,
                 'sales_ledger_choices': RiskAnalysisForm.suboptions_sales_ledger,
                 'purchase_order_choices': RiskAnalysisForm.suboptions_purchase_order,
+                'gl_choices': RiskAnalysisForm.suboptions_gl,
             })
         else:
             return render(request, 'predictive_risk_analysis/predictive_risk_analysis.html', 
@@ -292,7 +333,8 @@ class PredictiveRiskAnalysisView(View):
                 "page_title": "Predictive Risk",
                 'main_category_choices': RiskAnalysisForm.OPTIONS,
                 'sales_ledger_choices': RiskAnalysisForm.suboptions_sales_ledger,
-                'purchase_order_choices': RiskAnalysisForm.suboptions_purchase_order,})
+                'purchase_order_choices': RiskAnalysisForm.suboptions_purchase_order,
+                'gl_choices': RiskAnalysisForm.suboptions_gl,})
 
 
     def load_sales_data(self):
@@ -890,7 +932,548 @@ class PredictiveRiskAnalysisView(View):
         """
         response = generate_response(llm_prompt)
         return format_response(response)
+    
+######################################
+    def load_gl_data(self):
+        """ Load and preprocess General Ledger (GL) data """
+        file_path = "./uploads/GL data in Audit format.xls"
+        try:
+            gl_data = pd.read_excel(file_path, engine='xlrd')
+        except Exception as e:
+            raise ValueError(f"Error loading data from {file_path}: {str(e)}")
 
+        gl_data.columns = [
+            "sr", "accounting_year", "document_date", "transaction_code", "document_number",
+            "sequence_number", "document_reference", "main_account_code", "main_account_name",
+            "sub_account_code", "sub_account_name", "division_code", "department_code",
+            "analysis_code", "currency_code", "debit_credit_flag", "document_amount",
+            "description", "created_user", "created_date", "approved_user", "approved_date"
+        ]
+        return gl_data
+
+    def reconcile_gl_balances(self):
+        """ Identify discrepancies between total debits and credits per day """
+        gl_data = self.load_gl_data()
+
+        # Ensure document date is in datetime format
+        gl_data['document_date'] = pd.to_datetime(gl_data['document_date'], errors='coerce')
+
+        # Separate debit and credit transactions
+        gl_data['debit'] = gl_data.apply(lambda x: x['document_amount'] if x['debit_credit_flag'] == 'D' else 0, axis=1)
+        gl_data['credit'] = gl_data.apply(lambda x: x['document_amount'] if x['debit_credit_flag'] == 'C' else 0, axis=1)
+
+        # Aggregate daily balances
+        daily_balances = gl_data.groupby("document_date")[["debit", "credit"]].sum()
+
+        # Identify discrepancies where debits != credits
+        discrepancies = daily_balances[daily_balances["debit"] != daily_balances["credit"]]
+
+        return discrepancies
+
+    def plot_discrepancies(self):
+        """ Generate visualization for discrepancies """
+        discrepancies = self.reconcile_gl_balances()
+
+        if discrepancies.empty:
+            return "No discrepancies found.", "No discrepancies found.", "No discrepancies found.", "No discrepancies found."
+
+        # Matplotlib Bar Chart - Discrepancy Amounts
+        fig, ax = plt.subplots(figsize=(6, 4))
+        discrepancies.plot(kind="bar", ax=ax)
+        ax.set_title("Daily Debit vs Credit Discrepancies")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Amount Difference")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        chart = mpld3.fig_to_html(fig)
+        name = "GL Reconciliation Discrepancies"
+
+        # Plotly Chart - Discrepancy Over Time
+        fig_plotly = px.bar(
+            discrepancies.reset_index(),
+            x="document_date",
+            y=["debit", "credit"],
+            title="Daily Debit vs Credit Discrepancies",
+            labels={"value": "Amount", "variable": "Transaction Type"},
+            color_discrete_map={"debit": "red", "credit": "green"},
+            barmode="group"
+        )
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "GL Discrepancy Trend"
+
+        return chart, chart2, name, name2   
+    
+    def generate_gl_discrepancies_response(self):
+        """ Generate AI-powered analytical response for GL reconciliation discrepancies """
+        discrepancies = self.reconcile_gl_balances()
+
+        # Generate prompt for AI analysis
+        if not discrepancies.empty:
+            discrepancy_text = discrepancies.sort_values(by="debit", ascending=False).to_string(index=True)
+            llm_prompt = (
+                f"The following discrepancies were found in the General Ledger reconciliation:\n{discrepancy_text}\n\n"
+                "As a business/data analyst, please analyze the implications of these debit-credit imbalances. "
+                "Consider potential causes such as missing transactions, incorrect data entries, timing differences, or system errors. "
+                "Additionally, suggest solutions to ensure better reconciliation and discuss the impact on financial reporting, "
+                "audit compliance, and internal controls."
+            )
+        else:
+            llm_prompt = (
+                "No discrepancies were found in the General Ledger reconciliation. As a business/data analyst, "
+                "please analyze the positive implications of maintaining a well-balanced ledger. "
+                "Discuss how accurate financial reconciliation enhances data integrity, regulatory compliance, and financial stability. "
+                "Additionally, suggest best practices to maintain accurate debit-credit matching."
+            )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+
+  
+    def identify_high_risk_transactions(self, threshold=1000000):
+        """ Identify high-risk transactions exceeding a defined threshold """
+        gl_data = self.load_gl_data()
+
+        # Filter high-risk transactions
+        high_risk = gl_data[gl_data["document_amount"] > threshold]
+
+        return high_risk
+
+    def plot_high_risk_transactions(self, threshold=1000000):
+        """ Generate graphs for high-risk transactions """
+        high_risk = self.identify_high_risk_transactions(threshold)
+
+        if high_risk.empty:
+            return "No high-risk transactions found.", "No high-risk transactions found.", "No high-risk transactions found.", "No high-risk transactions found."
+
+        # Matplotlib Bar Chart - High-Risk Transaction Amounts
+        fig, ax = plt.subplots(figsize=(6, 4))
+        high_risk.plot(kind="bar", x="document_number", y="document_amount", ax=ax, color='red')
+        ax.set_title(f"High-Risk Transactions (>{threshold})")
+        ax.set_xlabel("Document Number")
+        ax.set_ylabel("Transaction Amount")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        chart = mpld3.fig_to_html(fig)
+        name = "High-Risk Transactions"
+
+        # Plotly Chart - Distribution of High-Risk Transactions
+        fig_plotly = px.histogram(
+            high_risk,
+            x="document_amount",
+            nbins=20,
+            title=f"Distribution of High-Risk Transactions (>{threshold})",
+            labels={"document_amount": "Transaction Amount"},
+            color_discrete_sequence=["red"]
+        )
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "High-Risk Transaction Distribution"
+
+        return chart, chart2, name, name2
+    
+    def generate_high_risk_transactions_response(self, threshold=1000000):
+        """ Generate AI-powered analytical response for high-risk transactions """
+        high_risk = self.identify_high_risk_transactions(threshold)
+
+        # Generate prompt for AI analysis
+        if not high_risk.empty:
+            high_risk_text = high_risk.sort_values(by="document_amount", ascending=False).to_string(index=False)
+            llm_prompt = (
+                f"The following high-risk transactions were identified (Threshold: {threshold}):\n{high_risk_text}\n\n"
+                "As a business/data analyst, please analyze the implications of these high-value transactions. "
+                "Consider potential risks such as fraud, unauthorized expenses, accounting errors, or financial mismanagement. "
+                "Additionally, suggest risk mitigation strategies, including approval workflows, audit reviews, and anomaly detection models."
+            )
+        else:
+            llm_prompt = (
+                f"No high-risk transactions were found exceeding {threshold}. "
+                "As a business/data analyst, please discuss the benefits of having controlled transaction amounts. "
+                "Explain how maintaining strict financial thresholds helps in minimizing risks, ensuring compliance, and improving financial integrity."
+            )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+
+   
+    
+    def plot_benfords_law(self):
+        """ Analyze journal entries for compliance with Benford's Law """
+        gl_data = self.load_gl_data()
+
+        # Extract first digits from document amounts
+        gl_data["first_digit"] = gl_data["document_amount"].astype(str).str[0]
+        leading_digits = gl_data["first_digit"].value_counts(normalize=True).sort_index()
+
+        # Expected Benford’s Law Distribution
+        benford_distribution = np.log10(1 + 1 / np.arange(1, 10))
+
+        # Matplotlib Bar Chart - Actual vs Benford’s Law
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.bar(leading_digits.index.astype(int), leading_digits.values, color='blue', alpha=0.7, label="Actual Data")
+        ax.plot(np.arange(1, 10), benford_distribution, marker="o", linestyle="dashed", color="red", label="Benford's Law")
+        ax.set_title("Benford’s Law Compliance")
+        ax.set_xlabel("First Digit")
+        ax.set_ylabel("Frequency")
+        ax.legend()
+        plt.xticks(np.arange(1, 10))
+        plt.tight_layout()
+        chart = mpld3.fig_to_html(fig)
+        name = "Benford’s Law Compliance"
+
+        # Plotly Chart - Benford's Distribution
+        df_benford = pd.DataFrame({"First Digit": np.arange(1, 10), "Expected": benford_distribution})
+        df_actual = pd.DataFrame({"First Digit": leading_digits.index.astype(int), "Actual": leading_digits.values})
+
+        fig_plotly = px.bar(
+            df_actual,
+            x="First Digit",
+            y="Actual",
+            title="Benford’s Law - Actual vs Expected",
+            labels={"Actual": "Observed Frequency"},
+            color="First Digit"
+        )
+        fig_plotly.add_scatter(x=df_benford["First Digit"], y=df_benford["Expected"], mode='lines', name="Benford's Law")
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "Benford’s Law - Actual vs Expected"
+
+        return chart, chart2, name, name2
+    
+    def generate_benfords_law_response(self):
+        """ Generate AI-powered analytical response for Benford’s Law anomalies """
+        gl_data = self.load_gl_data()
+
+        # Extract first digits from document amounts
+        # Ensure only digits 1-9 are considered
+        gl_data["first_digit"] = gl_data["document_amount"].astype(str).str[0]
+        gl_data = gl_data[gl_data["first_digit"].isin([str(i) for i in range(1, 10)])]  # Remove '0'
+
+        # Compute actual first-digit frequencies
+        leading_digits = gl_data["first_digit"].value_counts(normalize=True).sort_index()
+
+        # Expected Benford’s Law Distribution
+        benford_distribution = np.log10(1 + 1 / np.arange(1, 10))
+
+        # Ensure arrays match before computing deviations
+        if len(leading_digits) != len(benford_distribution):
+            raise ValueError(f"Data mismatch: leading_digits({len(leading_digits)}) vs benford_distribution({len(benford_distribution)})")
+
+        # Calculate deviation
+        deviations = leading_digits - benford_distribution
+
+        deviation_text = deviations.to_string(index=True)
+
+        # Generate AI Analysis Prompt
+        llm_prompt = (
+            f"The following deviations from Benford’s Law were observed in the journal entries:\n{deviation_text}\n\n"
+            "As a business/data analyst, analyze the potential risks associated with these anomalies. "
+            "Discuss whether these deviations may indicate fraudulent transactions, data manipulation, or reporting errors. "
+            "Additionally, suggest audit strategies to investigate these anomalies and recommend controls to mitigate financial risks."
+        )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+
+    def analyze_cash_flow(self):
+        """ Categorize cash inflows and outflows by account type """
+        gl_data = self.load_gl_data()
+
+        # Aggregate inflows (Credits) and outflows (Debits)
+        cash_flow = gl_data.groupby(["main_account_name", "debit_credit_flag"])["document_amount"].sum().unstack(fill_value=0)
+
+        # Ensure correct mapping based on available columns
+        column_mapping = {}
+        if "D" in cash_flow.columns:
+            column_mapping["D"] = "Cash Outflow"
+        if "C" in cash_flow.columns:
+            column_mapping["C"] = "Cash Inflow"
+
+        # Rename columns
+        cash_flow.rename(columns=column_mapping, inplace=True)
+
+        # Ensure missing inflow/outflow columns are added with 0 values
+        if "Cash Inflow" not in cash_flow.columns:
+            cash_flow["Cash Inflow"] = 0
+        if "Cash Outflow" not in cash_flow.columns:
+            cash_flow["Cash Outflow"] = 0
+
+        # Calculate Net Cash Flow
+        cash_flow["Net Cash Flow"] = cash_flow["Cash Inflow"] - cash_flow["Cash Outflow"]
+
+        return cash_flow
+
+
+    def plot_cash_flow(self):
+        """ Generate visual analysis of cash flow categorization """
+        cash_flow = self.analyze_cash_flow()  # ✅ Use processed cash flow, not raw GL data
+
+        if cash_flow.empty:
+            return "No cash flow data available.", "No cash flow data available.", "No cash flow data available.", "No cash flow data available."
+
+        # Debugging: Ensure expected columns exist
+        print("Cash Flow Columns:", cash_flow.columns)
+
+        # Ensure Cash Inflow and Cash Outflow columns exist before plotting
+        required_columns = ["Cash Inflow", "Cash Outflow"]
+        for col in required_columns:
+            if col not in cash_flow.columns:
+                cash_flow[col] = 0  # Fill missing columns with zeros
+
+        # Matplotlib Bar Chart - Cash Inflows and Outflows
+        fig, ax = plt.subplots(figsize=(8, 5))
+        cash_flow[["Cash Inflow", "Cash Outflow"]].plot(kind="bar", stacked=True, ax=ax)
+        ax.set_title("Cash Flow Categorization by Account")
+        ax.set_xlabel("Main Account Name")
+        ax.set_ylabel("Amount")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        chart = mpld3.fig_to_html(fig)
+        name = "Cash Flow Categorization"
+
+        # Plotly Chart - Net Cash Flow per Account
+        fig_plotly = px.bar(
+            cash_flow.reset_index(),
+            x="main_account_name",
+            y="Net Cash Flow",
+            title="Net Cash Flow by Account",
+            labels={"Net Cash Flow": "Amount", "main_account_name": "Account Name"},
+            color="Net Cash Flow",
+            color_continuous_scale="Viridis"
+        )
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "Net Cash Flow by Account"
+
+        return chart, chart2, name, name2
+
+
+    def generate_cash_flow_response(self):
+        """ Generate AI-powered analytical response for cash flow analysis """
+        cash_flow = self.analyze_cash_flow()
+
+        # Generate AI analysis prompt
+        if not cash_flow.empty:
+            cash_flow_text = cash_flow.to_string(index=True)
+            llm_prompt = (
+                f"The following cash flow distribution was observed:\n{cash_flow_text}\n\n"
+                "As a financial analyst, analyze the implications of the cash inflows and outflows. "
+                "Discuss liquidity risks, dependency on specific revenue sources, and potential inefficiencies in cash management. "
+                "Additionally, suggest strategies for improving cash flow stability, optimizing expenditures, and ensuring financial resilience."
+            )
+        else:
+            llm_prompt = (
+                "No significant cash flow data is available. As a financial analyst, "
+                "please discuss the importance of tracking cash inflows and outflows. "
+                "Explain how proper liquidity management impacts business sustainability, risk mitigation, and operational efficiency."
+            )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+    def analyze_approval_delays(self, threshold=5):
+        """ Calculate approval delays and identify delayed transactions """
+        gl_data = self.load_gl_data()
+
+        # Ensure dates are in datetime format
+        gl_data["created_date"] = pd.to_datetime(gl_data["created_date"], errors="coerce")
+        gl_data["approved_date"] = pd.to_datetime(gl_data["approved_date"], errors="coerce")
+
+        # Calculate approval delay in days
+        gl_data["approval_delay_days"] = (gl_data["approved_date"] - gl_data["created_date"]).dt.days
+
+        # Filter transactions with delays beyond the threshold
+        delayed_transactions = gl_data[gl_data["approval_delay_days"] > threshold]
+
+        return delayed_transactions
+
+    def plot_approval_delays(self, threshold=5):
+        """ Generate visual analysis of transaction approval delays """
+        delayed_transactions = self.analyze_approval_delays(threshold)
+
+        if delayed_transactions.empty:
+            return "No approval delays found.", "No approval delays found.", "No approval delays found.", "No approval delays found."
+
+        # Matplotlib Histogram - Approval Delays Distribution
+        fig, ax = plt.subplots(figsize=(8, 5))
+        delayed_transactions["approval_delay_days"].hist(bins=20, ax=ax, color="red", alpha=0.7)
+        ax.set_title(f"Approval Delay Distribution (>{threshold} Days)")
+        ax.set_xlabel("Approval Delay (Days)")
+        ax.set_ylabel("Number of Transactions")
+        plt.tight_layout()
+        chart = mpld3.fig_to_html(fig)
+        name = "Approval Delay Distribution"
+
+        # Plotly Box Plot - Approval Delay Trends
+        fig_plotly = px.box(
+            delayed_transactions,
+            x="department_code",
+            y="approval_delay_days",
+            title="Approval Delay by Department",
+            labels={"approval_delay_days": "Approval Delay (Days)", "department_code": "Department"},
+            color="department_code"
+        )
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "Approval Delay by Department"
+
+        return chart, chart2, name, name2
+    
+    def generate_approval_delays_response(self, threshold=5):
+        """ Generate AI-powered analytical response for approval delay analysis """
+        delayed_transactions = self.analyze_approval_delays(threshold)
+
+        # Generate AI analysis prompt
+        if not delayed_transactions.empty:
+            delay_summary = delayed_transactions.groupby("department_code")["approval_delay_days"].mean().round(2).to_string()
+            llm_prompt = (
+                f"The following approval delays were observed (Threshold: {threshold} days):\n{delay_summary}\n\n"
+                "As a business/data analyst, analyze the implications of these approval delays. "
+                "Discuss how delays in transaction approval impact cash flow, project execution, and vendor relationships. "
+                "Additionally, suggest strategies to optimize workflow efficiency and reduce approval bottlenecks."
+            )
+        else:
+            llm_prompt = (
+                f"No significant approval delays beyond {threshold} days were found. "
+                "As a business/data analyst, discuss the benefits of an efficient approval process. "
+                "Explain how reducing bottlenecks in approval workflows improves financial planning, operational efficiency, and stakeholder satisfaction."
+            )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+
+    def analyze_department_expenses(self):
+        """ Analyze expenses incurred by different departments """
+        gl_data = self.load_gl_data()
+
+        # Filter transactions containing "Expense" in the Main Account Name
+        expense_trans = gl_data[gl_data["main_account_name"].str.contains("Expense", na=False, case=False)]
+
+        # Summarize total expenses by department
+        expenses_by_dept = expense_trans.groupby("department_code")["document_amount"].sum().reset_index()
+
+        return expenses_by_dept
+
+        
+    def plot_department_expenses(self):
+        """ Generate visual analysis of expenses by department """
+        expenses_by_dept = self.analyze_department_expenses()
+
+        if expenses_by_dept.empty:
+            return None, "No expense data available."
+
+
+        # Plotly Chart - Expense Distribution
+        fig_plotly = px.pie(
+            expenses_by_dept,
+            names="department_code",
+            values="document_amount",
+            title="Expense Distribution by Department",
+            labels={"document_amount": "Total Expense", "department_code": "Department"},
+            color_discrete_sequence=px.colors.sequential.Redor
+        )
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "Expense Distribution by Department"
+
+        return chart2, name2
+
+    
+    def generate_department_expenses_response(self):
+        """ Generate AI-powered analytical response for department expense analysis """
+        expenses_by_dept = self.analyze_department_expenses()
+
+        # Generate AI analysis prompt
+        if not expenses_by_dept.empty:
+            expense_summary = expenses_by_dept.sort_values(by="document_amount", ascending=False).to_string(index=False)
+            llm_prompt = (
+                f"The following department-wise expense distribution was observed:\n{expense_summary}\n\n"
+                "As a financial analyst, analyze the implications of departmental spending. "
+                "Discuss whether high expenditures in specific departments indicate necessary investments, mismanagement, or budget overruns. "
+                "Additionally, suggest strategies to control spending, optimize budgets, and ensure financial alignment with company goals."
+            )
+        else:
+            llm_prompt = (
+                "No significant department-wise expenses were found. "
+                "As a financial analyst, discuss the importance of tracking departmental expenditures. "
+                "Explain how monitoring expenses improves financial discipline, budget adherence, and operational efficiency."
+            )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+    
+    def detect_duplicate_transactions(self):
+        """ Identify duplicate transactions based on Document Number, Date, and Amount """
+        gl_data = self.load_gl_data()
+
+        # Find duplicate transactions
+        duplicates = gl_data[gl_data.duplicated(["document_number", "document_date", "document_amount"], keep=False)]
+
+        return duplicates
+    
+    def plot_duplicate_transactions(self):
+        """ Generate visual analysis of duplicate transactions """
+        duplicates = self.detect_duplicate_transactions()
+
+        if duplicates.empty:
+            return None, None, "No duplicate transactions found."
+
+        # Count duplicates by date
+        duplicate_counts = duplicates.groupby("document_date")["document_number"].count().reset_index()
+
+        # Matplotlib Bar Chart - Duplicate Transactions Over Time
+        fig, ax = plt.subplots(figsize=(8, 5))
+        duplicate_counts.plot(kind="bar", x="document_date", y="document_number", ax=ax, color="orange")
+        ax.set_title("Duplicate Transactions Over Time")
+        ax.set_xlabel("Document Date")
+        ax.set_ylabel("Number of Duplicates")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        chart1 = mpld3.fig_to_html(fig)
+        name1 = "Duplicate Transactions Timeline"
+
+        # Plotly Chart - Top 10 Most Frequent Duplicates
+        top_duplicates = duplicates.groupby(["document_number", "document_amount"]).size().reset_index(name="count")
+        top_duplicates = top_duplicates.sort_values(by="count", ascending=False).head(10)
+
+        fig_plotly = px.bar(
+            top_duplicates,
+            x="document_number",
+            y="count",
+            title="Top 10 Duplicate Transactions",
+            labels={"count": "Duplicate Count", "document_number": "Document Number"},
+            color="count",
+            color_continuous_scale="Oranges"
+        )
+        chart2 = plot.plot(fig_plotly, output_type="div")
+        name2 = "Top 10 Duplicate Transactions"
+
+        return chart1, chart2, name1, name2
+    
+    def generate_duplicate_transaction_response(self):
+        """ Generate AI-powered analytical response for duplicate transactions """
+        duplicates = self.detect_duplicate_transactions()
+
+        # Generate AI analysis prompt
+        if not duplicates.empty:
+            duplicate_summary = duplicates.groupby("document_number")["document_amount"].count().to_string()
+            llm_prompt = (
+                f"The following duplicate transactions were identified:\n{duplicate_summary}\n\n"
+                "As a financial analyst, analyze the risks associated with duplicate transactions. "
+                "Discuss how these duplicates could lead to overpayments, financial reporting inaccuracies, or fraud risks. "
+                "Additionally, suggest corrective actions such as process automation, validation controls, and auditing mechanisms to prevent duplicates."
+            )
+        else:
+            llm_prompt = (
+                "No duplicate transactions were detected. "
+                "As a financial analyst, discuss the importance of preventing duplicate transactions. "
+                "Explain how maintaining unique transactions improves financial accuracy, reduces risks, and ensures proper financial controls."
+            )
+
+        # Generate AI response (replace with actual AI function)
+        response = generate_response(llm_prompt)  # Replace with actual AI call
+        return format_response(response)  # Replace with formatting function if needed
+        
+######################################
 class PredictiveRiskOptionsAPI(View):
     def get(self, request, *args, **kwargs):
         options = {

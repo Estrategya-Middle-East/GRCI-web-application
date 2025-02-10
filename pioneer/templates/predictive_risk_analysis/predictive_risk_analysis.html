@@ -56,6 +56,10 @@
                     <label for="id_subcategory_purchase_order"></label>
                     {{ form.subcategory_purchase_order|add_class:"form-control" }}
                 </div>
+                <div class="col" id="subcategory_gl_container" style="display: none;  padding-bottom: 10px">
+                    <label for="id_subcategory_gl"></label>
+                    {{ form.subcategory_gl|add_class:"form-control" }}
+                </div>
                 <div class="col">
                     <button class="btn btn-info" style="margin-top: 25px;" type="submit" name="submit_type" value="generate_graphs">Perform Analytics</button>
                     <button class="btn btn-info" style="margin-top: 25px;" type="submit" name="submit_type" value="generate_response">PioNeer Insights</button>
@@ -65,11 +69,11 @@
         
 
         <!-- Include the graph_2.html -->
-        {% if subcategory_sales_ledger == 'duplicate_invoices'%}
+        {% comment %} {% if subcategory_sales_ledger == 'duplicate_invoices'%}
         <h2>duplicate invoices analysis</h2>
         {% elif subcategory_sales_ledger == 'net_amount'%}
         <h2>net amount analysis</h2>
-        {% endif %}
+        {% endif %} {% endcomment %}
         {% include 'chat/graph_2.html' %}
     </div>
     <script>
@@ -78,18 +82,26 @@
             var mainCategoryField = document.getElementById('id_main_category');
             var subcategorySalesLedgerContainer = document.getElementById('subcategory_sales_ledger_container');
             var subcategoryPurchaseOrderContainer = document.getElementById('subcategory_purchase_order_container');
+            var subcategoryGlContainer = document.getElementById('subcategory_gl_container');
     
             // Function to toggle visibility of subcategory fields
             function toggleSubcategory() {
                 if (mainCategoryField.value === 'sales_ledger') {
                     subcategorySalesLedgerContainer.style.display = 'block';
                     subcategoryPurchaseOrderContainer.style.display = 'none';
+                    subcategoryGlContainer.style.display = 'none';
                 } else if (mainCategoryField.value === 'purchase_order') {
                     subcategorySalesLedgerContainer.style.display = 'none';
                     subcategoryPurchaseOrderContainer.style.display = 'block';
+                    subcategoryGlContainer.style.display = 'none';
+                } else if (mainCategoryField.value === 'general_ledger') {
+                    subcategorySalesLedgerContainer.style.display = 'none';
+                    subcategoryPurchaseOrderContainer.style.display = 'none';
+                    subcategoryGlContainer.style.display = 'block';
                 } else {
                     subcategorySalesLedgerContainer.style.display = 'none';
                     subcategoryPurchaseOrderContainer.style.display = 'none';
+                    subcategoryGlContainer.style.display = 'none';
                 }
             }
     

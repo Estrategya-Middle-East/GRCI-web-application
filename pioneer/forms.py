@@ -13,11 +13,7 @@ class RiskAnalysisForm(forms.Form):
     OPTIONS = [
         ('sales_ledger', 'Sales Ledger'),
         ('purchase_order', 'Purchase Order'),
-        ('budgets_forecasts', 'Budgets and Forecasts'),
-        ('project_schedules', 'Project Schedules and Gantt Charts'),
-        ('stakeholder_analysis', 'Stakeholder Analysis'),
-        ('production_schedules', 'Production Schedules'),
-        ('employee_records', 'Employee Records')
+        ('general_ledger', 'General Ledger'),
     ]
 
     suboptions_sales_ledger = [
@@ -38,10 +34,20 @@ class RiskAnalysisForm(forms.Form):
         ('vendor_status', 'Vendor Status'),
         
     ]
-
+    suboptions_gl = [
+        ('reconciliation_and_balancing', 'GL Reconciliation and Balancing'),
+        ('high_risk_transactions', 'High-Risk Transaction Identification'),
+        ('benfords_law', 'Benford’s Law '),
+        ('cash_flow', 'Cash Flow Categorization and Analysis'),
+        ('approval_delays', 'Transaction Approval Delay Analysis'),
+        ('department_expenses', 'Expense Analysis by Department'),
+        ('duplicate_transactions', 'Duplicate Transaction Detection'),
+    ]
+    
     main_category = forms.ChoiceField(choices=OPTIONS, label="Select Risk Category")
     subcategory_sales_ledger = forms.ChoiceField(choices=suboptions_sales_ledger, label="Select Subcategory", required=False)
     subcategory_purchase_order = forms.ChoiceField(choices=suboptions_purchase_order, label="Select Subcategory", required=False)
+    subcategory_gl = forms.ChoiceField(choices=suboptions_gl, label="Select Subcategory", required=False)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -57,5 +63,10 @@ class RiskAnalysisForm(forms.Form):
             self.fields['subcategory_purchase_order'].required = True
         else:
             self.fields['subcategory_purchase_order'].required = False
+            
+        if main_category == 'general_ledger':
+            self.fields['subcategory_gl'].required = True
+        else:
+            self.fields['subcategory_gl'].required = False
 
         return cleaned_data

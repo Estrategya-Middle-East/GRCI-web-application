@@ -125,18 +125,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
-                            <a href="?sort_by=audit_year&order={% if current_sort == 'audit_year' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                                Audit Year
-                                {% if current_sort == 'audit_year' %}
-                                    {% if current_order == 'asc' %}
-                                        &#x2191;
-                                    {% else %}
-                                        &#x2193;
-                                    {% endif %}
-                                {% endif %}
-                            </a>
-                        </th>
+                        
                         <th>
                             <a href="?sort_by=entity_name&order={% if current_sort == 'entity_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
                                 Entry Name
@@ -166,7 +155,6 @@
                     <tr >
                         <td><input type="radio" name="selected" value="{{ audit_plan.plan_id }}"></td>
                         <td>{{ forloop.counter|add:paginated_audit_plans.start_index|add:-1 }}</td>
-                        <td>{{ audit_plan.audit_year }}</td>
                         <td>{{ audit_plan.entity_name }}</td>
                         <td>{{ audit_plan.audit_frequency }}</td>
                         <td>{{ audit_plan.priority_level }}</td>
@@ -207,10 +195,7 @@
                                             <!-- General Tab -->
                                             <div class="tab-pane fade show active" id="general-{{ audit_plan.plan_id }}" role="tabpanel">
                                                 <div class="row">
-                                                    <div class="col">
-                                                        <label for="id_audit_year-{{ audit_plan.plan_id }}">Audit Year</label>
-                                                        <input type="text" name="audit_year" id="id_audit_year-{{ audit_plan.plan_id }}" class="form-control" value="{{ audit_plan.audit_year }}">
-                                                    </div>
+                                                   
                                                     <div class="col">
                                                         <label for="id_entity_name-{{ audit_plan.plan_id }}">Entry Name</label>
                                                         <textarea name="entity_name" id="id_entity_name-{{ audit_plan.plan_id }}" class="form-control">{{ audit_plan.entity_name }}</textarea>
@@ -352,10 +337,7 @@
                         <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general-add" role="tabpanel">
                             <div class="row">
-                                <div class="col">
-                                    <label for="id_audit_year">Audit Year</label>
-                                    {{ form.audit_year|add_class:"form-control" }}
-                                </div>
+                                
                                 <div class="col">
                                     <label for="id_entity_name">Entry Name</label>
                                     {{ form.entity_name|add_class:"form-control" }}
